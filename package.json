@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "icecast": "^1.3.1",
+    "lame": "^1.2.4",
+    "loudness": "^0.2.2",
+    "speaker": "^0.3.0"
+  }
+}
