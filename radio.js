@@ -7,12 +7,12 @@ let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
 let alarms = [{
     days: [1, 2, 3, 4, 5],
     hour: 21,
-    minute: 35
+    minute: 39
 },
 {
     days: [1, 2, 3, 4, 5],
     hour: 21,
-    minute: 37
+    minute: 41
 }];
 let duration = 1;
 let increase = 1;
@@ -39,7 +39,7 @@ function startClock() {
         let now = new Date();
         let triggerAlarm = false;
         for (let alarm of alarms) {
-            triggerAlarm = alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute;
+            triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute;
         }
         console.log(triggerAlarm);
         if (triggerAlarm) {
