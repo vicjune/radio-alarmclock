@@ -9,7 +9,7 @@ let alarms = [{
     hour: 21,
     minute: 5
 }];
-let duration = 1;
+let duration = 60;
 let increase = 1;
 
 let streamPlaying = false;
@@ -53,9 +53,9 @@ function startStream(incremental) {
     streamPlaying = true;
 
     if (incremental) {
-        let volume = 0;
+        let volume = 60;
         let interval = setInterval(() => {
-            volume = volume + 100 / (increase * 60);
+            volume = volume + (100 - 60) / (increase * 60);
             console.log(Math.floor(volume));
             if (volume <= 100 && streamPlaying) {
                 loudness.setVolume(Math.floor(volume), err => {});
