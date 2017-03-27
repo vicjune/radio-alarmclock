@@ -21,14 +21,14 @@ icecast.get(url, res => {
         console.log(parsed);
 
         // startClock();
-        startStream(true);
+        // startStream(true);
     });
 
     res.pipe(new lame.Decoder())
         .pipe(new Speaker());
 });
 
-loudness.setVolume(0, err => {});
+// loudness.setVolume(0, err => {});
 
 function startClock() {
     setInterval(() => {
