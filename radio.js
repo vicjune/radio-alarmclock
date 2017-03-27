@@ -7,7 +7,7 @@ let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
 let alarms = [{
     days: [1, 2, 3, 4, 5],
     hour: 21,
-    minute: 5
+    minute: 33
 }];
 let duration = 60;
 let increase = 1;
@@ -20,8 +20,7 @@ icecast.get(url, res => {
         let parsed = icecast.parse(metadata);
         console.log(parsed);
 
-        // startClock();
-        startStream(true);
+        startClock();
     });
 
     res.pipe(new lame.Decoder())
