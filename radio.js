@@ -6,16 +6,11 @@ let loudness = require('loudness');
 let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
 let alarms = [{
     days: [1, 2, 3, 4, 5],
-    hour: 21,
-    minute: 39
-},
-{
-    days: [1, 2, 3, 4, 5],
-    hour: 21,
-    minute: 41
+    hour: 8,
+    minute: 30
 }];
-let duration = 1;
-let increase = 1;
+let duration = 60;
+let increase = 5;
 
 let streamPlaying = false;
 let durationTimeout;
@@ -23,7 +18,7 @@ let durationTimeout;
 icecast.get(url, res => {
     res.on('metadata', metadata => {
         let parsed = icecast.parse(metadata);
-        console.log(parsed);
+        console.log('Radio started');
 
         startClock();
     });
@@ -41,7 +36,6 @@ function startClock() {
         for (let alarm of alarms) {
             triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute;
         }
-        console.log(triggerAlarm);
         if (triggerAlarm) {
             if (streamPlaying) {
                 clearTimeout(durationTimeout);
@@ -57,10 +51,10 @@ function startStream(incremental) {
     streamPlaying = true;
 
     if (incremental) {
+        console.log('Alarm');
         let volume = 60;
         let interval = setInterval(() => {
             volume = volume + (100 - 60) / (increase * 60);
-            console.log(Math.floor(volume));
             if (volume <= 100 && streamPlaying) {
                 loudness.setVolume(Math.floor(volume), err => {});
             } else {
@@ -72,6 +66,7 @@ function startStream(incremental) {
     durationTimeout = setTimeout(() => {
         streamPlaying = false;
         loudness.setVolume(0, err => {});
+        console.log('Alarm stopped');
     }, duration * 60000);
 }
 
