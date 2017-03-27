@@ -4,23 +4,70 @@ let Speaker = require('speaker');
 let loudness = require('loudness');
 
 let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
+let alarms = [{
+    days: [1, 2, 3, 4, 5],
+    hour: 21,
+    minute: 5
+}];
+let duration = 1;
+let increase = 1;
+
+let streamPlaying = false;
+let durationTimeout;
 
 icecast.get(url, res => {
     res.on('metadata', metadata => {
         let parsed = icecast.parse(metadata);
         console.log(parsed);
+
+        // startClock();
+        startStream(true);
     });
 
     res.pipe(new lame.Decoder())
         .pipe(new Speaker());
 });
 
-// loudness.setMuted();
+loudness.setVolume(0, err => {});
 
-setTimeout(() => {
-    // icecast.get(null);
-    // instance.finish();
-    // loudness.setVolume(10, function (err) {
-    //     console.log(err);
-    // });
-}, 2000);
+function startClock() {
+    setInterval(() => {
+        let now = new Date();
+        let triggerAlarm = false;
+        for (let alarm of alarms) {
+            triggerAlarm = alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute;
+        }
+        console.log(triggerAlarm);
+        if (triggerAlarm) {
+            if (streamPlaying) {
+                clearTimeout(durationTimeout);
+                startStream(false);
+            } else {
+                startStream(true);
+            }
+        }
+    }, 60000);
+}
+
+function startStream(incremental) {
+    streamPlaying = true;
+
+    if (incremental) {
+        let volume = 0;
+        let interval = setInterval(() => {
+            volume = volume + 100 / (increase * 60);
+            console.log(Math.floor(volume));
+            if (volume <= 100 && streamPlaying) {
+                loudness.setVolume(Math.floor(volume), err => {});
+            } else {
+                clearInterval(interval);
+            }
+        }, 1000);
+    }
+
+    durationTimeout = setTimeout(() => {
+        streamPlaying = false;
+        loudness.setVolume(0, err => {});
+    }, duration * 60000);
+}
+
