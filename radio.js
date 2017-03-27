@@ -7,9 +7,14 @@ let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
 let alarms = [{
     days: [1, 2, 3, 4, 5],
     hour: 21,
-    minute: 33
+    minute: 35
+},
+{
+    days: [1, 2, 3, 4, 5],
+    hour: 21,
+    minute: 37
 }];
-let duration = 60;
+let duration = 1;
 let increase = 1;
 
 let streamPlaying = false;
