@@ -26,12 +26,23 @@ let socketServer = new WebSocket.Server({port: 8001, perMessageDeflate: false});
 socketServer.connectionCount = 0;
 socketServer.on('connection', socket => {
     socketServer.connectionCount++;
+
     console.log(
         'New WebSocket Connection: ',
         socket.upgradeReq.socket.remoteAddress,
         socket.upgradeReq.headers['user-agent'],
         '('+socketServer.connectionCount+' total)'
     );
+
+    socket.send({
+        type: 'toggleStream',
+        data: streamPlaying
+    });
+
+    socket.on('message', (data) => {
+        console.log(data);
+    });
+
     socket.on('close', (code, message) => {
         socketServer.connectionCount--;
         console.log(
