@@ -16,9 +16,8 @@ let duration = 60;
 let increase = 5;
 
 
-
 // TODO Database
-
+let databaseReady = false;
 
 
 // Websocket
@@ -27,17 +26,27 @@ socketServer.connectionCount = 0;
 socketServer.on('connection', socket => {
     socketServer.connectionCount++;
 
-    console.log(
-        'New WebSocket Connection: ',
-        socket.upgradeReq.socket.remoteAddress,
-        socket.upgradeReq.headers['user-agent'],
-        '('+socketServer.connectionCount+' total)'
-    );
+    console.log('New WebSocket Connection');
 
     socket.send({
         type: 'toggleStream',
         data: streamPlaying
     });
+
+    if (databaseReady) {
+        socket.send({
+            type: 'config',
+            data: {
+                url: url,
+                duration: duration,
+                increase: increase
+            }
+        });
+        socket.send({
+            type: 'alarms',
+            data: alarms
+        });
+    }
 
     socket.on('message', (data) => {
         console.log(data);
@@ -69,7 +78,12 @@ icecast.get(url, res => {
         let parsed = icecast.parse(metadata);
         console.log('Radio started');
 
-        startClock();
+        let preparationInterval = setInterval(() => {
+            if (new Date().getSeconds() === 0) {
+                clearInterval(preparationInterval);
+                startClock();
+            }
+        }, 100);
     });
 
     res.pipe(new lame.Decoder())
@@ -83,7 +97,7 @@ function startClock() {
         let now = new Date();
         let triggerAlarm = false;
         for (let alarm of alarms) {
-            triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && now.getSeconds() === 0;
+            triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute;
         }
         if (triggerAlarm) {
             if (streamPlaying) {
@@ -93,7 +107,7 @@ function startClock() {
                 startStream(true);
             }
         }
-    }, 1000);
+    }, 60000);
 }
 
 function startStream(incremental) {
