@@ -19,37 +19,36 @@ let increase = 5;
 // TODO Database
 let databaseReady = false;
 
-
 // Websocket
-let socketServer = new WebSocket.Server({port: 8001, perMessageDeflate: false});
+let socketServer = new WebSocket.Server({port: 8001});
 socketServer.connectionCount = 0;
 socketServer.on('connection', socket => {
     socketServer.connectionCount++;
 
     console.log('New WebSocket Connection');
 
-    socket.send({
+    socket.send(JSON.stringify({
         type: 'toggleStream',
         data: streamPlaying
-    });
+    }));
 
     if (databaseReady) {
-        socket.send({
+        socket.send(JSON.stringify({
             type: 'config',
             data: {
                 url: url,
                 duration: duration,
                 increase: increase
             }
-        });
-        socket.send({
+        }));
+        socket.send(JSON.stringify({
             type: 'alarms',
             data: alarms
-        });
+        }));
     }
 
     socket.on('message', (data) => {
-        console.log(data);
+        console.log(JSON.parse(data));
     });
 
     socket.on('close', (code, message) => {
@@ -62,7 +61,7 @@ socketServer.on('connection', socket => {
 socketServer.broadcast = function(data) {
     socketServer.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(data);
+            client.send(JSON.stringify(data));
         }
     });
 };
