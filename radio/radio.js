@@ -8,9 +8,11 @@ let WebSocket = require('ws');
 // TEMP MOCK
 let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
 let alarms = [{
+    id: 0,
     days: [1, 2, 3, 4, 5],
     hour: 8,
-    minute: 30
+    minute: 30,
+    enabled: true
 }];
 let duration = 60;
 let increase = 5;
@@ -32,7 +34,7 @@ socketServer.on('connection', socket => {
         data: streamPlaying
     }));
 
-    if (databaseReady) {
+    // if (databaseReady) {
         socket.send(JSON.stringify({
             type: 'config',
             data: {
@@ -41,14 +43,38 @@ socketServer.on('connection', socket => {
                 increase: increase
             }
         }));
-        socket.send(JSON.stringify({
-            type: 'alarms',
-            data: alarms
-        }));
-    }
+
+        for (let alarm of alarms) {
+            socket.send(JSON.stringify({
+                type: 'alarm',
+                data: alarm
+            }));
+        }
+    // }
 
     socket.on('message', (data) => {
-        console.log(JSON.parse(data));
+        if (JSON.parse(data).type === 'alarm') {
+            let clientAlarm = JSON.parse(data).data;
+            let alarmExists = false;
+            for (let alarm of alarms) {
+                if (alarm.id === clientAlarm.id) {
+                    alarm.days = clientAlarm.days;
+                    alarm.hour = clientAlarm.hour;
+                    alarm.minute = clientAlarm.minute;
+                    alarm.enabled = clientAlarm.enabled;
+                    alarmExists = true;
+                    break;
+                }
+            }
+            if (!alarmExists) {
+                alarms.push(clientAlarm);
+            }
+            socketServer.broadcast({
+                type: 'alarm',
+                data: clientAlarm
+            });
+        }
+        console.log(alarms);
     });
 
     socket.on('close', (code, message) => {
@@ -96,7 +122,7 @@ function startClock() {
         let now = new Date();
         let triggerAlarm = false;
         for (let alarm of alarms) {
-            triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute;
+            triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
         }
         if (triggerAlarm) {
             if (streamPlaying) {

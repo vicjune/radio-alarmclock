@@ -17,19 +17,11 @@ export class MyApp {
         platform.ready().then(() => {
 
             this.websocketService.connect('ws://127.0.0.1:8001').subscribe(
-                data => {
-                    console.log(JSON.parse(data.data));
-                },
+                data => {},
                 error => {
                     console.error(error);
                 }
             );
-
-            setTimeout(() => {
-                this.websocketService.send({
-                    coucou: 'coucou'
-                });
-            }, 1000);
 
             statusBar.styleDefault();
             splashScreen.hide();

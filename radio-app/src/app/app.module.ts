@@ -6,13 +6,15 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { SettingsPage } from '../pages/settings/settings';
+import { AlarmPage } from '../pages/alarm/alarm';
 import { WebsocketService } from '../services/websocket.service';
 
 @NgModule({
   declarations: [
     MyApp,
     HomePage,
-    SettingsPage
+    SettingsPage,
+    AlarmPage
   ],
   imports: [
     IonicModule.forRoot(MyApp)
@@ -21,7 +23,8 @@ import { WebsocketService } from '../services/websocket.service';
   entryComponents: [
     MyApp,
     HomePage,
-    SettingsPage
+    SettingsPage,
+    AlarmPage
   ],
   providers: [
     StatusBar,
