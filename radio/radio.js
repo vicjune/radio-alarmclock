@@ -9,8 +9,8 @@ let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
 let alarms = [{
     id: 0,
     days: [1, 2, 3, 4, 5],
-    hour: 17,
-    minute: 28,
+    hour: 8,
+    minute: 30,
     enabled: true
 }];
 let duration = 60;
