@@ -1,5 +1,4 @@
 let lame = require('lame');
-let icecast = require('icecast');
 let Speaker = require('speaker');
 let loudness = require('loudness');
 let WebSocket = require('ws');
@@ -20,6 +19,14 @@ let increase = 5;
 
 // TODO Database
 let databaseReady = false;
+
+
+
+
+
+
+
+
 
 // Websocket
 let socketServer = new WebSocket.Server({port: 8001});
@@ -94,56 +101,115 @@ socketServer.broadcast = function(data) {
 
 
 
-// Radio + clock
+
+
+
+
+
+
+
+// Radio
+let killStream = true;
+
+function toggleStream(on, url = null) {
+    if (on) {
+        if (killStream) {
+            killStream = false;
+            startClient(url, (err, cbClient) => {
+                if (err === null) {
+                    console.log('Radio started');
+                } else {
+                    console.error(err);
+                }
+            });
+        }
+    } else {
+        killStream = true;
+    }
+}
+
+function startClient(url, fn) {
+    let u = require('url').parse(url);
+    require('dns').resolve(u.hostname, (err, addresses) => {
+        let ip=u.hostname;
+        if (addresses)
+            ip = addresses[0];
+        let client = new require('net').Socket();
+        client.connect(u.port, ip, () => {
+            client.write('Get ' + u.path + ' HTTP/1.0\r\n');
+            client.write('User-Agent: Mozilla/5.0\r\n');
+            client.write('\r\n');
+        });
+        let start = true;
+        client.on('data', data => {
+            if (start) {
+                fn(null, client);
+                start = false;
+            }
+            if (killStream) {
+                speaker.close();
+                setTimeout(() => {
+                    client.destroy();
+                });
+            }
+        });
+        client.on('error', err => {
+            fn(err, null);
+        });
+        client.on('close', () => {
+            console.log('Radio closed');
+        });
+        let speaker = client.pipe(new lame.Decoder()).pipe(new Speaker());
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+// Clock
 let streamPlaying = false;
 let durationTimeout;
 
-icecast.get(url, res => {
-    res.on('metadata', metadata => {
-        let parsed = icecast.parse(metadata);
-        console.log('Radio started');
-
-        let preparationInterval = setInterval(() => {
-            if (new Date().getSeconds() === 0) {
-                clearInterval(preparationInterval);
-                startClock();
-            }
-        }, 100);
-    });
-
-    res.pipe(new lame.Decoder())
-        .pipe(new Speaker());
-});
-
-loudness.setVolume(0, err => {});
-
 function startClock() {
-    setInterval(() => {
-        let now = new Date();
-        let triggerAlarm = false;
-        for (let alarm of alarms) {
-            triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
+    let preparationInterval = setInterval(() => {
+        if (new Date().getSeconds() === 0) {
+            clearInterval(preparationInterval);
+
+            setInterval(() => {
+                let now = new Date();
+                let triggerAlarm = false;
+                for (let alarm of alarms) {
+                    triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
+                }
+                if (triggerAlarm) {
+                    if (streamPlaying) {
+                        clearTimeout(durationTimeout);
+                        startAlarm(false);
+                    } else {
+                        startAlarm(true);
+                    }
+                }
+            }, 60000);
         }
-        if (triggerAlarm) {
-            if (streamPlaying) {
-                clearTimeout(durationTimeout);
-                startStream(false);
-            } else {
-                startStream(true);
-            }
-        }
-    }, 60000);
+    }, 100);
 }
 
-function startStream(incremental) {
-    toggleStream(true, incremental);
+function startAlarm(incremental) {
+    toggleAlarm(true, incremental);
 
     durationTimeout = setTimeout(() => {
-        toggleStream(false);
+        toggleAlarm(false);
     }, duration * 60000);
 }
 
-function toggleStream(on, incremental = false) {
+function toggleAlarm(on, incremental = false) {
     socketServer.broadcast({
         type: 'toggleStream',
         data: on
@@ -154,6 +220,8 @@ function toggleStream(on, incremental = false) {
 
         if (incremental) {
             console.log('Alarm');
+            loudness.setVolume(0, err => {});
+            toggleStream(true, url);
             let volume = 60;
             let interval = setInterval(() => {
                 volume = volume + (100 - 60) / (increase * 60);
@@ -166,7 +234,7 @@ function toggleStream(on, incremental = false) {
         }
     } else {
         streamPlaying = false;
-        loudness.setVolume(0, err => {});
+        toggleStream(false);
         console.log('Alarm stopped');
     }
 }
@@ -179,3 +247,4 @@ function setVolume(volume) {
     loudness.setVolume(volume, err => {});
 }
 
+startClock();
