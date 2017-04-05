@@ -9,8 +9,8 @@ let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
 let alarms = [{
     id: 0,
     days: [1, 2, 3, 4, 5],
-    hour: 8,
-    minute: 30,
+    hour: 17,
+    minute: 28,
     enabled: true
 }];
 let duration = 60;
@@ -178,6 +178,7 @@ let streamPlaying = false;
 let durationTimeout;
 
 function startClock() {
+    console.log('Clock started');
     let preparationInterval = setInterval(() => {
         if (new Date().getSeconds() === 0) {
             clearInterval(preparationInterval);
