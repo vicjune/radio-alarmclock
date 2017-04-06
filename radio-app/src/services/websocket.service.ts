@@ -7,18 +7,15 @@ export class WebsocketService {
     private ws: WebSocket;
     private url: string;
     private reconnectTimeout;
-    private subject: Rx.Subject<null> = new Rx.Subject();
+    private subject: Rx.Subject<any> = new Rx.Subject();
     private offlinePayloads = [];
 
     constructor() {
         this.socket = Rx.Observable.create((obs: Rx.Observer<MessageEvent>) => {
-            this.subject.subscribe(() => {
-                this.ws.onmessage = data => {
+            this.subject.subscribe(ws => {
+                ws.onmessage = data => {
                     obs.next(JSON.parse(data.data));
-                };
-                this.ws.onerror = event => {
-                    obs.error('Websocket error');
-                };
+                }
             });
         });
     }
@@ -43,17 +40,34 @@ export class WebsocketService {
             this.url = url;
             this.bounceConnect(bounceTimer);
         }
+
+        return Rx.Observable.create((obs: Rx.Observer<number>) => {
+            this.subject.subscribe(ws => {
+                obs.next(ws.readyState);
+            });
+        });
+    }
+
+    close() {
+        if (this.ws) {
+            this.ws.close();
+        }
+        if (this.reconnectTimeout) {
+            clearTimeout(this.reconnectTimeout);
+            this.reconnectTimeout = null;
+        }
+        this.url = null;
     }
 
     private bounceConnect(bounceTimer) {
         this.ws = new WebSocket(this.url);
 
         this.ws.onopen = () => {
+            this.subject.next(this.ws);
             if (this.reconnectTimeout) {
                 clearTimeout(this.reconnectTimeout);
                 this.reconnectTimeout = null;
             }
-            this.subject.next();
             for (let data of this.offlinePayloads) {
                 this.ws.send(JSON.stringify(data));
             }
@@ -61,6 +75,7 @@ export class WebsocketService {
         }
 
         this.ws.onclose = () => {
+            this.subject.next(this.ws);
             if (!this.reconnectTimeout) {
                 this.reconnectTimeout = setTimeout(() => {
                     this.bounceConnect(bounceTimer);

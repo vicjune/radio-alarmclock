@@ -39,8 +39,6 @@ export class HomePage {
                         loading: false
                     });
                 }
-            }, error => {
-                console.log(error);
             });
 
         });
