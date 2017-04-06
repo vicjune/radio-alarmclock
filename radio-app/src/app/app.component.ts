@@ -16,12 +16,7 @@ export class MyApp {
     constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, public websocketService: WebsocketService) {
         platform.ready().then(() => {
 
-            this.websocketService.connect('ws://127.0.0.1:8001').subscribe(
-                data => {},
-                error => {
-                    console.error(error);
-                }
-            );
+            this.websocketService.connect('ws://127.0.0.1:8001');
 
             statusBar.styleDefault();
             splashScreen.hide();

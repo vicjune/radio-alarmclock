@@ -8,6 +8,7 @@ import { HomePage } from '../pages/home/home';
 import { SettingsPage } from '../pages/settings/settings';
 import { AlarmPage } from '../pages/alarm/alarm';
 import { WebsocketService } from '../services/websocket.service';
+import { FireService } from '../services/fire.service';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { WebsocketService } from '../services/websocket.service';
     StatusBar,
     SplashScreen,
     WebsocketService,
+    FireService,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

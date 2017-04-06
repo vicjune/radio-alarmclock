@@ -60,8 +60,10 @@ socketServer.on('connection', socket => {
     // }
 
     socket.on('message', (data) => {
-        if (JSON.parse(data).type === 'alarm') {
-            let clientAlarm = JSON.parse(data).data;
+        let payload = JSON.parse(data);
+
+        if (payload.type === 'alarm') {
+            let clientAlarm = payload.data;
             let alarmExists = false;
             for (let alarm of alarms) {
                 if (alarm.id === clientAlarm.id) {
@@ -76,11 +78,9 @@ socketServer.on('connection', socket => {
             if (!alarmExists) {
                 alarms.push(clientAlarm);
             }
-            socketServer.broadcast({
-                type: 'alarm',
-                data: clientAlarm
-            });
         }
+
+        socketServer.broadcast(payload);
         console.log(alarms);
     });
 

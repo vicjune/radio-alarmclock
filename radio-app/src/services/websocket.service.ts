@@ -3,61 +3,70 @@ import Rx from 'rxjs/Rx';
 
 @Injectable()
 export class WebsocketService {
-    private socket: Rx.Subject<MessageEvent>;
+    socket: Rx.Observable<MessageEvent>;
     private ws: WebSocket;
     private url: string;
+    private reconnectTimeout;
+    private subject: Rx.Subject<null> = new Rx.Subject();
+    private offlinePayloads = [];
 
-    connect(url: string = ''): Rx.Subject<MessageEvent> {
-        if (url !== '' && url !== this.url) {
-            this.url = url;
-            if(!this.socket) {
-                this.socket = this.create(url);
-            } else {
-                this.ws.close();
-                this.socket = this.create(url);
-            }
-        }
-        if (this.socket) {
-            return this.socket;
-        } else {
-            return this.error('No websocket connected');
-        }
+    constructor() {
+        this.socket = Rx.Observable.create((obs: Rx.Observer<MessageEvent>) => {
+            this.subject.subscribe(() => {
+                this.ws.onmessage = data => {
+                    obs.next(JSON.parse(data.data));
+                };
+                this.ws.onerror = event => {
+                    obs.error('Websocket error');
+                };
+            });
+        });
     }
 
     send(data): void {
-        if (this.socket) {
-            this.socket.next(data);
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            this.ws.send(JSON.stringify(data));
         } else {
-            console.error('No websocket connected');
+            this.offlinePayloads.push(data);
         }
     }
 
-    private create(url: string): Rx.Subject<MessageEvent> {
-        this.ws = new WebSocket(url);
-
-        let observable = Rx.Observable.create((obs: Rx.Observer<MessageEvent>) => {
-            this.ws.onmessage = obs.next.bind(obs);
-            this.ws.onerror = obs.error.bind(obs);
-            this.ws.onclose = obs.complete.bind(obs);
-            return this.ws.close.bind(this.ws);
-        });
-
-        let observer = {
-            next: (data: Object) => {
-                if (this.ws.readyState === WebSocket.OPEN) {
-                    this.ws.send(JSON.stringify(data));
-                } else {
-                    console.error('Websocket connection is closed');
-                }
+    connect(url: string, bounceTimer: number = 3000) {
+        if (url !== this.url) {
+            if (this.ws) {
+                this.ws.close();
             }
-        };
-
-        return Rx.Subject.create(observer, observable);
+            if (this.reconnectTimeout) {
+                clearTimeout(this.reconnectTimeout);
+                this.reconnectTimeout = null;
+            }
+            this.url = url;
+            this.bounceConnect(bounceTimer);
+        }
     }
 
-    private error(errorMsg: string): Rx.Subject<MessageEvent> {
-        return Rx.Subject.create({}, Rx.Observable.create((obs: Rx.Observer<MessageEvent>) => {
-            return obs.error(errorMsg);
-        }));
+    private bounceConnect(bounceTimer) {
+        this.ws = new WebSocket(this.url);
+
+        this.ws.onopen = () => {
+            if (this.reconnectTimeout) {
+                clearTimeout(this.reconnectTimeout);
+                this.reconnectTimeout = null;
+            }
+            this.subject.next();
+            for (let data of this.offlinePayloads) {
+                this.ws.send(JSON.stringify(data));
+            }
+            this.offlinePayloads = [];
+        }
+
+        this.ws.onclose = () => {
+            if (!this.reconnectTimeout) {
+                this.reconnectTimeout = setTimeout(() => {
+                    this.bounceConnect(bounceTimer);
+                    this.reconnectTimeout = null;
+                }, bounceTimer);
+            }
+        }
     }
 }
