@@ -1,9 +1,19 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>
-        Alarm
-    </ion-title>
-  </ion-navbar>
+    <ion-navbar>
+        <ion-buttons start>
+            <button ion-button (click)="close()">
+                Cancel
+            </button>
+        </ion-buttons>
+        <ion-title>
+            Alarm
+        </ion-title>
+        <ion-buttons end>
+            <button ion-button (click)="save()">
+                Save
+            </button>
+        </ion-buttons>
+    </ion-navbar>
 </ion-header>
 
 <ion-content>

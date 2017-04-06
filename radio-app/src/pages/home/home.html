@@ -1,6 +1,16 @@
 <ion-header>
     <ion-navbar>
+        <ion-buttons start>
+            <button ion-button icon-only (click)="goSettings()">
+                <ion-icon ios="ios-settings-outline" name="settings"></ion-icon>
+            </button>
+        </ion-buttons>
         <ion-title>Alarm</ion-title>
+        <ion-buttons end showWhen="ios">
+            <button ion-button icon-only (click)="alarmSelected()">
+                <ion-icon name="add"></ion-icon>
+            </button>
+        </ion-buttons>
     </ion-navbar>
 </ion-header>
 
@@ -14,11 +24,11 @@
                     <span *ngFor="let day of alarm.days">{{ day }} </span>
                 </p>
             </ion-label>
-            <ion-toggle [disabled]="alarm.loading" [ngModel]="alarm.enabled" (ngModelChange)="onAlarmToggle($event, alarm.id)"></ion-toggle>
+            <ion-toggle [disabled]="alarm.loading" [ngModel]="alarm.enabled" (ngModelChange)="onAlarmToggle($event, alarm)"></ion-toggle>
         </ion-item>
     </ion-list>
 
-    <ion-fab right bottom>
+    <ion-fab right bottom hideWhen="ios">
         <button ion-fab (click)="alarmSelected()"><ion-icon name="add"></ion-icon></button>
     </ion-fab>
 </ion-content>
