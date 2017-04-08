@@ -1,27 +1,23 @@
 <ion-header>
-    <ion-navbar>
-        <ion-buttons start>
-            <button ion-button (click)="close()">
-                Cancel
-            </button>
-        </ion-buttons>
-        <ion-title>
-            Alarm
-        </ion-title>
-        <ion-buttons end>
-            <button ion-button (click)="save()">
-                Save
-            </button>
-        </ion-buttons>
-    </ion-navbar>
+	<ion-navbar>
+		<ion-buttons start>
+			<button ion-button (click)="close()">
+				Cancel
+			</button>
+		</ion-buttons>
+		<ion-title>
+			Alarm
+		</ion-title>
+		<ion-buttons end>
+			<button ion-button (click)="save()">
+				Save
+			</button>
+		</ion-buttons>
+	</ion-navbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-list-header>Follow us on Twitter</ion-list-header>
-    <ion-item>
-      <ion-icon name="ionic" item-left></ion-icon>
-      @ionicframework
-    </ion-item>
-  </ion-list>
+	<button ion-button full color="danger" outline *ngIf="!newAlarm" (click)="delete()">
+		Delete this alarm
+	</button>
 </ion-content>
