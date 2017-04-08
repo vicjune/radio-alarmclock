@@ -9,30 +9,32 @@ import { SettingsPage } from '../pages/settings/settings';
 import { AlarmPage } from '../pages/alarm/alarm';
 import { WebsocketService } from '../services/websocket.service';
 import { FireService } from '../services/fire.service';
+import { FrontZerosPipe } from '../pipes/front-zeros.pipe';
 
 @NgModule({
-  declarations: [
-    MyApp,
-    HomePage,
-    SettingsPage,
-    AlarmPage
-  ],
-  imports: [
-    IonicModule.forRoot(MyApp)
-  ],
-  bootstrap: [IonicApp],
-  entryComponents: [
-    MyApp,
-    HomePage,
-    SettingsPage,
-    AlarmPage
-  ],
-  providers: [
-    StatusBar,
-    SplashScreen,
-    WebsocketService,
-    FireService,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
-  ]
+	declarations: [
+		MyApp,
+		HomePage,
+		SettingsPage,
+		AlarmPage
+	],
+	imports: [
+		IonicModule.forRoot(MyApp)
+	],
+	bootstrap: [IonicApp],
+	entryComponents: [
+		MyApp,
+		HomePage,
+		SettingsPage,
+		AlarmPage
+	],
+	providers: [
+		StatusBar,
+		SplashScreen,
+		WebsocketService,
+		FireService,
+		FrontZerosPipe,
+		{provide: ErrorHandler, useClass: IonicErrorHandler}
+	]
 })
 export class AppModule {}
