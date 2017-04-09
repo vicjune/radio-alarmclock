@@ -9,6 +9,8 @@ export class WeekDaysPipe implements PipeTransform {
 			return 'The weekends';
 		} else if (days.indexOf(0) === -1 && days.indexOf(1) > -1 && days.indexOf(2) > -1 && days.indexOf(3) > -1 && days.indexOf(4) > -1 && days.indexOf(5) > -1 && days.indexOf(6) === -1) {
 			return 'During the week';
+		} else if (days.indexOf(0) > -1 && days.indexOf(1) > -1 && days.indexOf(2) > -1 && days.indexOf(3) > -1 && days.indexOf(4) > -1 && days.indexOf(5) > -1 && days.indexOf(6) > -1) {
+			return 'Every days';
 		} else {
 			let output = '';
 			for (let day of weekDays) {

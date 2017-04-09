@@ -231,11 +231,19 @@ function startClock() {
 
 			setInterval(() => {
 				let now = new Date();
-				let triggerAlarm = false;
+				let triggerAlarms = false;
 				for (let alarm of alarms) {
-					triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
+					let triggerAlarm = (alarm.days.indexOf(now.getDay()) >= 0 || alarm.days.length === 0) && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
+					triggerAlarms = triggerAlarms || triggerAlarm;
+					if (triggerAlarm && alarm.days.length === 0) {
+						alarm.enabled = false;
+						socketServer.broadcast({
+							type: 'alarm',
+							data: alarm
+						});
+					}
 				}
-				if (triggerAlarm) {
+				if (triggerAlarms) {
 					startAlarm(true);
 				}
 			}, 60000);
