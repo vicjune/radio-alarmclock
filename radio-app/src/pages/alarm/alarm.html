@@ -1,0 +1,33 @@
+<ion-header>
+	<ion-navbar color="primary">
+		<ion-buttons start>
+			<button ion-button (click)="close()">
+				Cancel
+			</button>
+		</ion-buttons>
+		<ion-title>
+			Alarm
+		</ion-title>
+		<ion-buttons end>
+			<button ion-button (click)="save()">
+				Save
+			</button>
+		</ion-buttons>
+	</ion-navbar>
+</ion-header>
+
+<ion-content>
+	<ion-list>
+		<ion-item>
+			<ion-label>Alarm</ion-label>
+			<ion-datetime displayFormat="HH:mm" [(ngModel)]="hour" (ngModelChange)="setHour()"></ion-datetime>
+		</ion-item>
+		<ion-item (click)="setDays()">
+			<ion-label>Recurrence</ion-label>
+			<ion-note item-right>{{ alarm.days | weekDays: true }}</ion-note>
+		</ion-item>
+	</ion-list>
+	<button ion-button full color="danger" outline *ngIf="!newAlarm" (click)="delete()">
+		Delete this alarm
+	</button>
+</ion-content>

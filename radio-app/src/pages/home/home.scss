@@ -1,0 +1,12 @@
+page-home {
+	.alarmItem {
+		h1 {
+			font-size: 45px;
+			font-weight: 200;
+		}
+
+		&.disabled {
+			color: color($colors, lightText);
+		}
+	}
+}
