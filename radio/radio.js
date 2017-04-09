@@ -127,7 +127,7 @@ socketServer.broadcast = function(data) {
 
 
 // Radio
-let killStream = true;
+let killStream = false;
 let radioLoading = false;
 
 function toggleStream(on, url = null) {
@@ -140,24 +140,21 @@ function toggleStream(on, url = null) {
 	});
 	radioLoading = true;
 	if (on) {
-		if (killStream) {
-			killStream = false;
-			startClient(url, (err, cbClient) => {
-				if (err === null) {
-					console.log('Radio started');
-					socketServer.broadcast({
-						type: 'playRadio',
-						data: {
-							playing: true,
-							loading: false
-						}
-					});
-					radioLoading = false;
-				} else {
-					console.error(err);
-				}
-			});
-		}
+		startClient(url, (err, cbClient) => {
+			if (err === null) {
+				console.log('Radio started');
+				socketServer.broadcast({
+					type: 'playRadio',
+					data: {
+						playing: true,
+						loading: false
+					}
+				});
+				radioLoading = false;
+			} else {
+				console.error(err);
+			}
+		});
 	} else {
 		killStream = true;
 	}
@@ -183,10 +180,8 @@ function startClient(url, fn) {
 				start = false;
 			}
 			if (killStream) {
-				speaker.close();
-				setTimeout(() => {
-					client.destroy();
-				})
+				client.destroy();
+				lameDecoder.unpipe();
 				killStream = false;
 			}
 		});
@@ -196,6 +191,7 @@ function startClient(url, fn) {
 		client.on('close', () => {
 			setTimeout(() => {
 				console.log('Radio closed');
+				speaker.close();
 				socketServer.broadcast({
 					type: 'playRadio',
 					data: {
