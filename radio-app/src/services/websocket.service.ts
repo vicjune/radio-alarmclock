@@ -28,7 +28,7 @@ export class WebsocketService {
         }
     }
 
-    connect(url: string, bounceTimer: number = 3000) {
+    connect(url: string, bounceTimer: number = 3000): void {
         if (url !== this.url) {
             if (this.ws) {
                 this.ws.close();
@@ -40,7 +40,9 @@ export class WebsocketService {
             this.url = url;
             this.bounceConnect(bounceTimer);
         }
+    }
 
+    getConnectionStatus(): Rx.Observable<number> {
         return Rx.Observable.create((obs: Rx.Observer<number>) => {
             this.subject.subscribe(ws => {
                 obs.next(ws.readyState);

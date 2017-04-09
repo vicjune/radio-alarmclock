@@ -1,0 +1,16 @@
+error {
+	.errorItem {
+		text-align: center;
+		color: color($colors, white);
+		background: color($colors, danger);
+		padding: 0;
+
+		&.connected {
+			background: color($colors, secondary);
+		}
+
+		.item-inner {
+			padding: 0 !important;
+		}
+	}
+}

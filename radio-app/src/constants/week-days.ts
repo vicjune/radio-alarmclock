@@ -30,7 +30,7 @@ export const weekDays = [
 		short: 'Sat'
 	},
 	{
-		id: 7,
+		id: 0,
 		full: 'Sunday',
 		short: 'Sun'
 	}

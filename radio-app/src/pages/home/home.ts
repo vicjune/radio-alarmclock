@@ -15,6 +15,8 @@ import { WebsocketService } from '../../services/websocket.service';
 })
 export class HomePage {
 	alarms: Alarm[] = [];
+	radioPlaying: boolean = false;
+	radioLoading: boolean = true;
 
 	constructor(platform: Platform, public navCtrl: NavController, public modalCtrl: ModalController, public fireService: FireService, public websocketService: WebsocketService) {
 		platform.ready().then(() => {
@@ -111,4 +113,9 @@ export class HomePage {
 		this.navCtrl.push(SettingsPage);
 	}
 
+	play(): void {
+		this.radioLoading = true;
+		this.radioPlaying = !this.radioPlaying;
+		this.fireService.send('playRadio', this.radioPlaying);
+	}
 }

@@ -37,7 +37,7 @@ socketServer.on('connection', socket => {
 	console.log('New WebSocket Connection');
 
 	socket.send(JSON.stringify({
-		type: 'toggleStream',
+		type: 'playRadio',
 		data: streamPlaying
 	}));
 
@@ -90,8 +90,15 @@ socketServer.on('connection', socket => {
 			}
 		}
 
+		if (payload.type === 'playRadio') {
+			if (payload.data) {
+				startAlarm(false);
+			} else {
+				stopAlarm();
+			}
+		}
+
 		socketServer.broadcast(payload);
-		console.log(alarms);
 	});
 
 	socket.on('close', (code, message) => {
@@ -185,7 +192,8 @@ function startClient(url, fn) {
 
 // Clock
 let streamPlaying = false;
-let durationTimeout;
+let durationTimeout = null;
+let incrementalInterval = null;
 
 function startClock() {
 	console.log('Clock started');
@@ -200,12 +208,7 @@ function startClock() {
 					triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
 				}
 				if (triggerAlarm) {
-					if (streamPlaying) {
-						clearTimeout(durationTimeout);
-						startAlarm(false);
-					} else {
-						startAlarm(true);
-					}
+					startAlarm(true);
 				}
 			}, 60000);
 		}
@@ -213,37 +216,44 @@ function startClock() {
 }
 
 function startAlarm(incremental) {
-	toggleAlarm(true, incremental);
-
-	durationTimeout = setTimeout(() => {
-		toggleAlarm(false);
-	}, duration * 60000);
-}
-
-function toggleAlarm(on, incremental = false) {
-	socketServer.broadcast({
-		type: 'toggleStream',
-		data: on
-	});
-
-	if (on) {
+	if (streamPlaying) {
+		clearTimeout(durationTimeout);
+	} else {
 		streamPlaying = true;
+		toggleStream(true, url);
+		console.log('Alarm started');
 
 		if (incremental) {
-			console.log('Alarm');
 			loudness.setVolume(0, err => {});
-			toggleStream(true, url);
 			let volume = 60;
-			let interval = setInterval(() => {
+			incrementalInterval = setInterval(() => {
 				volume = volume + (100 - 60) / (increase * 60);
 				if (volume <= 100 && streamPlaying) {
-					setVolume(Math.floor(volume))
+					setVolume(Math.floor(volume));
 				} else {
-					clearInterval(interval);
+					clearInterval(incrementalInterval);
+					incrementalInterval = null;
 				}
 			}, 1000);
 		}
-	} else {
+	}
+
+	if (!incremental) {
+		setVolume(100);
+		if (incrementalInterval) {
+			clearInterval(incrementalInterval);
+			incrementalInterval = null;
+		}
+	}
+
+	durationTimeout = setTimeout(() => {
+		stopAlarm();
+	}, duration * 60000);
+}
+
+function stopAlarm() {
+	if (streamPlaying) {
+		clearTimeout(durationTimeout);
 		streamPlaying = false;
 		toggleStream(false);
 		console.log('Alarm stopped');

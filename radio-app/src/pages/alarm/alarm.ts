@@ -47,7 +47,7 @@ export class AlarmPage {
 		for (let day of weekDays) {
 			alert.addInput({
 				type: 'checkbox',
-				label: day.full,
+				label: 'Every ' + day.full.toLowerCase(),
 				value: day.id.toString(),
 				checked: this.alarm.days.indexOf(day.id) > -1
 			});

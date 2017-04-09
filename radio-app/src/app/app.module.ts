@@ -7,16 +7,21 @@ import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { SettingsPage } from '../pages/settings/settings';
 import { AlarmPage } from '../pages/alarm/alarm';
+import { ErrorComponent } from '../components/error/error';
 import { WebsocketService } from '../services/websocket.service';
 import { FireService } from '../services/fire.service';
 import { FrontZerosPipe } from '../pipes/front-zeros.pipe';
+import { WeekDaysPipe } from '../pipes/week-days.pipe';
 
 @NgModule({
 	declarations: [
 		MyApp,
 		HomePage,
 		SettingsPage,
-		AlarmPage
+		AlarmPage,
+		ErrorComponent,
+		FrontZerosPipe,
+		WeekDaysPipe
 	],
 	imports: [
 		IonicModule.forRoot(MyApp)
@@ -26,7 +31,8 @@ import { FrontZerosPipe } from '../pipes/front-zeros.pipe';
 		MyApp,
 		HomePage,
 		SettingsPage,
-		AlarmPage
+		AlarmPage,
+		ErrorComponent
 	],
 	providers: [
 		StatusBar,

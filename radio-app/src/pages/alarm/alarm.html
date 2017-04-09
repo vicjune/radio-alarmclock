@@ -1,5 +1,5 @@
 <ion-header>
-	<ion-navbar>
+	<ion-navbar color="primary">
 		<ion-buttons start>
 			<button ion-button (click)="close()">
 				Cancel
@@ -24,9 +24,7 @@
 		</ion-item>
 		<ion-item (click)="setDays()">
 			<ion-label>Recurrence</ion-label>
-			<ion-note item-right>
-      			Never
-      		</ion-note>
+			<ion-note item-right>{{ alarm.days | weekDays: true }}</ion-note>
 		</ion-item>
 	</ion-list>
 	<button ion-button full color="danger" outline *ngIf="!newAlarm" (click)="delete()">
