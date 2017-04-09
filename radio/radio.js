@@ -127,7 +127,7 @@ socketServer.broadcast = function(data) {
 
 
 // Radio
-let killStream = true;
+let killStream = false;
 let radioLoading = false;
 
 function toggleStream(on, url = null) {
@@ -140,24 +140,21 @@ function toggleStream(on, url = null) {
 	});
 	radioLoading = true;
 	if (on) {
-		if (killStream) {
-			killStream = false;
-			startClient(url, (err, cbClient) => {
-				if (err === null) {
-					console.log('Radio started');
-					socketServer.broadcast({
-						type: 'playRadio',
-						data: {
-							playing: true,
-							loading: false
-						}
-					});
-					radioLoading = false;
-				} else {
-					console.error(err);
-				}
-			});
-		}
+		startClient(url, (err, cbClient) => {
+			if (err === null) {
+				console.log('Radio started');
+				socketServer.broadcast({
+					type: 'playRadio',
+					data: {
+						playing: true,
+						loading: false
+					}
+				});
+				radioLoading = false;
+			} else {
+				console.error(err);
+			}
+		});
 	} else {
 		killStream = true;
 	}
@@ -175,6 +172,7 @@ function startClient(url, fn) {
 			client.write('User-Agent: Mozilla/5.0\r\n');
 			client.write('\r\n');
 		});
+		console.log('Client started');
 		let start = true;
 		client.on('data', data => {
 			if (start) {
