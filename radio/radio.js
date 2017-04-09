@@ -175,6 +175,7 @@ function startClient(url, fn) {
 			client.write('User-Agent: Mozilla/5.0\r\n');
 			client.write('\r\n');
 		});
+		console.log('Client started');
 		let start = true;
 		client.on('data', data => {
 			if (start) {
