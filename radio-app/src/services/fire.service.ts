@@ -5,25 +5,22 @@ import { WebsocketService } from './websocket.service';
 
 @Injectable()
 export class FireService {
-    constructor(public websocketService: WebsocketService) {}
+	constructor(public websocketService: WebsocketService) {}
 
-    bind(type: string): Rx.Observable<any> {
-        return Rx.Observable.create((obs: Rx.Observer<any>) => {
-            this.websocketService.socket.subscribe(payload => {
-                if (payload.type === type) {
-                    obs.next(payload.data);
-                }
-            },
-            error => {
-                obs.error(error);
-            });
-        });
-    }
+	bind(type: string): Rx.Subject<any> {
+		let subject = new Rx.Subject();
+		this.websocketService.socket.subscribe(payload => {
+			if (payload.type === type) {
+				subject.next(payload.data);
+			}
+		});
+		return subject;
+	}
 
-    send(type: string, data): void {
-        this.websocketService.send({
-            type: type,
-            data: data
-        });
-    }
+	send(type: string, data): void {
+		this.websocketService.send({
+			type: type,
+			data: data
+		});
+	}
 }

@@ -27,6 +27,11 @@ export class HomePage {
 					this.setAlarm(serverAlarm, false);
 				}
 			});
+
+			this.fireService.bind('playRadio').subscribe(radioStatus => {
+				this.radioPlaying = radioStatus.playing;
+				this.radioLoading = radioStatus.loading;
+			});
 		});
 	}
 

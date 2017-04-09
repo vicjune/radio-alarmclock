@@ -26,8 +26,6 @@ let databaseReady = false;
 
 
 
-
-
 // Websocket
 let socketServer = new WebSocket.Server({port: 8001});
 socketServer.connectionCount = 0;
@@ -38,7 +36,10 @@ socketServer.on('connection', socket => {
 
 	socket.send(JSON.stringify({
 		type: 'playRadio',
-		data: streamPlaying
+		data: {
+			playing: streamPlaying,
+			loading: radioLoading
+		}
 	}));
 
 	// if (databaseReady) {
@@ -88,6 +89,8 @@ socketServer.on('connection', socket => {
 					alarms.push(clientAlarm);
 				}
 			}
+
+			socketServer.broadcast(payload);
 		}
 
 		if (payload.type === 'playRadio') {
@@ -97,8 +100,6 @@ socketServer.on('connection', socket => {
 				stopAlarm();
 			}
 		}
-
-		socketServer.broadcast(payload);
 	});
 
 	socket.on('close', (code, message) => {
@@ -127,14 +128,31 @@ socketServer.broadcast = function(data) {
 
 // Radio
 let killStream = true;
+let radioLoading = false;
 
 function toggleStream(on, url = null) {
+	socketServer.broadcast({
+		type: 'playRadio',
+		data: {
+			playing: on,
+			loading: true
+		}
+	});
+	radioLoading = true;
 	if (on) {
 		if (killStream) {
 			killStream = false;
 			startClient(url, (err, cbClient) => {
 				if (err === null) {
 					console.log('Radio started');
+					socketServer.broadcast({
+						type: 'playRadio',
+						data: {
+							playing: true,
+							loading: false
+						}
+					});
+					radioLoading = false;
 				} else {
 					console.error(err);
 				}
@@ -164,19 +182,31 @@ function startClient(url, fn) {
 				start = false;
 			}
 			if (killStream) {
-				speaker.close();
-				setTimeout(() => {
-					client.destroy();
-				});
+				client.destroy();
+				lameDecoder.unpipe();
+				killStream = false;
 			}
 		});
 		client.on('error', err => {
 			fn(err, null);
 		});
 		client.on('close', () => {
-			console.log('Radio closed');
+			setTimeout(() => {
+				console.log('Radio closed');
+				speaker.close();
+				socketServer.broadcast({
+					type: 'playRadio',
+					data: {
+						playing: false,
+						loading: false
+					}
+				});
+				radioLoading = false;
+			}, 10000);
 		});
-		let speaker = client.pipe(new lame.Decoder()).pipe(new Speaker());
+		let lameDecoder = new lame.Decoder();
+		let speaker = new Speaker();
+		client.pipe(lameDecoder).pipe(speaker);
 	});
 }
 
@@ -238,12 +268,10 @@ function startAlarm(incremental) {
 		}
 	}
 
-	if (!incremental) {
+	if (!incremental && incrementalInterval) {
 		setVolume(100);
-		if (incrementalInterval) {
-			clearInterval(incrementalInterval);
-			incrementalInterval = null;
-		}
+		clearInterval(incrementalInterval);
+		incrementalInterval = null;
 	}
 
 	durationTimeout = setTimeout(() => {
