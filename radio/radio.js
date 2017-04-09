@@ -183,8 +183,10 @@ function startClient(url, fn) {
 				start = false;
 			}
 			if (killStream) {
-				client.destroy();
-				lameDecoder.unpipe();
+				speaker.close();
+				setTimeout(() => {
+					client.destroy();
+				})
 				killStream = false;
 			}
 		});
@@ -194,7 +196,6 @@ function startClient(url, fn) {
 		client.on('close', () => {
 			setTimeout(() => {
 				console.log('Radio closed');
-				speaker.close();
 				socketServer.broadcast({
 					type: 'playRadio',
 					data: {
