@@ -18,14 +18,14 @@
 
 <ion-content>
 	<ion-list>
-		<ion-item>
+		<button ion-item>
 			<ion-label>Alarm</ion-label>
-			<ion-datetime displayFormat="HH:mm" [(ngModel)]="hour" (ngModelChange)="setHour()"></ion-datetime>
-		</ion-item>
-		<ion-item (click)="setDays()">
+			<ion-datetime class="alarmHour" displayFormat="HH:mm" [(ngModel)]="hour" (ngModelChange)="setHour()"></ion-datetime>
+		</button>
+		<button ion-item (click)="setDays()">
 			<ion-label>Recurrence</ion-label>
 			<ion-note item-right>{{ alarm.days | weekDays: true }}</ion-note>
-		</ion-item>
+		</button>
 	</ion-list>
 	<button ion-button full color="danger" outline *ngIf="!newAlarm" (click)="delete()">
 		Delete this alarm

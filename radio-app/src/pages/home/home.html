@@ -17,7 +17,7 @@
 <ion-content>
 	<error></error>
 	<ion-list>
-		<ion-item class="alarmItem" *ngFor="let alarm of alarms" (click)="alarmSelected(alarm)" [ngClass]="{'disabled': !alarm.enabled}">
+		<button ion-item class="alarmItem" *ngFor="let alarm of alarms" (click)="alarmSelected(alarm)" [ngClass]="{'disabled': !alarm.enabled}">
 			<ion-label>
 				<h1>{{ alarm.hour | frontZeros }}:{{ alarm.minute | frontZeros }}</h1>
 				<p>
@@ -26,8 +26,9 @@
 					<span>{{ alarm.days | weekDays: false }}</span>
 				</p>
 			</ion-label>
+			<ion-spinner item-content *ngIf="alarm.loading"></ion-spinner>
 			<ion-toggle [ngModel]="alarm.enabled" (ngModelChange)="onAlarmToggle($event, alarm)"></ion-toggle>
-		</ion-item>
+		</button>
 		<p *ngIf="alarms.length === 0" class="emptyListMessage">No Alarms</p>
 	</ion-list>
 

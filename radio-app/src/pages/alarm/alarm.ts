@@ -16,7 +16,7 @@ export class AlarmPage {
 
 	constructor(params: NavParams, public viewCtrl: ViewController, public alertCtrl: AlertController, public frontZerosPipe: FrontZerosPipe) {
 		if (params.get('alarm')) {
-			this.alarm = params.get('alarm');
+			this.alarm = JSON.parse(JSON.stringify(params.get('alarm')));
 			this.alarm.enabled = true;
 			this.newAlarm = false;
 			this.hour = this.frontZerosPipe.transform(this.alarm.hour) + ':' + this.frontZerosPipe.transform(this.alarm.minute);
