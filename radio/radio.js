@@ -109,7 +109,7 @@ socketServer.on('connection', socket => {
 		);
 	});
 });
-socketServer.broadcast = function(data) {
+socketServer.broadcast = data => {
 	socketServer.clients.forEach(client => {
 		if (client.readyState === WebSocket.OPEN) {
 			client.send(JSON.stringify(data));
@@ -131,17 +131,17 @@ let killStream = false;
 let radioLoading = false;
 
 function toggleStream(on, url = null) {
-	socketServer.broadcast({
-		type: 'playRadio',
-		data: {
-			playing: on,
-			loading: true
-		}
-	});
-	radioLoading = true;
-	if (on) {
-		startClient(url, (err, cbClient) => {
-			if (err === null) {
+	if (!radioLoading) {
+		socketServer.broadcast({
+			type: 'playRadio',
+			data: {
+				playing: on,
+				loading: true
+			}
+		});
+		radioLoading = true;
+		if (on) {
+			startClient(url, () => {
 				console.log('Radio started');
 				socketServer.broadcast({
 					type: 'playRadio',
@@ -151,16 +151,34 @@ function toggleStream(on, url = null) {
 					}
 				});
 				radioLoading = false;
-			} else {
-				console.error(err);
-			}
-		});
-	} else {
-		killStream = true;
+			}, error => {
+				console.error('Radio error', error);
+				socketServer.broadcast({
+					type: 'playRadio',
+					data: {
+						playing: false,
+						loading: false
+					}
+				});
+				radioLoading = false;
+			}, () => {
+				console.log('Radio closed');
+				socketServer.broadcast({
+					type: 'playRadio',
+					data: {
+						playing: false,
+						loading: false
+					}
+				});
+				radioLoading = false;
+			});
+		} else {
+			killStream = true;
+		}
 	}
 }
 
-function startClient(url, fn) {
+function startClient(url, fn, fnError, fnEnd) {
 	let u = require('url').parse(url);
 	require('dns').resolve(u.hostname, (err, addresses) => {
 		let ip=u.hostname;
@@ -172,35 +190,32 @@ function startClient(url, fn) {
 			client.write('User-Agent: Mozilla/5.0\r\n');
 			client.write('\r\n');
 		});
-		console.log('Client started');
 		let start = true;
+		let end = false;
+		let clientCloseTimeout = null;
 		client.on('data', data => {
 			if (start) {
-				fn(null, client);
+				fn();
 				start = false;
 			}
 			if (killStream) {
 				client.destroy();
 				lameDecoder.unpipe();
 				killStream = false;
+				end = true;
+			}
+			if (end) {
+				if (clientCloseTimeout) {
+					clearTimeout(clientCloseTimeout);
+				}
+				clientCloseTimeout = setTimeout(() => {
+					speaker.close();
+					fnEnd();
+				}, 1000);
 			}
 		});
 		client.on('error', err => {
-			fn(err, null);
-		});
-		client.on('close', () => {
-			setTimeout(() => {
-				console.log('Radio closed');
-				speaker.close();
-				socketServer.broadcast({
-					type: 'playRadio',
-					data: {
-						playing: false,
-						loading: false
-					}
-				});
-				radioLoading = false;
-			}, 10000);
+			fnError(err);
 		});
 		let lameDecoder = new lame.Decoder();
 		let speaker = new Speaker();
