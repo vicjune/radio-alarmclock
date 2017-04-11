@@ -274,11 +274,12 @@ function startAlarm(incremental) {
 		toggleStream(true, url);
 		console.log('Alarm started');
 
-		if (incremental) {
+		if (incremental && increase > 0) {
 			loudness.setVolume(0, err => {});
+			let incrementIncrease = increase;
 			let volume = 60;
 			incrementalInterval = setInterval(() => {
-				volume = volume + (100 - 60) / (increase * 60);
+				volume = volume + (100 - 60) / (incrementIncrease * 60);
 				if (volume <= 100 && streamPlaying) {
 					setVolume(Math.floor(volume));
 				} else {

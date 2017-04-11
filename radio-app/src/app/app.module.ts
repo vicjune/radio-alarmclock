@@ -12,6 +12,7 @@ import { WebsocketService } from '../services/websocket.service';
 import { FireService } from '../services/fire.service';
 import { FrontZerosPipe } from '../pipes/front-zeros.pipe';
 import { WeekDaysPipe } from '../pipes/week-days.pipe';
+import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 
 @NgModule({
 	declarations: [
@@ -21,7 +22,8 @@ import { WeekDaysPipe } from '../pipes/week-days.pipe';
 		AlarmPage,
 		ErrorComponent,
 		FrontZerosPipe,
-		WeekDaysPipe
+		WeekDaysPipe,
+		MinutesHoursPipe
 	],
 	imports: [
 		IonicModule.forRoot(MyApp)
