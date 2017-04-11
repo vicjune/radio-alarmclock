@@ -29,7 +29,7 @@
 			<ion-spinner item-content *ngIf="alarm.loading"></ion-spinner>
 			<ion-toggle [ngModel]="alarm.enabled" (ngModelChange)="onAlarmToggle($event, alarm)"></ion-toggle>
 		</button>
-		<p *ngIf="alarms.length === 0" class="emptyListMessage">No Alarms</p>
+		<p *ngIf="alarms.length === 0" class="emptyListMessage">No alarm</p>
 	</ion-list>
 
 	<ion-fab left bottom>
