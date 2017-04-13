@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import Rx from 'rxjs/Rx';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 
 import { WebsocketService } from './websocket.service';
 
@@ -7,8 +7,8 @@ import { WebsocketService } from './websocket.service';
 export class FireService {
 	constructor(public websocketService: WebsocketService) {}
 
-	bind(type: string): Rx.Subject<any> {
-		let subject = new Rx.Subject();
+	bind(type: string): ReplaySubject<any> {
+		let subject = new ReplaySubject<any>();
 		this.websocketService.socket.subscribe(payload => {
 			if (payload.type === type) {
 				subject.next(payload.data);

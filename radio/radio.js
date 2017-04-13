@@ -14,7 +14,7 @@ let alarms = [{
 	enabled: true
 }];
 let duration = 60;
-let increase = 5;
+let increment = 5;
 
 
 // TODO Database
@@ -42,23 +42,20 @@ socketServer.on('connection', socket => {
 		}
 	}));
 
-	// if (databaseReady) {
-		socket.send(JSON.stringify({
-			type: 'config',
-			data: {
-				url: url,
-				duration: duration,
-				increase: increase
-			}
-		}));
-
-		for (let alarm of alarms) {
-			socket.send(JSON.stringify({
-				type: 'alarm',
-				data: alarm
-			}));
+	socket.send(JSON.stringify({
+		type: 'config',
+		data: {
+			duration: duration,
+			increment: increment
 		}
-	// }
+	}));
+
+	for (let alarm of alarms) {
+		socket.send(JSON.stringify({
+			type: 'alarm',
+			data: alarm
+		}));
+	}
 
 	socket.on('message', (data) => {
 		let payload = JSON.parse(data);
@@ -99,6 +96,12 @@ socketServer.on('connection', socket => {
 			} else {
 				stopAlarm();
 			}
+		}
+
+		if (payload.type === 'config') {
+			duration = payload.data.duration;
+			increment = payload.data.increment;
+			socketServer.broadcast(payload);
 		}
 	});
 
@@ -274,12 +277,12 @@ function startAlarm(incremental) {
 		toggleStream(true, url);
 		console.log('Alarm started');
 
-		if (incremental && increase > 0) {
+		if (incremental && increment > 0) {
 			loudness.setVolume(0, err => {});
-			let incrementIncrease = increase;
+			let staticIncrement = increment;
 			let volume = 60;
 			incrementalInterval = setInterval(() => {
-				volume = volume + (100 - 60) / (incrementIncrease * 60);
+				volume = volume + (100 - 60) / (staticIncrement * 60);
 				if (volume <= 100 && streamPlaying) {
 					setVolume(Math.floor(volume));
 				} else {

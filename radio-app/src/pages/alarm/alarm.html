@@ -29,7 +29,7 @@
 		</ion-list-header>
 		<ion-item item-radio *ngFor="let day of weekDays">
 			<ion-label>Every {{ day.full.toLowerCase() }}</ion-label>
-			<ion-radio value="day.id" (click)="toggleDay(day.id)" [checked]="alarm.days.indexOf(day.id) > -1"></ion-radio>
+			<ion-radio color="secondary" value="day.id" (click)="toggleDay(day.id)" [checked]="alarm.days.indexOf(day.id) > -1"></ion-radio>
 		</ion-item>
 	</ion-list>
 	<button ion-button full color="danger" outline *ngIf="!newAlarm" (click)="delete()">

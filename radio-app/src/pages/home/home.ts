@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
-import { Platform } from 'ionic-angular';
-import { NavController } from 'ionic-angular';
-import { ModalController } from 'ionic-angular';
+import { NavController, ModalController } from 'ionic-angular';
 
 import { Alarm } from '../../interfaces/alarm';
 import { AlarmPage } from '../alarm/alarm';
@@ -17,27 +15,29 @@ export class HomePage {
 	alarms: Alarm[] = [];
 	radioPlaying: boolean = false;
 	radioLoading: boolean = true;
+	online: boolean = false;
 
-	constructor(platform: Platform, public navCtrl: NavController, public modalCtrl: ModalController, public fireService: FireService, public websocketService: WebsocketService) {
-		platform.ready().then(() => {
-			this.fireService.bind('alarm').subscribe(serverAlarm => {
-				if (serverAlarm.delete) {
-					this.deleteAlarm(serverAlarm.id);
-				} else {
-					this.setAlarm(serverAlarm, false);
-				}
-			});
+	constructor(public navCtrl: NavController, public modalCtrl: ModalController, public fireService: FireService, public websocketService: WebsocketService) {
+		this.fireService.bind('alarm').subscribe(serverAlarm => {
+			if (serverAlarm.delete) {
+				this.deleteAlarm(serverAlarm.id);
+			} else {
+				this.setAlarm(serverAlarm, false);
+			}
+		});
 
-			this.fireService.bind('playRadio').subscribe(radioStatus => {
-				this.radioPlaying = radioStatus.playing;
-				this.radioLoading = radioStatus.loading;
-			});
+		this.fireService.bind('playRadio').subscribe(radioStatus => {
+			this.radioPlaying = radioStatus.playing;
+			this.radioLoading = radioStatus.loading;
+		});
 
-			this.websocketService.getConnectionStatus().subscribe(status => {
-				if (status === 1) {
-					this.alarms = [];
-				}
-			});
+		this.websocketService.getConnectionStatus().subscribe(status => {
+			if (status === 1) {
+				this.alarms = [];
+				this.online = true;
+			} else {
+				this.online = false;
+			}
 		});
 	}
 

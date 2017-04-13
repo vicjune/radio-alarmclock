@@ -8,5 +8,9 @@ page-home {
 		&.disabled {
 			color: color($colors, lightText);
 		}
+
+		.toggle-ios .toggle-checked {
+			background-color: color($colors, good);
+		}
 	}
 }
