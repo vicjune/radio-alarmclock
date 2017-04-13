@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavParams, ViewController, AlertController } from 'ionic-angular';
+import { NavParams, ViewController } from 'ionic-angular';
 
 import { Alarm } from '../../interfaces/alarm';
 import { FrontZerosPipe } from '../../pipes/front-zeros.pipe';
@@ -13,10 +13,11 @@ export class AlarmPage {
 	alarm: Alarm;
 	newAlarm: boolean;
 	hour: string;
+	weekDays = weekDays;
 
-	constructor(params: NavParams, public viewCtrl: ViewController, public alertCtrl: AlertController, public frontZerosPipe: FrontZerosPipe) {
+	constructor(params: NavParams, public viewCtrl: ViewController, public frontZerosPipe: FrontZerosPipe) {
 		if (params.get('alarm')) {
-			this.alarm = params.get('alarm');
+			this.alarm = JSON.parse(JSON.stringify(params.get('alarm')));
 			this.alarm.enabled = true;
 			this.newAlarm = false;
 			this.hour = this.frontZerosPipe.transform(this.alarm.hour) + ':' + this.frontZerosPipe.transform(this.alarm.minute);
@@ -40,26 +41,12 @@ export class AlarmPage {
 		this.alarm.minute = parseInt(this.hour.split(':')[1]);
 	}
 
-	setDays() {
-		let alert = this.alertCtrl.create();
-		alert.setTitle('Recurrence');
-
-		for (let day of weekDays) {
-			alert.addInput({
-				type: 'checkbox',
-				label: 'Every ' + day.full.toLowerCase(),
-				value: day.id.toString(),
-				checked: this.alarm.days.indexOf(day.id) > -1
-			});
+	toggleDay(id) {
+		if (this.alarm.days.indexOf(id) > -1) {
+			this.alarm.days.splice(this.alarm.days.indexOf(id), 1);
+		} else {
+			this.alarm.days.push(id);
 		}
-
-		alert.addButton({
-		  	text: 'Ok',
-		  	handler: selectedDays => {
-		  		this.alarm.days = selectedDays.map(selectedDay => parseInt(selectedDay));
-		  	}
-		});
-		alert.present();
 	}
 
 	save(): void {

@@ -14,7 +14,7 @@ let alarms = [{
 	enabled: true
 }];
 let duration = 60;
-let increase = 5;
+let increment = 5;
 
 
 // TODO Database
@@ -42,23 +42,20 @@ socketServer.on('connection', socket => {
 		}
 	}));
 
-	// if (databaseReady) {
-		socket.send(JSON.stringify({
-			type: 'config',
-			data: {
-				url: url,
-				duration: duration,
-				increase: increase
-			}
-		}));
-
-		for (let alarm of alarms) {
-			socket.send(JSON.stringify({
-				type: 'alarm',
-				data: alarm
-			}));
+	socket.send(JSON.stringify({
+		type: 'config',
+		data: {
+			duration: duration,
+			increment: increment
 		}
-	// }
+	}));
+
+	for (let alarm of alarms) {
+		socket.send(JSON.stringify({
+			type: 'alarm',
+			data: alarm
+		}));
+	}
 
 	socket.on('message', (data) => {
 		let payload = JSON.parse(data);
@@ -100,6 +97,12 @@ socketServer.on('connection', socket => {
 				stopAlarm();
 			}
 		}
+
+		if (payload.type === 'config') {
+			duration = payload.data.duration;
+			increment = payload.data.increment;
+			socketServer.broadcast(payload);
+		}
 	});
 
 	socket.on('close', (code, message) => {
@@ -109,7 +112,7 @@ socketServer.on('connection', socket => {
 		);
 	});
 });
-socketServer.broadcast = function(data) {
+socketServer.broadcast = data => {
 	socketServer.clients.forEach(client => {
 		if (client.readyState === WebSocket.OPEN) {
 			client.send(JSON.stringify(data));
@@ -131,17 +134,17 @@ let killStream = false;
 let radioLoading = false;
 
 function toggleStream(on, url = null) {
-	socketServer.broadcast({
-		type: 'playRadio',
-		data: {
-			playing: on,
-			loading: true
-		}
-	});
-	radioLoading = true;
-	if (on) {
-		startClient(url, (err, cbClient) => {
-			if (err === null) {
+	if (!radioLoading) {
+		socketServer.broadcast({
+			type: 'playRadio',
+			data: {
+				playing: on,
+				loading: true
+			}
+		});
+		radioLoading = true;
+		if (on) {
+			startClient(url, () => {
 				console.log('Radio started');
 				socketServer.broadcast({
 					type: 'playRadio',
@@ -151,16 +154,34 @@ function toggleStream(on, url = null) {
 					}
 				});
 				radioLoading = false;
-			} else {
-				console.error(err);
-			}
-		});
-	} else {
-		killStream = true;
+			}, error => {
+				console.error('Radio error', error);
+				socketServer.broadcast({
+					type: 'playRadio',
+					data: {
+						playing: false,
+						loading: false
+					}
+				});
+				radioLoading = false;
+			}, () => {
+				console.log('Radio closed');
+				socketServer.broadcast({
+					type: 'playRadio',
+					data: {
+						playing: false,
+						loading: false
+					}
+				});
+				radioLoading = false;
+			});
+		} else {
+			killStream = true;
+		}
 	}
 }
 
-function startClient(url, fn) {
+function startClient(url, fn, fnError, fnEnd) {
 	let u = require('url').parse(url);
 	require('dns').resolve(u.hostname, (err, addresses) => {
 		let ip=u.hostname;
@@ -172,35 +193,32 @@ function startClient(url, fn) {
 			client.write('User-Agent: Mozilla/5.0\r\n');
 			client.write('\r\n');
 		});
-		console.log('Client started');
 		let start = true;
+		let end = false;
+		let clientCloseTimeout = null;
 		client.on('data', data => {
 			if (start) {
-				fn(null, client);
+				fn();
 				start = false;
 			}
 			if (killStream) {
 				client.destroy();
 				lameDecoder.unpipe();
 				killStream = false;
+				end = true;
+			}
+			if (end) {
+				if (clientCloseTimeout) {
+					clearTimeout(clientCloseTimeout);
+				}
+				clientCloseTimeout = setTimeout(() => {
+					speaker.close();
+					fnEnd();
+				}, 1000);
 			}
 		});
 		client.on('error', err => {
-			fn(err, null);
-		});
-		client.on('close', () => {
-			setTimeout(() => {
-				console.log('Radio closed');
-				speaker.close();
-				socketServer.broadcast({
-					type: 'playRadio',
-					data: {
-						playing: false,
-						loading: false
-					}
-				});
-				radioLoading = false;
-			}, 10000);
+			fnError(err);
 		});
 		let lameDecoder = new lame.Decoder();
 		let speaker = new Speaker();
@@ -231,11 +249,19 @@ function startClock() {
 
 			setInterval(() => {
 				let now = new Date();
-				let triggerAlarm = false;
+				let triggerAlarms = false;
 				for (let alarm of alarms) {
-					triggerAlarm = triggerAlarm || alarm.days.indexOf(now.getDay()) >= 0 && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
+					let triggerAlarm = (alarm.days.indexOf(now.getDay()) >= 0 || alarm.days.length === 0) && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
+					triggerAlarms = triggerAlarms || triggerAlarm;
+					if (triggerAlarm && alarm.days.length === 0) {
+						alarm.enabled = false;
+						socketServer.broadcast({
+							type: 'alarm',
+							data: alarm
+						});
+					}
 				}
-				if (triggerAlarm) {
+				if (triggerAlarms) {
 					startAlarm(true);
 				}
 			}, 60000);
@@ -251,11 +277,12 @@ function startAlarm(incremental) {
 		toggleStream(true, url);
 		console.log('Alarm started');
 
-		if (incremental) {
+		if (incremental && increment > 0) {
 			loudness.setVolume(0, err => {});
+			let staticIncrement = increment;
 			let volume = 60;
 			incrementalInterval = setInterval(() => {
-				volume = volume + (100 - 60) / (increase * 60);
+				volume = volume + (100 - 60) / (staticIncrement * 60);
 				if (volume <= 100 && streamPlaying) {
 					setVolume(Math.floor(volume));
 				} else {

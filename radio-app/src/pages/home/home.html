@@ -17,7 +17,7 @@
 <ion-content>
 	<error></error>
 	<ion-list>
-		<ion-item class="alarmItem" *ngFor="let alarm of alarms" (click)="alarmSelected(alarm)" [ngClass]="{'disabled': !alarm.enabled}">
+		<button ion-item class="alarmItem" *ngFor="let alarm of alarms" (click)="alarmSelected(alarm)" [ngClass]="{'disabled': !alarm.enabled}">
 			<ion-label>
 				<h1>{{ alarm.hour | frontZeros }}:{{ alarm.minute | frontZeros }}</h1>
 				<p>
@@ -26,19 +26,20 @@
 					<span>{{ alarm.days | weekDays: false }}</span>
 				</p>
 			</ion-label>
-			<ion-toggle [ngModel]="alarm.enabled" (ngModelChange)="onAlarmToggle($event, alarm)"></ion-toggle>
-		</ion-item>
-		<p *ngIf="alarms.length === 0" class="emptyListMessage">No Alarms</p>
+			<ion-spinner item-content *ngIf="alarm.loading"></ion-spinner>
+			<ion-toggle color="secondary" [ngModel]="alarm.enabled" (ngModelChange)="onAlarmToggle($event, alarm)"></ion-toggle>
+		</button>
+		<p *ngIf="alarms.length === 0" class="emptyListMessage">No alarm</p>
 	</ion-list>
 
 	<ion-fab left bottom>
-		<button ion-fab [disabled]="radioLoading" (click)="play()">
+		<button color="secondary" ion-fab [disabled]="radioLoading || !online" (click)="play()">
 			<ion-icon *ngIf="!radioPlaying" name="play"></ion-icon>
 			<ion-icon *ngIf="radioPlaying" name="pause"></ion-icon>
 		</button>
 	</ion-fab>
 
 	<ion-fab right bottom hideWhen="ios">
-		<button ion-fab (click)="alarmSelected()"><ion-icon name="add"></ion-icon></button>
+		<button color="secondary" ion-fab (click)="alarmSelected()"><ion-icon name="add"></ion-icon></button>
 	</ion-fab>
 </ion-content>

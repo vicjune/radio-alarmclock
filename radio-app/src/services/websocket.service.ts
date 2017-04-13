@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import Rx from 'rxjs/Rx';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
 
 @Injectable()
 export class WebsocketService {
-	socket: Rx.Subject<any> = new Rx.Subject();
+	socket: ReplaySubject<any> = new ReplaySubject<any>();
 	private ws: WebSocket;
 	private url: string;
 	private reconnectTimeout;
