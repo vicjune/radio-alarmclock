@@ -154,16 +154,20 @@ function toggleStream(on, url = null) {
 					}
 				});
 				radioLoading = false;
-			}, error => {
-				console.error('Radio error', error);
-				socketServer.broadcast({
-					type: 'playRadio',
-					data: {
-						playing: false,
-						loading: false
-					}
-				});
+			}, (error, end) => {
+				console.log('Radio error', error);
 				radioLoading = false;
+				if (error === 'timeout' && !end) {
+					toggleStream(true, url);
+				} else {
+					socketServer.broadcast({
+						type: 'playRadio',
+						data: {
+							playing: false,
+							loading: false
+						}
+					});
+				}
 			}, () => {
 				console.log('Radio closed');
 				socketServer.broadcast({
@@ -184,23 +188,39 @@ function toggleStream(on, url = null) {
 function startClient(url, fn, fnError, fnEnd) {
 	let u = require('url').parse(url);
 	require('dns').resolve(u.hostname, (err, addresses) => {
-		let ip=u.hostname;
-		if (addresses)
+		let ip = u.hostname;
+		if (addresses) {
 			ip = addresses[0];
+		}
+
 		let client = new require('net').Socket();
 		client.connect(u.port, ip, () => {
 			client.write('Get ' + u.path + ' HTTP/1.0\r\n');
 			client.write('User-Agent: Mozilla/5.0\r\n');
 			client.write('\r\n');
 		});
+
 		let start = true;
 		let end = false;
 		let clientCloseTimeout = null;
+
 		client.on('data', data => {
+			if (clientCloseTimeout) {
+				clearTimeout(clientCloseTimeout);
+			}
+			clientCloseTimeout = setTimeout(() => {
+				client.destroy();
+				lameDecoder.unpipe();
+				speaker.close();
+				fnError('timeout', killStream);
+				killStream = false;
+			}, 10000);
+
 			if (start) {
 				fn();
 				start = false;
 			}
+
 			if (killStream) {
 				client.destroy();
 				lameDecoder.unpipe();
@@ -217,9 +237,15 @@ function startClient(url, fn, fnError, fnEnd) {
 				}, 1000);
 			}
 		});
+
 		client.on('error', err => {
-			fnError(err);
+			client.destroy();
+			lameDecoder.unpipe();
+			killStream = false;
+			speaker.close();
+			fnError(err, true);
 		});
+
 		let lameDecoder = new lame.Decoder();
 		let speaker = new Speaker();
 		client.pipe(lameDecoder).pipe(speaker);
@@ -242,10 +268,11 @@ let durationTimeout = null;
 let incrementalInterval = null;
 
 function startClock() {
-	console.log('Clock started');
+	console.log('Server started');
 	let preparationInterval = setInterval(() => {
 		if (new Date().getSeconds() === 0) {
 			clearInterval(preparationInterval);
+			console.log('Clock started');
 
 			setInterval(() => {
 				let now = new Date();
@@ -271,7 +298,9 @@ function startClock() {
 
 function startAlarm(incremental) {
 	if (streamPlaying) {
-		clearTimeout(durationTimeout);
+		if (durationTimeout) {
+			clearTimeout(durationTimeout);
+		}
 	} else {
 		streamPlaying = true;
 		toggleStream(true, url);
@@ -293,19 +322,27 @@ function startAlarm(incremental) {
 		}
 	}
 
-	if (!incremental && incrementalInterval) {
+	if (!incremental || increment === 0) {
 		setVolume(100);
-		clearInterval(incrementalInterval);
-		incrementalInterval = null;
+		if (incrementalInterval) {
+			clearInterval(incrementalInterval);
+			incrementalInterval = null;
+		}
 	}
 
-	durationTimeout = setTimeout(() => {
-		stopAlarm();
-	}, duration * 60000);
+	if (duration > 0 && duration < 120) {
+		durationTimeout = setTimeout(() => {
+			stopAlarm();
+		}, duration * 60000);
+	}
 }
 
 function stopAlarm() {
 	if (streamPlaying) {
+		if (incrementalInterval) {
+			clearInterval(incrementalInterval);
+			incrementalInterval = null;
+		}
 		clearTimeout(durationTimeout);
 		streamPlaying = false;
 		toggleStream(false);

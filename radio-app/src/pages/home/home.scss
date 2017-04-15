@@ -1,16 +1,23 @@
 page-home {
 	.alarmItem {
+		&.item-ios {
+			.toggle-checked {
+				background-color: color($colors, good);
+			}
+		}
+
+		&.animate {
+			animation: peek 0.5s;
+		}
+
 		h1 {
 			font-size: 50px;
 			font-weight: 200;
-		}
-
-		&.disabled {
 			color: color($colors, lightText);
 		}
 
-		.toggle-ios .toggle-checked {
-			background-color: color($colors, good);
+		&.item-toggle-checked h1 {
+			color: color($colors, black);
 		}
 	}
 }

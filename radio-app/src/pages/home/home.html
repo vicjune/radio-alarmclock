@@ -17,18 +17,32 @@
 <ion-content>
 	<error></error>
 	<ion-list>
-		<button ion-item class="alarmItem" *ngFor="let alarm of alarms" (click)="alarmSelected(alarm)" [ngClass]="{'disabled': !alarm.enabled}">
-			<ion-label>
-				<h1>{{ alarm.hour | frontZeros }}:{{ alarm.minute | frontZeros }}</h1>
-				<p>
-					<span *ngIf="alarm.days.length === 0">Radio</span>
-					<span *ngIf="alarm.days.length > 0">Radio, </span>
-					<span>{{ alarm.days | weekDays: false }}</span>
-				</p>
-			</ion-label>
-			<ion-spinner item-content *ngIf="alarm.loading"></ion-spinner>
-			<ion-toggle color="secondary" [ngModel]="alarm.enabled" (ngModelChange)="onAlarmToggle($event, alarm)"></ion-toggle>
-		</button>
+		<ion-item-sliding *ngFor="let alarm of alarms" #item [ngClass]="{'active-slide active-options-right': item.animate}">
+			<ion-item class="alarmItem" [ngClass]="{'animate': item.animate}">
+				<ion-label (click)="itemClicked(item)">
+					<h1>{{ alarm.hour | frontZeros }}:{{ alarm.minute | frontZeros }}</h1>
+					<p>
+						<span *ngIf="alarm.days.length === 0">Radio</span>
+						<span *ngIf="alarm.days.length > 0">Radio, </span>
+						<span>{{ alarm.days | weekDays: false }}</span>
+					</p>
+				</ion-label>
+				<ion-spinner item-content *ngIf="alarm.loading"></ion-spinner>
+				<ion-toggle item-content color="secondary" [(ngModel)]="alarm.enabled" (ngModelChange)="setAlarm(alarm, true)"></ion-toggle>
+			</ion-item>
+			<ion-item-options side="left">
+				<button ion-button color="danger" (click)="deleteAlarm(alarm.id, true)">
+					<ion-icon name="trash"></ion-icon>
+					Delete
+				</button>
+			</ion-item-options>
+			<ion-item-options side="right">
+				<button ion-button (click)="alarmSelected(alarm); item.close();">
+					<ion-icon name="md-create"></ion-icon>
+					Edit
+				</button>
+			</ion-item-options>
+		</ion-item-sliding>
 		<p *ngIf="alarms.length === 0" class="emptyListMessage">No alarm</p>
 	</ion-list>
 
