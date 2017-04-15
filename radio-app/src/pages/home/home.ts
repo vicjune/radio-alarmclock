@@ -20,7 +20,7 @@ export class HomePage {
 	constructor(public navCtrl: NavController, public modalCtrl: ModalController, public fireService: FireService, public websocketService: WebsocketService) {
 		this.fireService.bind('alarm').subscribe(serverAlarm => {
 			if (serverAlarm.delete) {
-				this.deleteAlarm(serverAlarm.id);
+				this.deleteAlarm(serverAlarm.id, false);
 			} else {
 				this.setAlarm(serverAlarm, false);
 			}
@@ -41,7 +41,7 @@ export class HomePage {
 		});
 	}
 
-	setAlarm(newAlarm, loading: boolean): void {
+	setAlarm(newAlarm, local: boolean): void {
 		let alarmExists = false;
 		for (let alarm of this.alarms) {
 			if (alarm.id === newAlarm.id) {
@@ -49,7 +49,7 @@ export class HomePage {
 				alarm.hour = newAlarm.hour;
 				alarm.minute = newAlarm.minute;
 				alarm.enabled = newAlarm.enabled;
-				alarm.loading = loading;
+				alarm.loading = local;
 				alarmExists = true;
 				break;
 			}
@@ -61,7 +61,7 @@ export class HomePage {
 				hour: newAlarm.hour,
 				minute: newAlarm.minute,
 				enabled: newAlarm.enabled,
-				loading: loading
+				loading: local
 			});
 		}
 
@@ -72,27 +72,32 @@ export class HomePage {
 				return a.hour - b.hour;
 			}
 		});
+
+		if (local) {
+			this.fireService.send('alarm', {
+				id: newAlarm.id,
+				days: newAlarm.days,
+				hour: newAlarm.hour,
+				minute: newAlarm.minute,
+				enabled: newAlarm.enabled
+			});
+		}
 	}
 
-	deleteAlarm(alarmId: number): void {
+	deleteAlarm(alarmId: number, local: boolean): void {
 		for (let i = 0; i < this.alarms.length; ++i) {
 			if (this.alarms[i].id === alarmId) {
 				this.alarms.splice(i, 1);
 				break;
 			}
 		}
-	}
 
-	onAlarmToggle(event: boolean, alarm: Alarm): void {
-		alarm.enabled = event;
-		this.setAlarm(alarm, true);
-		this.fireService.send('alarm', {
-			id: alarm.id,
-			days: alarm.days,
-			hour: alarm.hour,
-			minute: alarm.minute,
-			enabled: event
-		});
+		if (local) {
+			this.fireService.send('alarm', {
+				id: alarmId,
+				delete: true
+			});
+		}
 	}
 
 	alarmSelected(alarm: Alarm = null): void {
@@ -106,23 +111,21 @@ export class HomePage {
 			if (modalAlarm) {
 				if (modalAlarm.enabled) {
 					this.setAlarm(modalAlarm, true);
-					this.fireService.send('alarm', {
-						id: modalAlarm.id,
-						days: modalAlarm.days,
-						hour: modalAlarm.hour,
-						minute: modalAlarm.minute,
-						enabled: modalAlarm.enabled
-					});
 				} else {
-					this.deleteAlarm(modalAlarm.id);
-					this.fireService.send('alarm', {
-						id: modalAlarm.id,
-						delete: true
-					});
+					this.deleteAlarm(modalAlarm.id, true);
 				}
 			}
 		});
 		alarmModal.present();
+	}
+
+	itemClicked(item) {
+		if (!item.animate) {
+			item.animate = true;
+			setTimeout(() => {
+				item.animate = false;
+			}, 500);
+		}
 	}
 
 	goSettings(): void {

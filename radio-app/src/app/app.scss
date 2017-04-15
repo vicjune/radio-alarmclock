@@ -31,3 +31,18 @@
 .list-header-md {
 	margin-bottom: 0;
 }
+
+
+@keyframes peek {
+    0% {
+    	transform: translate3d(0px, 0px, 0px);
+    }
+
+    50% {
+    	transform: translate3d(-30px, 0px, 0px);
+    }
+
+    100% {
+    	transform: translate3d(0px, 0px, 0px);
+    }
+}
