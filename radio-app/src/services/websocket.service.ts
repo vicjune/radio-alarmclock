@@ -62,6 +62,7 @@ export class WebsocketService {
 
 	private bounceConnect(bounceTimer) {
 		this.ws = new WebSocket(this.url);
+		this.subject.next(this.ws);
 
 		this.ws.onopen = () => {
 			this.subject.next(this.ws);
@@ -73,7 +74,7 @@ export class WebsocketService {
 				this.ws.send(JSON.stringify(data));
 			}
 			this.offlinePayloads = [];
-		}
+		};
 
 		this.ws.onclose = () => {
 			this.subject.next(this.ws);
@@ -83,6 +84,6 @@ export class WebsocketService {
 					this.reconnectTimeout = null;
 				}, bounceTimer);
 			}
-		}
+		};
 	}
 }

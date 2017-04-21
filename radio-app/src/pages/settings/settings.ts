@@ -12,11 +12,20 @@ export class SettingsPage {
 	increment: number = 0;
 	duration: number = 15;
 	debounceTimeout = null;
+	online: boolean = false;
 
 	constructor(public navCtrl: NavController, public fireService: FireService, public websocketService: WebsocketService) {
 		this.fireService.bind('config').subscribe(serverConfig => {
 			this.duration = serverConfig.duration;
 			this.increment = serverConfig.increment;
+		});
+
+		this.websocketService.getConnectionStatus().subscribe(status => {
+			if (status === 1) {
+				this.online= true;
+			} else {
+				this.online = false;
+			}
 		});
 	}
 

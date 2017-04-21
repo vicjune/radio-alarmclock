@@ -14,7 +14,7 @@
 			<ion-badge color="secondary" item-right>{{ increment > 0 ? increment + ' min' : 'Instant' }}</ion-badge>
 		</ion-list-header>
 		<ion-item>
-			<ion-range color="secondary"  min="0" max="10" [(ngModel)]="increment" (ngModelChange)="setConfig()">
+			<ion-range [disabled]="!online" color="secondary"  min="0" max="10" [(ngModel)]="increment" (ngModelChange)="setConfig()">
 				<ion-icon range-left name="flash" color="secondary"></ion-icon>
 				<ion-icon range-right name="cafe" color="secondary"></ion-icon>
 			</ion-range>
@@ -26,7 +26,7 @@
 			<ion-badge color="secondary" item-right>{{ duration < 120 ? (duration | minuteHours) : 'Manual stop'}}</ion-badge>
 		</ion-list-header>
 		<ion-item>
-			<ion-range color="secondary"  min="15" max="120" step="15" snaps="true" [(ngModel)]="duration" (ngModelChange)="setConfig()">
+			<ion-range [disabled]="!online" color="secondary"  min="15" max="120" step="15" snaps="true" [(ngModel)]="duration" (ngModelChange)="setConfig()">
 				<ion-icon range-left name="clock" color="secondary"></ion-icon>
 				<ion-icon range-right name="close-circle" color="secondary"></ion-icon>
 			</ion-range>
