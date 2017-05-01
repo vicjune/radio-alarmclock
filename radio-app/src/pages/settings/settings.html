@@ -11,7 +11,7 @@
 	<ion-list>
 		<ion-list-header>
 			Volume increment
-			<ion-badge color="secondary" item-right>{{ increment > 0 ? increment + ' min' : 'Instant' }}</ion-badge>
+			<ion-badge [ngClass]="{'online': online}" color="secondary" item-right>{{ increment > 0 ? increment + ' min' : 'Instant' }}</ion-badge>
 		</ion-list-header>
 		<ion-item>
 			<ion-range [disabled]="!online" color="secondary"  min="0" max="10" [(ngModel)]="increment" (ngModelChange)="setConfig()">
@@ -23,7 +23,7 @@
 	<ion-list>
 		<ion-list-header>
 			Radio duration
-			<ion-badge color="secondary" item-right>{{ duration < 120 ? (duration | minuteHours) : 'Manual stop'}}</ion-badge>
+			<ion-badge [ngClass]="{'online': online}" color="secondary" item-right>{{ duration < 120 ? (duration | minuteHours) : 'Manual stop'}}</ion-badge>
 		</ion-list-header>
 		<ion-item>
 			<ion-range [disabled]="!online" color="secondary"  min="15" max="120" step="15" snaps="true" [(ngModel)]="duration" (ngModelChange)="setConfig()">

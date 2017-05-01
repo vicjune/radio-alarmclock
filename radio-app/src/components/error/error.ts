@@ -15,17 +15,19 @@ export class ErrorComponent implements OnInit {
 	constructor(public websocketService: WebsocketService) {}
 
 	ngOnInit() {
-		this.websocketService.getConnectionStatus().subscribe(status => {
+		this.websocketService.status.subscribe(status => {
 			if (status === 1) {
-				this.online = true;
-				this.displayed = true;
-				if (this.timeout) {
-					clearTimeout(this.timeout);
+				if (!this.online) {
+					this.online = true;
+					this.displayed = true;
+					if (this.timeout) {
+						clearTimeout(this.timeout);
+					}
+					this.timeout = setTimeout(() => {
+						this.displayed = false;
+						this.timeout = null;
+					}, 2000);
 				}
-				this.timeout = setTimeout(() => {
-					this.displayed = false;
-					this.timeout = null;
-				}, 2000);
 			} else {
 				if (this.online) {
 					this.online = false;

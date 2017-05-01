@@ -1,5 +1,9 @@
 page-settings {
 	.list-header .badge {
 		text-transform: none;
+
+		&:not(.online) {
+			opacity: 0.5;
+		}
 	}
 }

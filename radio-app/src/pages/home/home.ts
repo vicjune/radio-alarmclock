@@ -31,7 +31,8 @@ export class HomePage {
 			this.radioLoading = radioStatus.loading;
 		});
 
-		this.websocketService.getConnectionStatus().subscribe(status => {
+		this.websocketService.status.subscribe(status => {
+			console.log(status);
 			if (status === 1) {
 				this.alarms = [];
 				this.online = true;

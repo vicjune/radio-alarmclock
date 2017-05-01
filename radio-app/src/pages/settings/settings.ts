@@ -20,7 +20,7 @@ export class SettingsPage {
 			this.increment = serverConfig.increment;
 		});
 
-		this.websocketService.getConnectionStatus().subscribe(status => {
+		this.websocketService.status.subscribe(status => {
 			if (status === 1) {
 				this.online= true;
 			} else {
