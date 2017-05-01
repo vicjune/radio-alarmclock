@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { NavParams, ViewController } from 'ionic-angular';
+import { DatePicker } from '@ionic-native/date-picker';
+
 
 import { Alarm } from '../../interfaces/alarm';
 import { FrontZerosPipe } from '../../pipes/front-zeros.pipe';
@@ -12,15 +14,18 @@ import { weekDays } from '../../constants/week-days';
 export class AlarmPage {
 	alarm: Alarm;
 	newAlarm: boolean;
-	hour: string;
 	weekDays = weekDays;
 
-	constructor(params: NavParams, public viewCtrl: ViewController, public frontZerosPipe: FrontZerosPipe) {
+	constructor(
+		params: NavParams,
+		public viewCtrl: ViewController,
+		public frontZerosPipe: FrontZerosPipe,
+		public datePicker: DatePicker
+	) {
 		if (params.get('alarm')) {
 			this.alarm = JSON.parse(JSON.stringify(params.get('alarm')));
 			this.alarm.enabled = true;
 			this.newAlarm = false;
-			this.hour = this.frontZerosPipe.transform(this.alarm.hour) + ':' + this.frontZerosPipe.transform(this.alarm.minute);
 		} else {
 			let now = new Date();
 			this.alarm = {
@@ -32,13 +37,21 @@ export class AlarmPage {
 				loading: true
 			}
 			this.newAlarm = true;
-			this.hour = this.frontZerosPipe.transform(now.getHours()) + ':' + this.frontZerosPipe.transform(now.getMinutes());
 		}
 	}
 
-	setHour(): void {
-		this.alarm.hour = parseInt(this.hour.split(':')[0]);
-		this.alarm.minute = parseInt(this.hour.split(':')[1]);
+	selectHour(): void {
+		this.datePicker.show({
+			date: new Date(), //TODO alarm time
+			mode: 'time',
+			androidTheme: this.datePicker.ANDROID_THEMES.THEME_HOLO_LIGHT
+		}).then(
+			date => {
+				this.alarm.hour = date.getHours();
+				this.alarm.minute = date.getMinutes();
+			},
+			err => console.log('Error occurred while getting date: ', err)
+		);
 	}
 
 	toggleDay(id) {

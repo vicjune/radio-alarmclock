@@ -18,9 +18,9 @@
 
 <ion-content>
 	<ion-list>
-		<button ion-item>
-			<ion-label>Alarm</ion-label>
-			<ion-datetime class="alarmHour" displayFormat="HH:mm" [(ngModel)]="hour" (ngModelChange)="setHour()"></ion-datetime>
+		<button ion-item (click)="selectHour()">
+			<ion-label>Alarm<h1>{{ alarm.hour | frontZeros }}:{{ alarm.minute | frontZeros }}</h1></ion-label>
+
 		</button>
 	</ion-list>
 	<ion-list>

@@ -26,15 +26,17 @@ export class HomePage {
 			}
 		});
 
+		this.fireService.bind('alarmList').subscribe(serverAlarmList => {
+			this.updateAlarms(serverAlarmList);
+		});
+
 		this.fireService.bind('playRadio').subscribe(radioStatus => {
 			this.radioPlaying = radioStatus.playing;
 			this.radioLoading = radioStatus.loading;
 		});
 
 		this.websocketService.status.subscribe(status => {
-			console.log(status);
 			if (status === 1) {
-				this.alarms = [];
 				this.online = true;
 			} else {
 				this.online = false;
@@ -42,7 +44,26 @@ export class HomePage {
 		});
 	}
 
-	setAlarm(newAlarm, local: boolean): void {
+	updateAlarms(alarmList): void {
+		for (let alarm of this.alarms) {
+			let serverAlarmExists = false;
+			for (let serverAlarm of alarmList) {
+				if (alarm.id === serverAlarm.id) {
+					serverAlarmExists = true;
+					break;
+				}
+			}
+			if (!serverAlarmExists) {
+				this.deleteAlarm(alarm.id, false);
+			}
+		}
+
+		for (let serverAlarm of alarmList) {
+			this.setAlarm(serverAlarm, false);
+		}
+	}
+
+	setAlarm(newAlarm, send: boolean): void {
 		let alarmExists = false;
 		for (let alarm of this.alarms) {
 			if (alarm.id === newAlarm.id) {
@@ -50,7 +71,7 @@ export class HomePage {
 				alarm.hour = newAlarm.hour;
 				alarm.minute = newAlarm.minute;
 				alarm.enabled = newAlarm.enabled;
-				alarm.loading = local;
+				alarm.loading = send;
 				alarmExists = true;
 				break;
 			}
@@ -62,7 +83,7 @@ export class HomePage {
 				hour: newAlarm.hour,
 				minute: newAlarm.minute,
 				enabled: newAlarm.enabled,
-				loading: local
+				loading: send
 			});
 		}
 
@@ -74,7 +95,7 @@ export class HomePage {
 			}
 		});
 
-		if (local) {
+		if (send) {
 			this.fireService.send('alarm', {
 				id: newAlarm.id,
 				days: newAlarm.days,
@@ -85,7 +106,7 @@ export class HomePage {
 		}
 	}
 
-	deleteAlarm(alarmId: number, local: boolean): void {
+	deleteAlarm(alarmId: number, send: boolean): void {
 		for (let i = 0; i < this.alarms.length; ++i) {
 			if (this.alarms[i].id === alarmId) {
 				this.alarms.splice(i, 1);
@@ -93,7 +114,7 @@ export class HomePage {
 			}
 		}
 
-		if (local) {
+		if (send) {
 			this.fireService.send('alarm', {
 				id: alarmId,
 				delete: true

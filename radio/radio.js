@@ -1,3 +1,6 @@
+let version = 1;
+
+
 let lame = require('lame');
 let Speaker = require('speaker');
 let loudness = require('loudness');
@@ -35,6 +38,11 @@ socketServer.on('connection', socket => {
 	console.log('New WebSocket Connection');
 
 	socket.send(JSON.stringify({
+		type: 'version',
+		data: version
+	}));
+
+	socket.send(JSON.stringify({
 		type: 'playRadio',
 		data: {
 			playing: streamPlaying,
@@ -50,12 +58,10 @@ socketServer.on('connection', socket => {
 		}
 	}));
 
-	for (let alarm of alarms) {
-		socket.send(JSON.stringify({
-			type: 'alarm',
-			data: alarm
-		}));
-	}
+	socket.send(JSON.stringify({
+		type: 'alarmList',
+		data: alarms
+	}));
 
 	socket.on('message', (data) => {
 		let payload = JSON.parse(data);
