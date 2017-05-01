@@ -8,29 +8,33 @@ import { WebsocketService } from '../../services/websocket.service';
 	templateUrl: 'error.html'
 })
 export class ErrorComponent implements OnInit {
-	connected: boolean;
-	message: string = '';
+	online: boolean = true;
+	displayed: boolean = false;
 	timeout = null;
 
 	constructor(public websocketService: WebsocketService) {}
 
 	ngOnInit() {
-		this.websocketService.getConnectionStatus().subscribe(status => {
-			if (status < 2) {
-				this.connected = true;
-				this.message = 'Connected';
-				if (this.timeout) {
-					clearTimeout(this.timeout);
+		this.websocketService.status.subscribe(status => {
+			if (status === 1) {
+				if (!this.online) {
+					this.online = true;
+					this.displayed = true;
+					if (this.timeout) {
+						clearTimeout(this.timeout);
+					}
+					this.timeout = setTimeout(() => {
+						this.displayed = false;
+						this.timeout = null;
+					}, 2000);
 				}
-				this.timeout = setTimeout(() => {
-					this.message = '';
-					this.timeout = null;
-				}, 2000);
 			} else {
-				this.connected = false;
-				this.message = 'Not connected';
-				if (this.timeout) {
-					clearTimeout(this.timeout);
+				if (this.online) {
+					this.online = false;
+					this.displayed = true;
+					if (this.timeout) {
+						clearTimeout(this.timeout);
+					}
 				}
 			}
 		});

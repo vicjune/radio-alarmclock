@@ -6,8 +6,8 @@ import { FrontZerosPipe } from '../../pipes/front-zeros.pipe';
 import { weekDays } from '../../constants/week-days';
 
 @Component({
-  selector: 'page-alarm',
-  templateUrl: 'alarm.html'
+	selector: 'page-alarm',
+	templateUrl: 'alarm.html'
 })
 export class AlarmPage {
 	alarm: Alarm;

@@ -4,9 +4,18 @@ error {
 		color: color($colors, white);
 		background: color($colors, danger);
 		padding: 0;
+		margin-top: -44px;
+		visibility: hidden;
+		transition: margin 0.5s, visibility 0s ease 0.5s;
 
 		&.connected {
 			background: color($colors, good);
+		}
+
+		&.displayed {
+			margin-top: 0;
+			visibility: visible;
+			transition: margin 0.5s;
 		}
 
 		.item-inner {

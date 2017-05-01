@@ -8,18 +8,18 @@ import { WebsocketService } from '../services/websocket.service';
 
 
 @Component({
-    templateUrl: 'app.html'
+	templateUrl: 'app.html'
 })
 export class MyApp {
-    rootPage:any = HomePage;
+	rootPage:any = HomePage;
 
-    constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, public websocketService: WebsocketService) {
-        platform.ready().then(() => {
+	constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, public websocketService: WebsocketService) {
+		platform.ready().then(() => {
 
-            this.websocketService.connect('ws://192.168.1.46:8001');
+			this.websocketService.connect('ws://192.168.1.46:8001');
 
-            statusBar.styleDefault();
-            splashScreen.hide();
-        });
-    }
+			statusBar.styleDefault();
+			splashScreen.hide();
+		});
+	}
 }

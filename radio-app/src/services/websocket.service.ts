@@ -5,6 +5,7 @@ import { ReplaySubject } from 'rxjs/ReplaySubject';
 @Injectable()
 export class WebsocketService {
 	socket: ReplaySubject<any> = new ReplaySubject<any>();
+	status: ReplaySubject<number> = new ReplaySubject<number>(1);
 	private ws: WebSocket;
 	private url: string;
 	private reconnectTimeout;
@@ -16,6 +17,7 @@ export class WebsocketService {
 			ws.onmessage = data => {
 				this.socket.next(JSON.parse(data.data));
 			}
+			this.status.next(ws.readyState);
 		});
 	}
 
@@ -41,14 +43,6 @@ export class WebsocketService {
 		}
 	}
 
-	getConnectionStatus(): Rx.Observable<number> {
-		return Rx.Observable.create((obs: Rx.Observer<number>) => {
-			this.subject.subscribe(ws => {
-				obs.next(ws.readyState);
-			});
-		});
-	}
-
 	close() {
 		if (this.ws) {
 			this.ws.close();
@@ -62,6 +56,7 @@ export class WebsocketService {
 
 	private bounceConnect(bounceTimer) {
 		this.ws = new WebSocket(this.url);
+		this.subject.next(this.ws);
 
 		this.ws.onopen = () => {
 			this.subject.next(this.ws);
@@ -73,7 +68,7 @@ export class WebsocketService {
 				this.ws.send(JSON.stringify(data));
 			}
 			this.offlinePayloads = [];
-		}
+		};
 
 		this.ws.onclose = () => {
 			this.subject.next(this.ws);
@@ -83,6 +78,6 @@ export class WebsocketService {
 					this.reconnectTimeout = null;
 				}, bounceTimer);
 			}
-		}
+		};
 	}
 }
