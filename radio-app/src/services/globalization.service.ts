@@ -27,7 +27,7 @@ export class GlobalizationService {
 			}).catch(err => console.log(err));
 
 			globalization.getFirstDayOfWeek().then(res => {
-				for (let i = 0; i < parseInt(res.value); i++) {
+				for (let i = 0; i < Math.min(parseInt(res.value), 1); i++) {
 					this.weekDays.push(this.weekDays.splice(0, 1)[0]);
 				}
 			}).catch(err => console.log(err));
