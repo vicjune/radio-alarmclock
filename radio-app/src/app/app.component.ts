@@ -24,7 +24,7 @@ export class MyApp {
 	) {
 		platform.ready().then(() => {
 
-			websocketService.connect('ws://192.168.1.46:8001');
+			websocketService.connect('ws://127.0.0.1:8001');
 
 			fireService.bind('version').subscribe(serverVersion => {
 				if (serverVersion < this.version) {

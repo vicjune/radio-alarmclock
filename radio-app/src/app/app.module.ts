@@ -3,6 +3,7 @@ import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { DatePicker } from '@ionic-native/date-picker';
+import { Globalization } from '@ionic-native/globalization';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -11,6 +12,7 @@ import { AlarmPage } from '../pages/alarm/alarm';
 import { ErrorComponent } from '../components/error/error';
 import { WebsocketService } from '../services/websocket.service';
 import { FireService } from '../services/fire.service';
+import { GlobalizationService } from '../services/globalization.service';
 import { FrontZerosPipe } from '../pipes/front-zeros.pipe';
 import { WeekDaysPipe } from '../pipes/week-days.pipe';
 import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
@@ -42,8 +44,10 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		SplashScreen,
 		WebsocketService,
 		FireService,
+		GlobalizationService,
 		FrontZerosPipe,
 		DatePicker,
+		Globalization,
 		{provide: ErrorHandler, useClass: IonicErrorHandler}
 	]
 })

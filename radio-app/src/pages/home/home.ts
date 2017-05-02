@@ -6,6 +6,7 @@ import { AlarmPage } from '../alarm/alarm';
 import { SettingsPage } from '../settings/settings';
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { GlobalizationService } from '../../services/globalization.service';
 
 @Component({
 	selector: 'page-home',
@@ -17,11 +18,22 @@ export class HomePage {
 	radioLoading: boolean = true;
 	online: boolean = false;
 
-	constructor(public navCtrl: NavController, public modalCtrl: ModalController, public fireService: FireService, public websocketService: WebsocketService) {
+	constructor(
+		public navCtrl: NavController,
+		public modalCtrl: ModalController,
+		public fireService: FireService,
+		public websocketService: WebsocketService,
+		public globalization: GlobalizationService
+	) {
 		this.fireService.bind('alarm').subscribe(serverAlarm => {
 			if (serverAlarm.delete) {
 				this.deleteAlarm(serverAlarm.id, false);
 			} else {
+				serverAlarm.loading = false;
+				let tempDate = new Date();
+				tempDate.setHours(serverAlarm.hour);
+				tempDate.setMinutes(serverAlarm.minute);
+				serverAlarm.date = tempDate;
 				this.setAlarm(serverAlarm, false);
 			}
 		});
@@ -44,7 +56,7 @@ export class HomePage {
 		});
 	}
 
-	updateAlarms(alarmList): void {
+	updateAlarms(alarmList: any): void {
 		for (let alarm of this.alarms) {
 			let serverAlarmExists = false;
 			for (let serverAlarm of alarmList) {
@@ -59,19 +71,23 @@ export class HomePage {
 		}
 
 		for (let serverAlarm of alarmList) {
+			serverAlarm.loading = false;
+			let tempDate = new Date();
+			tempDate.setHours(serverAlarm.hour);
+			tempDate.setMinutes(serverAlarm.minute);
+			serverAlarm.date = tempDate;
 			this.setAlarm(serverAlarm, false);
 		}
 	}
 
-	setAlarm(newAlarm, send: boolean): void {
+	setAlarm(newAlarm: Alarm, send: boolean): void {
 		let alarmExists = false;
 		for (let alarm of this.alarms) {
 			if (alarm.id === newAlarm.id) {
 				alarm.days = newAlarm.days;
-				alarm.hour = newAlarm.hour;
-				alarm.minute = newAlarm.minute;
+				alarm.date = newAlarm.date;
 				alarm.enabled = newAlarm.enabled;
-				alarm.loading = send;
+				alarm.loading = newAlarm.loading;
 				alarmExists = true;
 				break;
 			}
@@ -80,18 +96,17 @@ export class HomePage {
 			this.alarms.push({
 				id: newAlarm.id,
 				days: newAlarm.days,
-				hour: newAlarm.hour,
-				minute: newAlarm.minute,
+				date: newAlarm.date,
 				enabled: newAlarm.enabled,
 				loading: send
 			});
 		}
 
 		this.alarms.sort((a, b) => {
-			if (a.hour === b.hour) {
-				return a.minute - b.minute;
+			if (a.date.getHours() === b.date.getHours()) {
+				return a.date.getMinutes() - b.date.getMinutes();
 			} else {
-				return a.hour - b.hour;
+				return a.date.getHours() - b.date.getHours();
 			}
 		});
 
@@ -99,8 +114,8 @@ export class HomePage {
 			this.fireService.send('alarm', {
 				id: newAlarm.id,
 				days: newAlarm.days,
-				hour: newAlarm.hour,
-				minute: newAlarm.minute,
+				hour: newAlarm.date.getHours(),
+				minute: newAlarm.date.getMinutes(),
 				enabled: newAlarm.enabled
 			});
 		}
