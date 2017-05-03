@@ -19,8 +19,7 @@
 <ion-content>
 	<ion-list>
 		<button ion-item (click)="selectHour()">
-			<ion-label>Alarm</ion-label>
-			<ion-note class="alarmHour" item-right>{{ alarm.date | date:globalization.timeFormat }}</ion-note>
+			<ion-label class="alarmHour">{{ alarm.date | date:globalization.timeFormat }}</ion-label>
 		</button>
 	</ion-list>
 	<ion-list>

@@ -1,0 +1,24 @@
+<ion-header>
+	<ion-navbar color="primary">
+		<ion-title>
+			Radios
+		</ion-title>
+	</ion-navbar>
+</ion-header>
+
+<ion-content>
+	<error></error>
+	<ion-list>
+		<ion-list-header>
+			Select your radio
+			<ion-spinner class="loader" item-content *ngIf="loading"></ion-spinner>
+		</ion-list-header>
+		<ion-item item-radio *ngFor="let radio of radios">
+			<ion-icon name="leaf" item-left></ion-icon>
+			<ion-label>{{ radio.label }}</ion-label>
+			<ion-spinner item-content *ngIf="radio.loading"></ion-spinner>
+			<ion-radio color="secondary" value="radio.id" (click)="selectRadio(radio)" [checked]="radio.active"></ion-radio>
+		</ion-item>
+		<p *ngIf="radios.length === 0" class="emptyListMessage">No radio</p>
+	</ion-list>
+</ion-content>

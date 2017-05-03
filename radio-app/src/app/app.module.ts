@@ -9,6 +9,7 @@ import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { SettingsPage } from '../pages/settings/settings';
 import { AlarmPage } from '../pages/alarm/alarm';
+import { RadiosPage } from '../pages/radios/radios';
 import { ErrorComponent } from '../components/error/error';
 import { WebsocketService } from '../services/websocket.service';
 import { FireService } from '../services/fire.service';
@@ -23,6 +24,7 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		HomePage,
 		SettingsPage,
 		AlarmPage,
+		RadiosPage,
 		ErrorComponent,
 		FrontZerosPipe,
 		WeekDaysPipe,
@@ -37,6 +39,7 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		HomePage,
 		SettingsPage,
 		AlarmPage,
+		RadiosPage,
 		ErrorComponent
 	],
 	providers: [

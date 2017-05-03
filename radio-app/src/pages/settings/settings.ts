@@ -3,6 +3,8 @@ import { NavController } from 'ionic-angular';
 
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { RadiosPage } from '../radios/radios';
+import { Radio } from '../../interfaces/radio';
 
 @Component({
 	selector: 'page-settings',
@@ -13,11 +15,20 @@ export class SettingsPage {
 	duration: number = 15;
 	debounceTimeout = null;
 	online: boolean = false;
+	activeRadio: Radio = null;
 
 	constructor(public navCtrl: NavController, public fireService: FireService, public websocketService: WebsocketService) {
 		this.fireService.bind('config').subscribe(serverConfig => {
 			this.duration = serverConfig.duration;
 			this.increment = serverConfig.increment;
+		});
+
+		this.fireService.bind('radioList').subscribe(serverRadioList => {
+			for (let serverRadio of serverRadioList) {
+			    if (serverRadio.active) {
+					this.activeRadio = serverRadio;
+				}
+			}
 		});
 
 		this.websocketService.status.subscribe(status => {
@@ -36,6 +47,10 @@ export class SettingsPage {
 				increment: this.increment
 			});
 		});
+	}
+
+	goRadios(): void {
+		this.navCtrl.push(RadiosPage);
 	}
 
 	private debounce(timer, fn) {

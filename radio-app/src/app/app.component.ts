@@ -13,7 +13,7 @@ import { FireService } from '../services/fire.service';
 })
 export class MyApp {
 	rootPage: any = HomePage;
-	version: number = 1;
+	version: number = 2;
 
 	constructor(
 		platform: Platform,

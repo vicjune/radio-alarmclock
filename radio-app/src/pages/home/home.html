@@ -28,7 +28,7 @@
 					</p>
 				</ion-label>
 				<ion-spinner item-content *ngIf="alarm.loading"></ion-spinner>
-				<ion-toggle item-content color="secondary" [(ngModel)]="alarm.enabled" (ngModelChange)="setAlarm(alarm, true)"></ion-toggle>
+				<ion-toggle item-content color="secondary" [(ngModel)]="alarm.enabled" (ngModelChange)="toggleAlarm(alarm)"></ion-toggle>
 			</ion-item>
 			<ion-item-options side="left">
 				<button ion-button color="danger" (click)="deleteAlarm(alarm.id, true)">

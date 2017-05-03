@@ -156,6 +156,11 @@ export class HomePage {
 		alarmModal.present();
 	}
 
+	toggleAlarm(alarm: Alarm): void {
+		alarm.loading = true;
+		this.setAlarm(alarm, true);
+	}
+
 	itemClicked(item) {
 		if (!item.animate) {
 			item.animate = true;
