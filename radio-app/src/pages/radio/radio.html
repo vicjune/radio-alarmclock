@@ -1,0 +1,23 @@
+<ion-header>
+	<ion-navbar color="primary">
+		<ion-buttons start>
+			<button ion-button (click)="close()">
+				Cancel
+			</button>
+		</ion-buttons>
+		<ion-title>
+			Radio
+		</ion-title>
+		<ion-buttons end>
+			<button ion-button (click)="save()">
+				Save
+			</button>
+		</ion-buttons>
+	</ion-navbar>
+</ion-header>
+
+<ion-content>
+	<button ion-button full color="danger" outline *ngIf="!newRadio" (click)="delete()">
+		Delete this radio
+	</button>
+</ion-content>

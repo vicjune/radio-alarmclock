@@ -24,9 +24,11 @@ export class SettingsPage {
 		});
 
 		this.fireService.bind('radioList').subscribe(serverRadioList => {
+			this.activeRadio = null;
 			for (let serverRadio of serverRadioList) {
 			    if (serverRadio.active) {
 					this.activeRadio = serverRadio;
+					break;
 				}
 			}
 		});

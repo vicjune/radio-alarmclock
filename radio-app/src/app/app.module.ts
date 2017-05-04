@@ -10,10 +10,12 @@ import { HomePage } from '../pages/home/home';
 import { SettingsPage } from '../pages/settings/settings';
 import { AlarmPage } from '../pages/alarm/alarm';
 import { RadiosPage } from '../pages/radios/radios';
-import { ErrorComponent } from '../components/error/error';
+import { RadioPage } from '../pages/radio/radio';
+import { ConnectionStatusComponent } from '../components/connection-status/connection-status';
 import { WebsocketService } from '../services/websocket.service';
 import { FireService } from '../services/fire.service';
 import { GlobalizationService } from '../services/globalization.service';
+import { ErrorService } from '../services/error.service';
 import { FrontZerosPipe } from '../pipes/front-zeros.pipe';
 import { WeekDaysPipe } from '../pipes/week-days.pipe';
 import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
@@ -25,7 +27,8 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		SettingsPage,
 		AlarmPage,
 		RadiosPage,
-		ErrorComponent,
+		RadioPage,
+		ConnectionStatusComponent,
 		FrontZerosPipe,
 		WeekDaysPipe,
 		MinutesHoursPipe
@@ -40,7 +43,8 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		SettingsPage,
 		AlarmPage,
 		RadiosPage,
-		ErrorComponent
+		RadioPage,
+		ConnectionStatusComponent
 	],
 	providers: [
 		StatusBar,
@@ -48,6 +52,7 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		WebsocketService,
 		FireService,
 		GlobalizationService,
+		ErrorService,
 		FrontZerosPipe,
 		DatePicker,
 		Globalization,

@@ -15,10 +15,10 @@
 </ion-header>
 
 <ion-content>
-	<error></error>
+	<connection-status></connection-status>
 	<ion-list>
 		<ion-item-sliding *ngFor="let alarm of alarms" #item [ngClass]="{'active-slide active-options-right': item.animate}">
-			<ion-item class="alarmItem" [ngClass]="{'animate': item.animate}">
+			<ion-item class="slidingItem" [ngClass]="{'animate': item.animate}">
 				<ion-label (click)="itemClicked(item)">
 					<h1>{{ alarm.date | date:globalization.timeFormat }}</h1>
 					<p>

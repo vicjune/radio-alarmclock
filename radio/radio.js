@@ -23,6 +23,14 @@ let radios = [
 		label: 'France Inter',
 		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
 		validationPending: false,
+		valid: false,
+		active: false
+	},
+	{
+		id: 2,
+		label: 'Skyrock',
+		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
+		validationPending: false,
 		valid: true,
 		active: false
 	}

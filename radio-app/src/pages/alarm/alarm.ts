@@ -67,8 +67,10 @@ export class AlarmPage {
 	}
 
 	delete(): void {
-		this.alarm.enabled = false;
-		this.save();
+		this.viewCtrl.dismiss({
+			id : this.alarm.id,
+			delete: true
+		});
 	}
 
 }

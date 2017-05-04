@@ -32,6 +32,14 @@
 	margin-bottom: 0;
 }
 
+.slidingItem {
+	&.animate {
+		animation: peek 0.5s;
+	}
+}
+
+
+
 
 @keyframes peek {
     0% {

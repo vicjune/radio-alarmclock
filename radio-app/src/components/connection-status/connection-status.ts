@@ -4,10 +4,10 @@ import { WebsocketService } from '../../services/websocket.service';
 // import { errorStyle } from './error.scss';
 
 @Component({
-	selector: 'error',
-	templateUrl: 'error.html'
+	selector: 'connection-status',
+	templateUrl: 'connection-status.html'
 })
-export class ErrorComponent implements OnInit {
+export class ConnectionStatusComponent implements OnInit {
 	online: boolean = true;
 	displayed: boolean = false;
 	timeout = null;

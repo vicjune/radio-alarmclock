@@ -3,22 +3,43 @@
 		<ion-title>
 			Radios
 		</ion-title>
+		<ion-buttons end showWhen="ios">
+			<button ion-button icon-only (click)="editRadio()">
+				<ion-icon name="add"></ion-icon>
+			</button>
+		</ion-buttons>
 	</ion-navbar>
 </ion-header>
 
 <ion-content>
-	<error></error>
+	<connection-status></connection-status>
 	<ion-list>
 		<ion-list-header>
-			Select your radio
+			Slide to edit
 			<ion-spinner class="loader" item-content *ngIf="loading"></ion-spinner>
 		</ion-list-header>
-		<ion-item item-radio *ngFor="let radio of radios">
-			<ion-icon name="leaf" item-left></ion-icon>
-			<ion-label>{{ radio.label }}</ion-label>
-			<ion-spinner item-content *ngIf="radio.loading"></ion-spinner>
-			<ion-radio color="secondary" value="radio.id" (click)="selectRadio(radio)" [checked]="radio.active"></ion-radio>
-		</ion-item>
+		<ion-item-sliding #item *ngFor="let radio of radios">
+			<ion-item item-radio>
+				<ion-icon class="radioStatusIcon" name="alert" color="warning" item-left *ngIf="!radio.valid && !radio.loading && !radio.validationPending"></ion-icon>
+				<ion-spinner item-content item-left *ngIf="radio.loading || radio.validationPending"></ion-spinner>
+				<ion-label>{{ radio.label }}</ion-label>
+				<ion-radio color="secondary" value="radio.id" (click)="selectRadio(radio)" [checked]="radio.active"></ion-radio>
+			</ion-item>
+			<ion-item-options side="left">
+				<button ion-button color="danger" (click)="deleteRadio(radio.id, true); item.close();">
+					<ion-icon name="trash"></ion-icon>
+				</button>
+			</ion-item-options>
+			<ion-item-options side="right">
+				<button ion-button (click)="editRadio(radio); item.close();">
+					<ion-icon name="md-create"></ion-icon>
+				</button>
+			</ion-item-options>
+		</ion-item-sliding>
 		<p *ngIf="radios.length === 0" class="emptyListMessage">No radio</p>
 	</ion-list>
+
+	<ion-fab right bottom hideWhen="ios">
+		<button color="secondary" ion-fab (click)="editRadio()"><ion-icon name="add"></ion-icon></button>
+	</ion-fab>
 </ion-content>

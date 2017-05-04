@@ -7,7 +7,7 @@
 </ion-header>
 
 <ion-content>
-	<error></error>
+	<connection-status></connection-status>
 	<ion-list>
 		<ion-list-header>
 			Volume increment
@@ -36,7 +36,10 @@
 	<ion-list>
 		<button ion-item (click)="goRadios()">
 			<ion-label>Radio</ion-label>
-			<ion-note item-right>{{ activeRadio ? activeRadio.label : 'none' }}</ion-note>
+			<ion-note item-right>
+				<ion-icon name="alert" color="warning" *ngIf="activeRadio && !activeRadio.valid"></ion-icon>
+				{{ activeRadio ? activeRadio.label : 'none' }}
+			</ion-note>
 		</button>
 	</ion-list>
 </ion-content>

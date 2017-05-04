@@ -146,10 +146,10 @@ export class HomePage {
 		}
 		alarmModal.onDidDismiss(modalAlarm => {
 			if (modalAlarm) {
-				if (modalAlarm.enabled) {
-					this.setAlarm(modalAlarm, true);
-				} else {
+				if (modalAlarm.delete) {
 					this.deleteAlarm(modalAlarm.id, true);
+				} else {
+					this.setAlarm(modalAlarm, true);
 				}
 			}
 		});

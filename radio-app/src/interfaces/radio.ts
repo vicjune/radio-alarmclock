@@ -4,4 +4,6 @@ export interface Radio {
 	url: string;
 	active: boolean;
 	loading: boolean;
+	valid: boolean;
+	validationPending: boolean;
 }

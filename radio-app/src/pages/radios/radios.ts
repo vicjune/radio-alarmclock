@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
+import { ModalController } from 'ionic-angular';
 
 import { Radio } from '../../interfaces/radio';
+import { RadioPage } from '../radio/radio';
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { ErrorService } from '../../services/error.service';
 
 @Component({
 	selector: 'page-radios',
@@ -13,8 +16,10 @@ export class RadiosPage {
 	loading: boolean = false;
 
 	constructor(
+		public modalCtrl: ModalController,
 		public fireService: FireService,
-		public websocketService: WebsocketService
+		public websocketService: WebsocketService,
+		public error: ErrorService
 	) {
 		this.fireService.bind('radioList').subscribe(serverRadioList => {
 			this.loading = false;
@@ -50,6 +55,8 @@ export class RadiosPage {
 				radio.url = newRadio.url;
 				radio.active = newRadio.active;
 				radio.loading = newRadio.loading;
+				radio.valid = newRadio.valid;
+				radio.validationPending = newRadio.validationPending;
 				radioExists = true;
 				break;
 			}
@@ -60,9 +67,13 @@ export class RadiosPage {
 				label: newRadio.label,
 				url: newRadio.url,
 				active: newRadio.active,
-				loading: send
+				loading: send,
+				valid: newRadio.valid,
+				validationPending: newRadio.validationPending
 			});
 		}
+
+		this.radios.sort((a, b) => a.id - b.id);
 
 		if (send) {
 			this.fireService.send('radio', {
@@ -75,27 +86,54 @@ export class RadiosPage {
 	}
 
 	deleteRadio(radioId: number, send: boolean): void {
-		for (let i = 0; i < this.radios.length; ++i) {
-			if (this.radios[i].id === radioId) {
-				this.radios.splice(i, 1);
-				break;
+		if (this.radios.length > 1) {
+			for (let i = 0; i < this.radios.length; ++i) {
+				if (this.radios[i].id === radioId) {
+					let deletedActive = this.radios[i].active;
+					this.radios.splice(i, 1);
+					if (deletedActive) {
+						this.selectRadio(this.radios[0]);
+					}
+					break;
+				}
 			}
-		}
 
-		if (send) {
-			this.fireService.send('radio', {
-				id: radioId,
-				delete: true
-			});
+			if (send) {
+				this.fireService.send('radio', {
+					id: radioId,
+					delete: true
+				});
+			}
+		} else {
+			this.error.display('You can\'t delete the last radio');
 		}
 	}
 
 	selectRadio(selectedRadio: Radio) {
 		for (let radio of this.radios) {
-		    radio.active = false;
+			radio.active = false;
 		}
 		selectedRadio.active = true;
 		this.loading = true;
 		this.setRadio(selectedRadio, true);
+	}
+
+	editRadio(radio: Radio = null): void {
+		let radioModal;
+		if (radio) {
+			radioModal = this.modalCtrl.create(RadioPage, {radio: radio});
+		} else {
+			radioModal = this.modalCtrl.create(RadioPage);
+		}
+		radioModal.onDidDismiss(modalRadio => {
+			if (modalRadio) {
+				if (modalRadio.delete) {
+					this.deleteRadio(modalRadio.id, true);
+				} else {
+					this.setRadio(modalRadio, true);
+				}
+			}
+		});
+		radioModal.present();
 	}
 }

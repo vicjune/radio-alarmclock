@@ -1,13 +1,9 @@
 page-home {
-	.alarmItem {
+	.slidingItem {
 		&.item-ios {
 			.toggle-checked {
 				background-color: color($colors, good);
 			}
-		}
-
-		&.animate {
-			animation: peek 0.5s;
 		}
 
 		h1 {
