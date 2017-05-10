@@ -37,9 +37,10 @@
 		<button ion-item (click)="goRadios()">
 			<ion-label>Radio</ion-label>
 			<ion-note item-right>
-				<ion-icon name="alert" color="warning" *ngIf="activeRadio && !activeRadio.valid"></ion-icon>
 				{{ activeRadio ? activeRadio.label : 'none' }}
 			</ion-note>
+			<ion-spinner item-right *ngIf="activeRadio && (activeRadio.loading || activeRadio.validationPending)"></ion-spinner>
+			<ion-icon name="alert" color="warning" *ngIf="activeRadio && !activeRadio.valid && !activeRadio.loading && !activeRadio.validationPending" item-right></ion-icon>
 		</button>
 	</ion-list>
 </ion-content>

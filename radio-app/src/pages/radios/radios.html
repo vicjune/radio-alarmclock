@@ -20,8 +20,8 @@
 		</ion-list-header>
 		<ion-item-sliding #item *ngFor="let radio of radios">
 			<ion-item item-radio>
-				<ion-icon class="radioStatusIcon" name="alert" color="warning" item-left *ngIf="!radio.valid && !radio.loading && !radio.validationPending"></ion-icon>
-				<ion-spinner item-content item-left *ngIf="radio.loading || radio.validationPending"></ion-spinner>
+				<ion-icon name="alert" color="warning" item-right *ngIf="!radio.valid && !radio.loading && !radio.validationPending"></ion-icon>
+				<ion-spinner item-content item-right *ngIf="radio.loading || radio.validationPending"></ion-spinner>
 				<ion-label>{{ radio.label }}</ion-label>
 				<ion-radio color="secondary" value="radio.id" (click)="selectRadio(radio)" [checked]="radio.active"></ion-radio>
 			</ion-item>

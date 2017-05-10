@@ -30,7 +30,7 @@ let radios = [
 		id: 2,
 		label: 'Skyrock',
 		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
-		validationPending: false,
+		validationPending: true,
 		valid: true,
 		active: false
 	}

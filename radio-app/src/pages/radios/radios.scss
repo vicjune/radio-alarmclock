@@ -1,26 +1,3 @@
 page-radios {
-	.loader {
-		margin-right: 20px;
-	}
 
-	ion-item {
-		&.item-md {
-			.radioStatusIcon[item-left] + .item-inner {
-				margin: 0 !important;
-				padding-left: 24px;
-			}
-
-			.radioStatusIcon[item-left] {
-				border-bottom: 1px solid #dedede;
-				margin: 0 !important;
-				padding: 11px 8px 10px 0;
-			}
-		}
-
-		&.item-ios .radioStatusIcon[item-left] {
-			border-bottom: 0.55px solid #c8c7cc;
-			margin: 0 !important;
-			padding: 9px 16px 8px 0;
-		}
-	}
 }
