@@ -9,30 +9,28 @@ let WebSocket = require('ws');
 
 // TEMP MOCK
 let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
+let defaultRadioId = 0;
 let radios = [
 	{
 		id: 0,
 		label: 'France Info',
 		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
 		validationPending: false,
-		valid: true,
-		active: true
+		valid: true
 	},
 	{
 		id: 1,
 		label: 'France Inter',
 		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
 		validationPending: false,
-		valid: false,
-		active: false
+		valid: false
 	},
 	{
 		id: 2,
 		label: 'Skyrock',
 		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
-		validationPending: true,
-		valid: true,
-		active: false
+		validationPending: false,
+		valid: true
 	}
 ];
 let alarms = [{
@@ -40,7 +38,16 @@ let alarms = [{
 	days: [1, 2, 3, 4, 5],
 	hour: 8,
 	minute: 30,
-	enabled: true
+	enabled: true,
+	radioId: 0
+},
+{
+	id: 1,
+	days: [],
+	hour: 10,
+	minute: 30,
+	enabled: false,
+	radioId: 1
 }];
 let duration = 60;
 let increment = 5;
@@ -94,6 +101,11 @@ socketServer.on('connection', socket => {
 		data: radios
 	}));
 
+	socket.send(JSON.stringify({
+		type: 'defaultRadioId',
+		data: defaultRadioId
+	}));
+
 	socket.on('message', (data) => {
 		let payload = JSON.parse(data);
 
@@ -142,20 +154,45 @@ socketServer.on('connection', socket => {
 				for (let radio of radios) {
 					if (radio.id === clientRadio.id) {
 						radio.label = clientRadio.label;
+						let urlChange = radio.url !== clientRadio.url;
 						radio.url = clientRadio.url;
-						radio.active = clientRadio.active;
 						radioExists = true;
-						if (!clientRadio.active) {
-							break;
+						if (urlChange) {
+							radio.validationPending = true;
+
+							checkUrlValidity(radio.url, valid => {
+								radio.valid = valid;
+								radio.validationPending = false;
+
+								socketServer.broadcast({
+									type: 'radioList',
+									data: radios
+								});
+							});
 						}
-					} else {
-						if (clientRadio.active) {
-							radio.active = false;
-						}
+						break;
 					}
 				}
 				if (!radioExists) {
-					radios.push(clientRadio);
+					let newRadio = {
+						id: clientRadio.id,
+						label: clientRadio.label,
+						url: clientRadio.url,
+						valid: false,
+						validationPending: true
+					};
+
+					radios.push(newRadio);
+
+					checkUrlValidity(newRadio.url, valid => {
+						newRadio.valid = valid;
+						newRadio.validationPending = false;
+
+						socketServer.broadcast({
+							type: 'radioList',
+							data: radios
+						});
+					});
 				}
 			}
 
@@ -165,8 +202,22 @@ socketServer.on('connection', socket => {
 			});
 		}
 
-		if (payload.type === 'urlValidation') {
+		if (payload.type === 'defaultRadioId') {
+			defaultRadioId = payload.data;
 
+			socketServer.broadcast({
+				type: 'defaultRadioId',
+				data: defaultRadioId
+			});
+		}
+
+		if (payload.type === 'url') {
+			checkUrlValidity(payload.data, valid => {
+				socketServer.broadcast({
+					type: 'url',
+					data: valid
+				});
+			});
 		}
 
 		if (payload.type === 'playRadio') {
@@ -206,6 +257,20 @@ socketServer.broadcast = data => {
 
 
 
+// Stream validation
+function checkUrlValidity(url, fn) {
+	let valid = false;
+
+	setTimeout(() => {
+		fn(valid);
+	}, 2000);
+}
+
+
+
+
+
+
 
 
 // Radio
@@ -239,6 +304,11 @@ function toggleStream(on, url = null) {
 				if (error === 'timeout' && !end) {
 					toggleStream(true, url);
 				} else {
+					socketServer.broadcast({
+						type: 'error',
+						data: 'Couldn\'t read the radio :/'
+					});
+
 					socketServer.broadcast({
 						type: 'playRadio',
 						data: {

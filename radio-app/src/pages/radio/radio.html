@@ -26,7 +26,7 @@
 	<ion-list>
 		<ion-item>
 			<ion-label color="secondary" stacked>Url</ion-label>
-			<ion-input placeholder="http://example.mp3" [(ngModel)]="radio.url"></ion-input>
+			<ion-input placeholder="http://example.mp3" [(ngModel)]="radio.url" (ngModelChange)="checkUrl($event)"></ion-input>
 		</ion-item>
 		<ion-item *ngIf="radio.url">
 			<ion-spinner *ngIf="radio.validationPending" item-right></ion-spinner>

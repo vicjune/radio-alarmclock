@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import Rx from 'rxjs/Rx';
 
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { RadiosPage } from '../radios/radios';
 import { Radio } from '../../interfaces/radio';
+import { Debouncer } from '../../classes/debouncer.class';
 
 @Component({
 	selector: 'page-settings',
@@ -13,9 +15,9 @@ import { Radio } from '../../interfaces/radio';
 export class SettingsPage {
 	increment: number = 0;
 	duration: number = 15;
-	debounceTimeout = null;
 	online: boolean = false;
-	activeRadio: Radio = null;
+	defaultRadio: Radio = null;
+	debouncer: Debouncer = new Debouncer();
 
 	constructor(public navCtrl: NavController, public fireService: FireService, public websocketService: WebsocketService) {
 		this.fireService.bind('config').subscribe(serverConfig => {
@@ -23,11 +25,15 @@ export class SettingsPage {
 			this.increment = serverConfig.increment;
 		});
 
-		this.fireService.bind('radioList').subscribe(serverRadioList => {
-			this.activeRadio = null;
-			for (let serverRadio of serverRadioList) {
-			    if (serverRadio.active) {
-					this.activeRadio = serverRadio;
+		Rx.Observable.combineLatest(
+			this.fireService.bind('radioList'),
+			this.fireService.bind('defaultRadioId'),
+			(serverRadioList, defaultRadioId) => ({serverRadioList, defaultRadioId})
+		).subscribe(data => {
+			this.defaultRadio = null;
+			for (let serverRadio of data.serverRadioList) {
+			    if (serverRadio.id === data.defaultRadioId) {
+					this.defaultRadio = serverRadio;
 					break;
 				}
 			}
@@ -43,25 +49,21 @@ export class SettingsPage {
 	}
 
 	setConfig() {
-		this.debounce(500, () => {
+		this.debouncer.debounce(() => {
+			console.log(this.increment);
 			this.fireService.send('config', {
 				duration: this.duration,
 				increment: this.increment
 			});
-		});
+		}, 500);
 	}
 
 	goRadios(): void {
-		this.navCtrl.push(RadiosPage);
+		this.navCtrl.push(RadiosPage, {
+			defaultRadioId: this.defaultRadio.id,
+			radioSelectedCallback: newRadioId => {
+				this.fireService.send('defaultRadioId', newRadioId);
+			}
+		});
 	}
-
-	private debounce(timer, fn) {
-		if (this.debounceTimeout) {
-			clearTimeout(this.debounceTimeout);
-		}
-		this.debounceTimeout = setTimeout(() => {
-			fn();
-		}, timer);
-	}
-
 }

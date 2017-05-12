@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ModalController } from 'ionic-angular';
+import { ModalController, NavParams } from 'ionic-angular';
 
 import { Radio } from '../../interfaces/radio';
 import { RadioPage } from '../radio/radio';
@@ -13,16 +13,20 @@ import { ErrorService } from '../../services/error.service';
 })
 export class RadiosPage {
 	radios: Radio[] = [];
-	loading: boolean = false;
+	selectedRadioId: number;
+	onSelectCallback: Function;
 
 	constructor(
+		public navParams: NavParams,
 		public modalCtrl: ModalController,
 		public fireService: FireService,
 		public websocketService: WebsocketService,
 		public error: ErrorService
 	) {
+		this.selectedRadioId = navParams.get('defaultRadioId');
+		this.onSelectCallback = navParams.get('radioSelectedCallback');
+
 		this.fireService.bind('radioList').subscribe(serverRadioList => {
-			this.loading = false;
 			this.updateRadios(serverRadioList);
 		});
 	}
@@ -42,7 +46,6 @@ export class RadiosPage {
 		}
 
 		for (let serverRadio of radioList) {
-			serverRadio.loading = false;
 			this.setRadio(serverRadio, false);
 		}
 	}
@@ -53,7 +56,6 @@ export class RadiosPage {
 			if (radio.id === newRadio.id) {
 				radio.label = newRadio.label;
 				radio.url = newRadio.url;
-				radio.active = newRadio.active;
 				radio.loading = newRadio.loading;
 				radio.valid = newRadio.valid;
 				radio.validationPending = newRadio.validationPending;
@@ -66,7 +68,6 @@ export class RadiosPage {
 				id: newRadio.id,
 				label: newRadio.label,
 				url: newRadio.url,
-				active: newRadio.active,
 				loading: send,
 				valid: newRadio.valid,
 				validationPending: newRadio.validationPending
@@ -79,8 +80,7 @@ export class RadiosPage {
 			this.fireService.send('radio', {
 				id: newRadio.id,
 				label: newRadio.label,
-				url: newRadio.url,
-				active: newRadio.active
+				url: newRadio.url
 			});
 		}
 	}
@@ -89,7 +89,7 @@ export class RadiosPage {
 		if (this.radios.length > 1) {
 			for (let i = 0; i < this.radios.length; ++i) {
 				if (this.radios[i].id === radioId) {
-					let deletedActive = this.radios[i].active;
+					let deletedActive = this.radios[i].id === this.selectedRadioId;
 					this.radios.splice(i, 1);
 					if (deletedActive) {
 						this.selectRadio(this.radios[0]);
@@ -110,12 +110,8 @@ export class RadiosPage {
 	}
 
 	selectRadio(selectedRadio: Radio) {
-		for (let radio of this.radios) {
-			radio.active = false;
-		}
-		selectedRadio.active = true;
-		this.loading = true;
-		this.setRadio(selectedRadio, true);
+		this.selectedRadioId = selectedRadio.id;
+		this.onSelectCallback(selectedRadio.id);
 	}
 
 	editRadio(radio: Radio = null): void {
