@@ -127,6 +127,7 @@ socketServer.on('connection', socket => {
 						alarm.hour = clientAlarm.hour;
 						alarm.minute = clientAlarm.minute;
 						alarm.enabled = clientAlarm.enabled;
+						alarm.radioId = clientAlarm.radioId;
 						alarmExists = true;
 						break;
 					}

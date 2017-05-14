@@ -4,4 +4,5 @@ export interface Alarm {
 	days: number[];
 	enabled: boolean;
 	loading: boolean;
+	radioId: number;
 }

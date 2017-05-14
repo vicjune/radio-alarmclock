@@ -4,9 +4,10 @@ import Rx from 'rxjs/Rx';
 
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { RadioListService } from '../../services/radioList.service';
 import { RadiosPage } from '../radios/radios';
 import { Radio } from '../../interfaces/radio';
-import { Debouncer } from '../../classes/debouncer.class';
+import { Debouncer } from '../../services/debouncer.service';
 
 @Component({
 	selector: 'page-settings',
@@ -19,24 +20,19 @@ export class SettingsPage {
 	defaultRadio: Radio = null;
 	debouncer: Debouncer = new Debouncer();
 
-	constructor(public navCtrl: NavController, public fireService: FireService, public websocketService: WebsocketService) {
+	constructor(
+		public navCtrl: NavController,
+		public fireService: FireService,
+		public websocketService: WebsocketService,
+		public radioListService: RadioListService
+	) {
 		this.fireService.bind('config').subscribe(serverConfig => {
 			this.duration = serverConfig.duration;
 			this.increment = serverConfig.increment;
 		});
 
-		Rx.Observable.combineLatest(
-			this.fireService.bind('radioList'),
-			this.fireService.bind('defaultRadioId'),
-			(serverRadioList, defaultRadioId) => ({serverRadioList, defaultRadioId})
-		).subscribe(data => {
-			this.defaultRadio = null;
-			for (let serverRadio of data.serverRadioList) {
-			    if (serverRadio.id === data.defaultRadioId) {
-					this.defaultRadio = serverRadio;
-					break;
-				}
-			}
+		this.fireService.bind('defaultRadioId').mergeMap(defaultRadioId => this.radioListService.getRadio(defaultRadioId)).subscribe(serverDefaultRadio => {
+			this.defaultRadio = serverDefaultRadio as Radio;
 		});
 
 		this.websocketService.status.subscribe(status => {

@@ -4,6 +4,7 @@ import { DatePicker } from '@ionic-native/date-picker';
 
 import { Alarm } from '../../interfaces/alarm';
 import { GlobalizationService } from '../../services/globalization.service';
+import { FireService } from '../../services/fire.service';
 
 @Component({
 	selector: 'page-alarm',
@@ -18,7 +19,8 @@ export class AlarmPage {
 		params: NavParams,
 		public viewCtrl: ViewController,
 		public datePicker: DatePicker,
-		public globalization: GlobalizationService
+		public globalization: GlobalizationService,
+		public fireService: FireService
 	) {
 		let now = new Date();
 		this.alarm = {
@@ -26,14 +28,22 @@ export class AlarmPage {
 			days: [],
 			date: now,
 			enabled: true,
-			loading: true
+			loading: true,
+			radioId: null
 		}
 		if (params.get('alarm')) {
 			this.alarm.id = params.get('alarm').id;
 			this.alarm.days = params.get('alarm').days;
 			this.alarm.date = params.get('alarm').date;
+			this.alarm.radioId = params.get('alarm').radioId;
 			this.newAlarm = false;
 		}
+
+		this.fireService.bind('defaultRadioId').subscribe(serverRadioId => {
+			if (this.alarm.radioId === null) {
+				this.alarm.radioId = serverRadioId;
+			}
+		});
 	}
 
 	selectHour(): void {

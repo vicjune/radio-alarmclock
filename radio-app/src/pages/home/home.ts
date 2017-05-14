@@ -7,6 +7,7 @@ import { SettingsPage } from '../settings/settings';
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
 import { GlobalizationService } from '../../services/globalization.service';
+import { RadioListService } from '../../services/radioList.service';
 
 @Component({
 	selector: 'page-home',
@@ -23,7 +24,8 @@ export class HomePage {
 		public modalCtrl: ModalController,
 		public fireService: FireService,
 		public websocketService: WebsocketService,
-		public globalization: GlobalizationService
+		public globalization: GlobalizationService,
+		public radioListService: RadioListService
 	) {
 		this.fireService.bind('alarm').subscribe(serverAlarm => {
 			if (serverAlarm.delete) {
@@ -88,6 +90,7 @@ export class HomePage {
 				alarm.date = newAlarm.date;
 				alarm.enabled = newAlarm.enabled;
 				alarm.loading = newAlarm.loading;
+				alarm.radioId = newAlarm.radioId;
 				alarmExists = true;
 				break;
 			}
@@ -98,7 +101,8 @@ export class HomePage {
 				days: newAlarm.days,
 				date: newAlarm.date,
 				enabled: newAlarm.enabled,
-				loading: send
+				loading: send,
+				radioId: newAlarm.radioId
 			});
 		}
 
@@ -116,7 +120,8 @@ export class HomePage {
 				days: newAlarm.days,
 				hour: newAlarm.date.getHours(),
 				minute: newAlarm.date.getMinutes(),
-				enabled: newAlarm.enabled
+				enabled: newAlarm.enabled,
+				radioId: newAlarm.radioId
 			});
 		}
 	}
