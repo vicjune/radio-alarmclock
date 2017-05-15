@@ -38,6 +38,21 @@
 	}
 }
 
+.playingToast {
+	.toast-container,
+	.toast-wrapper {
+		display: inline-block;
+		left: auto;
+		width: auto;
+	}
+
+	.toast-message {
+		flex-basis: auto;
+		flex-grow: 0;
+		flex-shrink: 0;
+	}
+}
+
 
 
 

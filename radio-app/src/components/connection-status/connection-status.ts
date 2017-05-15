@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
 import { WebsocketService } from '../../services/websocket.service';
-// import { errorStyle } from './error.scss';
 
 @Component({
 	selector: 'connection-status',

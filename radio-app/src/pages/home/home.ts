@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, ModalController } from 'ionic-angular';
+import { NavController, ModalController, ToastController } from 'ionic-angular';
 
 import { Alarm } from '../../interfaces/alarm';
 import { AlarmPage } from '../alarm/alarm';
@@ -22,6 +22,7 @@ export class HomePage {
 	constructor(
 		public navCtrl: NavController,
 		public modalCtrl: ModalController,
+		public toastCtrl: ToastController,
 		public fireService: FireService,
 		public websocketService: WebsocketService,
 		public globalization: GlobalizationService,
@@ -47,6 +48,15 @@ export class HomePage {
 		this.fireService.bind('playRadio').subscribe(radioStatus => {
 			this.radioPlaying = radioStatus.playing;
 			this.radioLoading = radioStatus.loading;
+		});
+
+		this.fireService.bind('radioPlaying').subscribe(serverRadio => {
+			this.toastCtrl.create({
+				message: serverRadio.label,
+				duration: 2000,
+				dismissOnPageChange: true,
+				cssClass: 'playingToast'
+			}).present();
 		});
 
 		this.websocketService.status.subscribe(status => {

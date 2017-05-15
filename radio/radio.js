@@ -146,7 +146,18 @@ socketServer.on('connection', socket => {
 			if (clientRadio.delete) {
 				for (let i = 0; i < radios.length; ++i) {
 					if (radios[i].id === clientRadio.id) {
+						let radioDeletedId = radios[i].id;
 						radios.splice(i, 1);
+						for (alarm of alarms) {
+							if (alarm.radioId === radioDeletedId) {
+								alarm.radioId = radios[0].id;
+
+								socketServer.broadcast({
+									type: 'alarm',
+									data: alarm
+								});
+							}
+						}
 						break;
 					}
 				}
@@ -204,7 +215,9 @@ socketServer.on('connection', socket => {
 		}
 
 		if (payload.type === 'defaultRadioId') {
-			defaultRadioId = payload.data;
+			if (payload.data) {
+				defaultRadioId = payload.data;
+			}
 
 			socketServer.broadcast({
 				type: 'defaultRadioId',
@@ -224,15 +237,37 @@ socketServer.on('connection', socket => {
 		if (payload.type === 'playRadio') {
 			if (payload.data) {
 				startAlarm(false);
+
+				for (radio of radios) {
+					if (radio.url === url) {
+						socketServer.broadcast({
+							type: 'radioPlaying',
+							data: radio
+						});
+						break;
+					}
+				}
 			} else {
 				stopAlarm();
 			}
 		}
 
 		if (payload.type === 'config') {
-			duration = payload.data.duration;
-			increment = payload.data.increment;
-			socketServer.broadcast(payload);
+			if (payload.data && payload.data.duration) {
+				duration = payload.data.duration;
+			}
+
+			if (payload.data && payload.data.increment) {
+				increment = payload.data.increment;
+			}
+
+			socketServer.broadcast({
+				type: 'config',
+				data: {
+					duration: duration,
+					increment: increment
+				}
+			});
 		}
 	});
 

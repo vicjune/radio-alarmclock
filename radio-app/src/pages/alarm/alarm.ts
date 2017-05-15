@@ -83,4 +83,7 @@ export class AlarmPage {
 		});
 	}
 
+	radioSelected(newRadioId: number): void {
+		this.alarm.radioId = newRadioId;
+	}
 }

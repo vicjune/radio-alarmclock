@@ -1,12 +1,7 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
-import Rx from 'rxjs/Rx';
 
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
-import { RadioListService } from '../../services/radioList.service';
-import { RadiosPage } from '../radios/radios';
-import { Radio } from '../../interfaces/radio';
 import { Debouncer } from '../../services/debouncer.service';
 
 @Component({
@@ -17,22 +12,20 @@ export class SettingsPage {
 	increment: number = 0;
 	duration: number = 15;
 	online: boolean = false;
-	defaultRadio: Radio = null;
+	defaultRadioId: number = null;
 	debouncer: Debouncer = new Debouncer();
 
 	constructor(
-		public navCtrl: NavController,
 		public fireService: FireService,
-		public websocketService: WebsocketService,
-		public radioListService: RadioListService
+		public websocketService: WebsocketService
 	) {
 		this.fireService.bind('config').subscribe(serverConfig => {
 			this.duration = serverConfig.duration;
 			this.increment = serverConfig.increment;
 		});
 
-		this.fireService.bind('defaultRadioId').mergeMap(defaultRadioId => this.radioListService.getRadio(defaultRadioId)).subscribe(serverDefaultRadio => {
-			this.defaultRadio = serverDefaultRadio as Radio;
+		this.fireService.bind('defaultRadioId').subscribe(serverDefaultRadioId => {
+			this.defaultRadioId = serverDefaultRadioId;
 		});
 
 		this.websocketService.status.subscribe(status => {
@@ -46,7 +39,6 @@ export class SettingsPage {
 
 	setConfig() {
 		this.debouncer.debounce(() => {
-			console.log(this.increment);
 			this.fireService.send('config', {
 				duration: this.duration,
 				increment: this.increment
@@ -54,12 +46,7 @@ export class SettingsPage {
 		}, 500);
 	}
 
-	goRadios(): void {
-		this.navCtrl.push(RadiosPage, {
-			defaultRadioId: this.defaultRadio.id,
-			radioSelectedCallback: newRadioId => {
-				this.fireService.send('defaultRadioId', newRadioId);
-			}
-		});
+	radioSelected(newRadioId: number): void {
+		this.fireService.send('defaultRadioId', newRadioId);
 	}
 }

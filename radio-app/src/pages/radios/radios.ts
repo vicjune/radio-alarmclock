@@ -23,7 +23,7 @@ export class RadiosPage {
 		public websocketService: WebsocketService,
 		public error: ErrorService
 	) {
-		this.selectedRadioId = navParams.get('defaultRadioId');
+		this.selectedRadioId = navParams.get('selectedRadioId');
 		this.onSelectCallback = navParams.get('radioSelectedCallback');
 
 		this.fireService.bind('radioList').subscribe(serverRadioList => {

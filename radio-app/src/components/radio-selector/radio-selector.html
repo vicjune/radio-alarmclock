@@ -1,0 +1,10 @@
+<ion-list>
+	<button ion-item (click)="goRadios()">
+		<ion-label>{{ label || 'Radio' }}</ion-label>
+		<ion-note item-right>
+			{{ selectedRadio ? selectedRadio.label : 'none' }}
+		</ion-note>
+		<ion-spinner item-right *ngIf="selectedRadio && (selectedRadio.loading || selectedRadio.validationPending)"></ion-spinner>
+		<ion-icon name="alert" color="warning" *ngIf="selectedRadio && !selectedRadio.valid && !selectedRadio.loading && !selectedRadio.validationPending" item-right></ion-icon>
+	</button>
+</ion-list>
