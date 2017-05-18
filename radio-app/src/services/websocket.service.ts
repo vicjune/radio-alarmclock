@@ -19,6 +19,7 @@ export class WebsocketService {
 			}
 			this.status.next(ws.readyState);
 		});
+		console.log('webso');
 	}
 
 	send(data): void {

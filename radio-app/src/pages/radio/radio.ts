@@ -3,7 +3,7 @@ import { NavParams, ViewController } from 'ionic-angular';
 
 import { FireService } from '../../services/fire.service';
 import { Radio } from '../../interfaces/radio';
-import { Debouncer } from '../../services/debouncer.service';
+import { DebouncerService } from '../../services/debouncer.service';
 
 @Component({
 	selector: 'page-radio',
@@ -12,7 +12,7 @@ import { Debouncer } from '../../services/debouncer.service';
 export class RadioPage {
 	radio: Radio;
 	newRadio: boolean = true;
-	debouncer: Debouncer = new Debouncer();
+	debouncer: DebouncerService = new DebouncerService();
 
 	constructor(
 		params: NavParams,

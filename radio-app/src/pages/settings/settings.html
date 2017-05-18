@@ -9,6 +9,8 @@
 <ion-content>
 	<connection-status></connection-status>
 
+	<radio-selector [selectedRadioId]="defaultRadioId" (onRadioSelected)="radioSelected($event)" label="Default radio"></radio-selector>
+
 	<ion-list>
 		<ion-list-header>
 			Volume increment
@@ -35,5 +37,17 @@
 		</ion-item>
 	</ion-list>
 
-	<radio-selector [selectedRadioId]="defaultRadioId" (onRadioSelected)="radioSelected($event)" label="Default radio"></radio-selector>
+	<ion-list>
+		<ion-list-header>
+			Network
+		</ion-list-header>
+		<button ion-item>
+			Automatic scan
+			<ion-spinner item-right></ion-spinner>
+		</button>
+		<ion-item>
+			<ion-label color="secondary" stacked>Ip address</ion-label>
+    		<ion-input placeholder="192.168.1.2"></ion-input>
+		</ion-item>
+	</ion-list>
 </ion-content>

@@ -106,6 +106,11 @@ socketServer.on('connection', socket => {
 		data: defaultRadioId
 	}));
 
+	socket.send(JSON.stringify({
+		type: 'error',
+		data: 'lol'
+	}));
+
 	socket.on('message', (data) => {
 		let payload = JSON.parse(data);
 
@@ -253,11 +258,11 @@ socketServer.on('connection', socket => {
 		}
 
 		if (payload.type === 'config') {
-			if (payload.data && payload.data.duration) {
+			if (payload.data && payload.data.duration >= 0) {
 				duration = payload.data.duration;
 			}
 
-			if (payload.data && payload.data.increment) {
+			if (payload.data && payload.data.increment >= 0) {
 				increment = payload.data.increment;
 			}
 

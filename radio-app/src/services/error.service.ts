@@ -16,6 +16,7 @@ export class ErrorService {
 		this.fireService.bind('error').subscribe(error => {
 			this.display(error);
 		});
+		console.log('err');
 	}
 
 	display(message: string): void {

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 @Injectable()
-export class Debouncer {
+export class DebouncerService {
 	private timeout = null;
 
 	debounce(fn: Function, timer: number = 0) {

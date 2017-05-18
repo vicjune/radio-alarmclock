@@ -18,6 +18,7 @@ import { FireService } from '../services/fire.service';
 import { GlobalizationService } from '../services/globalization.service';
 import { ErrorService } from '../services/error.service';
 import { RadioListService } from '../services/radioList.service';
+import { ConnectionService } from '../services/connection.service';
 import { FrontZerosPipe } from '../pipes/front-zeros.pipe';
 import { WeekDaysPipe } from '../pipes/week-days.pipe';
 import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
@@ -57,6 +58,7 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		GlobalizationService,
 		ErrorService,
 		RadioListService,
+		ConnectionService,
 		FrontZerosPipe,
 		DatePicker,
 		Globalization,

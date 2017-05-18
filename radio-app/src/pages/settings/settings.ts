@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
-import { Debouncer } from '../../services/debouncer.service';
+import { DebouncerService } from '../../services/debouncer.service';
 
 @Component({
 	selector: 'page-settings',
@@ -13,7 +13,7 @@ export class SettingsPage {
 	duration: number = 15;
 	online: boolean = false;
 	defaultRadioId: number = null;
-	debouncer: Debouncer = new Debouncer();
+	debouncer: DebouncerService = new DebouncerService();
 
 	constructor(
 		public fireService: FireService,
