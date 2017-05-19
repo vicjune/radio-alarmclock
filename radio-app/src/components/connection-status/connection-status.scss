@@ -8,6 +8,10 @@ connection-status {
 		visibility: hidden;
 		transition: margin 0.5s, visibility 0s ease 0.5s;
 
+		&.connecting {
+			background: color($colors, warning);
+		}
+
 		&.connected {
 			background: color($colors, good);
 		}

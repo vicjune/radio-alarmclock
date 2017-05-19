@@ -8,6 +8,7 @@ import { WebsocketService } from '../../services/websocket.service';
 })
 export class ConnectionStatusComponent implements OnInit {
 	online: boolean = true;
+	connecting: boolean = false;
 	displayed: boolean = false;
 	timeout = null;
 
@@ -16,6 +17,7 @@ export class ConnectionStatusComponent implements OnInit {
 	ngOnInit() {
 		this.websocketService.status.subscribe(status => {
 			if (status === 1) {
+				this.connecting = false;
 				if (!this.online) {
 					this.online = true;
 					this.displayed = true;
@@ -28,6 +30,11 @@ export class ConnectionStatusComponent implements OnInit {
 					}, 2000);
 				}
 			} else {
+				if (status === 2) {
+					this.connecting = true;
+				} else {
+					this.connecting = false;
+				}
 				if (this.online) {
 					this.online = false;
 					this.displayed = true;

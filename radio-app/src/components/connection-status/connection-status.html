@@ -1,3 +1,4 @@
-<ion-item class="errorItem" [ngClass]="{'connected': online, 'displayed': displayed}">
-	{{ online ? 'Connected' : 'Not connected' }}
+<ion-item class="errorItem" [ngClass]="{'connected': online, 'displayed': displayed, 'connecting': connecting}">
+	<span *ngIf="!connecting">{{ online ? 'Connected' : 'Not connected' }}</span>
+	<span *ngIf="connecting">Connecting...</span>
 </ion-item>

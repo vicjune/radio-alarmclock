@@ -17,7 +17,6 @@ export class WebsocketService {
 			ws.onmessage = data => {
 				this.socket.next(JSON.parse(data.data));
 			}
-			this.status.next(ws.readyState);
 		});
 	}
 
@@ -31,13 +30,8 @@ export class WebsocketService {
 
 	connect(url: string, bounceTimer: number = 3000): void {
 		if (url !== this.url) {
-			if (this.ws) {
-				this.ws.close();
-			}
-			if (this.reconnectTimeout) {
-				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = null;
-			}
+			this.close();
+			this.status.next(2);
 			this.url = url;
 			this.bounceConnect(bounceTimer);
 		}
@@ -47,37 +41,35 @@ export class WebsocketService {
 		if (this.ws) {
 			this.ws.close();
 		}
-		if (this.reconnectTimeout) {
-			clearTimeout(this.reconnectTimeout);
-			this.reconnectTimeout = null;
-		}
 		this.url = null;
 	}
 
 	private bounceConnect(bounceTimer) {
-		this.ws = new WebSocket(this.url);
-		this.subject.next(this.ws);
-
-		this.ws.onopen = () => {
+		if (this.url !== null) {
+			this.ws = new WebSocket(this.url);
 			this.subject.next(this.ws);
-			if (this.reconnectTimeout) {
-				clearTimeout(this.reconnectTimeout);
-				this.reconnectTimeout = null;
-			}
-			for (let data of this.offlinePayloads) {
-				this.ws.send(JSON.stringify(data));
-			}
-			this.offlinePayloads = [];
-		};
 
-		this.ws.onclose = () => {
-			this.subject.next(this.ws);
-			if (!this.reconnectTimeout) {
-				this.reconnectTimeout = setTimeout(() => {
-					this.bounceConnect(bounceTimer);
+			this.ws.onopen = () => {
+				this.status.next(1);
+				if (this.reconnectTimeout) {
+					clearTimeout(this.reconnectTimeout);
 					this.reconnectTimeout = null;
-				}, bounceTimer);
-			}
-		};
+				}
+				for (let data of this.offlinePayloads) {
+					this.ws.send(JSON.stringify(data));
+				}
+				this.offlinePayloads = [];
+			};
+
+			this.ws.onclose = () => {
+				this.status.next(3);
+				if (!this.reconnectTimeout) {
+					this.reconnectTimeout = setTimeout(() => {
+						this.bounceConnect(bounceTimer);
+						this.reconnectTimeout = null;
+					}, bounceTimer);
+				}
+			};
+		}
 	}
 }
