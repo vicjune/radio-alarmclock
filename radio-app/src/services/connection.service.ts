@@ -7,7 +7,7 @@ import { ErrorService } from './error.service';
 @Injectable()
 export class ConnectionService {
 	ipSubject: ReplaySubject<string> = new ReplaySubject<string>(1);
-	previousIp: string;
+	scanRunning: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
 
 	constructor(
 		public websocketService: WebsocketService,
@@ -21,18 +21,17 @@ export class ConnectionService {
 
 	connect(ip: string): void {
 		// store in local storage
-		this.websocketService.connect('ws://' + ip + ':8001');
-		this.websocketService.status.subscribe(status => {
-			if (status === 3 && ip !== this.previousIp) {
-				this.errorService.display('Couldn\'t connect to ' + ip);
-			}
-			this.previousIp = ip;
-		});
+		this.ipSubject.next(ip);
+		this.websocketService.connect('ws://' + ip + ':8001/');
 	}
 
 	scan(): void {
+		this.scanRunning.next(true);
 		// search then
 		// this.ipSubject.next(ip);
 		// this.connect(ip);
+		setTimeout(() => {
+			this.scanRunning.next(false);
+		}, 2000);
 	}
 }

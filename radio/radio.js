@@ -215,7 +215,7 @@ socketServer.on('connection', socket => {
 		}
 
 		if (payload.type === 'defaultRadioId') {
-			if (payload.data) {
+			if (payload.data >= 0) {
 				defaultRadioId = payload.data;
 			}
 

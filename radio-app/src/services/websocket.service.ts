@@ -61,8 +61,10 @@ export class WebsocketService {
 				this.offlinePayloads = [];
 			};
 
-			this.ws.onclose = () => {
-				this.status.next(3);
+			this.ws.onclose = event => {
+				if (this.url === (event.currentTarget as WebSocket).url) {
+					this.status.next(3);
+				}
 				if (!this.reconnectTimeout) {
 					this.reconnectTimeout = setTimeout(() => {
 						this.bounceConnect(bounceTimer);

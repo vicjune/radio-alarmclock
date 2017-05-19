@@ -33,7 +33,7 @@
 		</ion-item>
 	</ion-list>
 
-	<radio-selector [selectedRadioId]="alarm.radioId" (onRadioSelected)="radioSelected($event)"></radio-selector>
+	<radio-selector [selectedRadioId]="alarm.radioId" (onRadioSelected)="radioSelect($event)"></radio-selector>
 
 	<button ion-button full color="danger" outline *ngIf="!newAlarm" (click)="delete()">
 		Delete this alarm

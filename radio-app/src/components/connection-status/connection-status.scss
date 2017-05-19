@@ -7,6 +7,7 @@ connection-status {
 		margin-top: -44px;
 		visibility: hidden;
 		transition: margin 0.5s, visibility 0s ease 0.5s;
+		z-index: -1;
 
 		&.connecting {
 			background: color($colors, warning);

@@ -13,6 +13,7 @@ import { FireService } from '../../services/fire.service';
 export class AlarmPage {
 	alarm: Alarm;
 	newAlarm: boolean = true;
+	radioSelected: boolean = false;
 	weekDays = this.globalization.weekDays;
 
 	constructor(
@@ -40,7 +41,7 @@ export class AlarmPage {
 		}
 
 		this.fireService.bind('defaultRadioId').subscribe(serverRadioId => {
-			if (this.alarm.radioId === null) {
+			if (this.newAlarm && !this.radioSelected) {
 				this.alarm.radioId = serverRadioId;
 			}
 		});
@@ -83,7 +84,8 @@ export class AlarmPage {
 		});
 	}
 
-	radioSelected(newRadioId: number): void {
+	radioSelect(newRadioId: number): void {
+		this.radioSelected = true;
 		this.alarm.radioId = newRadioId;
 	}
 }

@@ -9,7 +9,7 @@
 			{{ radio.label ? radio.label : 'Radio'}}
 		</ion-title>
 		<ion-buttons end>
-			<button ion-button (click)="save()">
+			<button ion-button (click)="save()" [disabled]="!radio.label || !radio.url">
 				Save
 			</button>
 		</ion-buttons>

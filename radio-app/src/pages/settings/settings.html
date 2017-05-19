@@ -7,29 +7,23 @@
 </ion-header>
 
 <ion-content>
-	<connection-status></connection-status>
-
-	<radio-selector [selectedRadioId]="defaultRadioId" (onRadioSelected)="radioSelected($event)" label="Default radio"></radio-selector>
-
 	<ion-list>
-		<ion-list-header>
-			Volume increment
-			<ion-badge [ngClass]="{'online': online}" color="secondary" item-right>{{ increment > 0 ? increment + ' min' : 'Instant' }}</ion-badge>
-		</ion-list-header>
 		<ion-item>
+			<ion-label color="secondary" stacked class="badgedLabel">
+				Volume increment
+				<ion-badge [ngClass]="{'online': online}" color="secondary">{{ increment > 0 ? increment + ' min' : 'Instant' }}</ion-badge>
+			</ion-label>
 			<ion-range [disabled]="!online" color="secondary"  min="0" max="10" [(ngModel)]="increment" (ngModelChange)="setConfig()">
 				<ion-icon range-left name="flash" color="secondary"></ion-icon>
 				<ion-icon range-right name="cafe" color="secondary"></ion-icon>
 			</ion-range>
 		</ion-item>
-	</ion-list>
 
-	<ion-list>
-		<ion-list-header>
-			Radio duration
-			<ion-badge [ngClass]="{'online': online}" color="secondary" item-right>{{ duration < 120 ? (duration | minuteHours) : 'Manual'}}</ion-badge>
-		</ion-list-header>
 		<ion-item>
+			<ion-label color="secondary" stacked class="badgedLabel">
+				Radio duration
+				<ion-badge [ngClass]="{'online': online}" color="secondary">{{ duration < 120 ? (duration | minuteHours) : 'Manual'}}</ion-badge>
+			</ion-label>
 			<ion-range [disabled]="!online" color="secondary"  min="15" max="120" step="15" snaps="true" [(ngModel)]="duration" (ngModelChange)="setConfig()">
 				<ion-icon range-left name="clock" color="secondary"></ion-icon>
 				<ion-icon range-right name="close-circle" color="secondary"></ion-icon>
@@ -37,17 +31,21 @@
 		</ion-item>
 	</ion-list>
 
+	<radio-selector [selectedRadioId]="defaultRadioId" (onRadioSelected)="radioSelected($event)" label="Default radio"></radio-selector>
+
 	<ion-list>
 		<ion-list-header>
 			Network
 		</ion-list-header>
-		<button ion-item>
+		<button ion-item (click)="scan()" [disabled]="connectionService.scanRunning | async">
 			Automatic scan
-			<ion-spinner item-right></ion-spinner>
+			<ion-spinner item-right *ngIf="connectionService.scanRunning | async"></ion-spinner>
 		</button>
 		<ion-item>
 			<ion-label color="secondary" stacked>Ip address</ion-label>
-    		<ion-input placeholder="192.168.1.2"></ion-input>
+    		<ion-input placeholder="192.168.1.2" [(ngModel)]="ipAddress" (ngModelChange)="setIpAddress()" [disabled]="connectionService.scanRunning | async"></ion-input>
 		</ion-item>
+
+		<connection-status></connection-status>
 	</ion-list>
 </ion-content>
