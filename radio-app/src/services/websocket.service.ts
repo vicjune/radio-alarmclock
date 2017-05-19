@@ -46,32 +46,36 @@ export class WebsocketService {
 
 	private bounceConnect(bounceTimer) {
 		if (this.url !== null) {
-			this.ws = new WebSocket(this.url);
-			this.subject.next(this.ws);
+			try {
+				this.ws = new WebSocket(this.url);
+				this.subject.next(this.ws);
 
-			this.ws.onopen = () => {
-				this.status.next(1);
-				if (this.reconnectTimeout) {
-					clearTimeout(this.reconnectTimeout);
-					this.reconnectTimeout = null;
-				}
-				for (let data of this.offlinePayloads) {
-					this.ws.send(JSON.stringify(data));
-				}
-				this.offlinePayloads = [];
-			};
-
-			this.ws.onclose = event => {
-				if (this.url === (event.currentTarget as WebSocket).url) {
-					this.status.next(3);
-				}
-				if (!this.reconnectTimeout) {
-					this.reconnectTimeout = setTimeout(() => {
-						this.bounceConnect(bounceTimer);
+				this.ws.onopen = () => {
+					this.status.next(1);
+					if (this.reconnectTimeout) {
+						clearTimeout(this.reconnectTimeout);
 						this.reconnectTimeout = null;
-					}, bounceTimer);
-				}
-			};
+					}
+					for (let data of this.offlinePayloads) {
+						this.ws.send(JSON.stringify(data));
+					}
+					this.offlinePayloads = [];
+				};
+
+				this.ws.onclose = event => {
+					if (this.url === (event.currentTarget as WebSocket).url) {
+						this.status.next(3);
+					}
+					if (!this.reconnectTimeout) {
+						this.reconnectTimeout = setTimeout(() => {
+							this.bounceConnect(bounceTimer);
+							this.reconnectTimeout = null;
+						}, bounceTimer);
+					}
+				};
+			} catch (e) {
+				this.status.next(3);
+			}
 		}
 	}
 }

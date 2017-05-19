@@ -8,6 +8,9 @@ import { ErrorService } from './error.service';
 export class ConnectionService {
 	ipSubject: ReplaySubject<string> = new ReplaySubject<string>(1);
 	scanRunning: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
+	scanTimeout;
+	websockets: WebSocket[];
+	scanRun: boolean = false;
 
 	constructor(
 		public websocketService: WebsocketService,
@@ -15,23 +18,61 @@ export class ConnectionService {
 	) {
 		// get local storage then
 		let ip = '127.0.0.1';
-		this.connect(ip);
-		this.ipSubject.next(ip);
+		if (ip) {
+			this.connect(ip);
+			this.ipSubject.next(ip);
+		}
 	}
 
 	connect(ip: string): void {
 		// store in local storage
 		this.ipSubject.next(ip);
-		this.websocketService.connect('ws://' + ip + ':8001/');
+		if (ip) {
+			this.websocketService.connect('ws://' + ip + ':8001/');
+		}
 	}
 
 	scan(): void {
-		this.scanRunning.next(true);
-		// search then
-		// this.ipSubject.next(ip);
-		// this.connect(ip);
-		setTimeout(() => {
-			this.scanRunning.next(false);
-		}, 2000);
+		if (!this.scanRun) {
+
+			try {
+				(<any>window).plugins.networkinterface.getWiFiIPAddress(ip => {
+					console.log(ip);
+				});
+			} catch (e) {
+
+			}
+
+			this.scanRun = true;
+			this.scanRunning.next(true);
+			this.websockets = [];
+			for (let i = 0; i <= 255; i++) {
+				let websocket = new WebSocket('ws://192.168.1.' + i +':8001/');
+				websocket.onopen = event => {
+					this.cancelScan();
+					this.connect(this.ipExtension((event.currentTarget as WebSocket).url));
+				};
+				this.websockets.push(websocket);
+			}
+			this.scanTimeout = setTimeout(() => {
+				this.cancelScan();
+				this.errorService.display('Couln\'t find any device');
+			}, 10000);
+		} else {
+			this.cancelScan();
+		}
+	}
+
+	cancelScan(): void {
+		clearTimeout(this.scanTimeout);
+		this.scanRun = false;
+		this.scanRunning.next(false);
+		this.websockets.forEach(ws => {
+			ws.close();
+		});
+	}
+
+	private ipExtension(ip: string): string {
+		return ip.match(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/)[0];
 	}
 }
