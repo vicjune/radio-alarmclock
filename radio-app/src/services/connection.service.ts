@@ -34,15 +34,6 @@ export class ConnectionService {
 
 	scan(): void {
 		if (!this.scanRun) {
-
-			try {
-				(<any>window).plugins.networkinterface.getWiFiIPAddress(ip => {
-					console.log(ip);
-				});
-			} catch (e) {
-
-			}
-
 			this.scanRun = true;
 			this.scanRunning.next(true);
 			this.websockets = [];
