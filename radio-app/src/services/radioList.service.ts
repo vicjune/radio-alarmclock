@@ -7,9 +7,7 @@ import { FireService } from './fire.service';
 export class RadioListService {
 	constructor(
 		public fireService: FireService
-	) {
-		console.log('radio');
-	}
+	) {}
 
 	getRadio(id: number, property: string = null): Observable<any> {
 		return this.fireService.bind('radioList').map(serverRadioList => {

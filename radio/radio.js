@@ -106,11 +106,6 @@ socketServer.on('connection', socket => {
 		data: defaultRadioId
 	}));
 
-	socket.send(JSON.stringify({
-		type: 'error',
-		data: 'lol'
-	}));
-
 	socket.on('message', (data) => {
 		let payload = JSON.parse(data);
 

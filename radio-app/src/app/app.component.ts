@@ -4,8 +4,9 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { HomePage } from '../pages/home/home';
-import { WebsocketService } from '../services/websocket.service';
 import { FireService } from '../services/fire.service';
+import { ErrorService } from '../services/error.service';
+import { ConnectionService } from '../services/connection.service';
 
 
 @Component({
@@ -19,13 +20,11 @@ export class MyApp {
 		platform: Platform,
 		statusBar: StatusBar,
 		splashScreen: SplashScreen,
-		websocketService: WebsocketService,
-		fireService: FireService
+		fireService: FireService,
+		errorService: ErrorService,
+		connectionService: ConnectionService
 	) {
 		platform.ready().then(() => {
-
-			websocketService.connect('ws://127.0.0.1:8001');
-
 			fireService.bind('version').subscribe(serverVersion => {
 				if (serverVersion < this.version) {
 					console.log('Update server');

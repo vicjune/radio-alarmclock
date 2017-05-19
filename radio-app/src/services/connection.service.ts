@@ -17,7 +17,6 @@ export class ConnectionService {
 		let ip = '127.0.0.1';
 		this.connect(ip);
 		this.ipSubject.next(ip);
-		console.log('ok');
 	}
 
 	connect(ip: string): void {

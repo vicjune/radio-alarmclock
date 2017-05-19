@@ -6,9 +6,9 @@ import { WebsocketService } from './websocket.service';
 
 @Injectable()
 export class FireService {
-	constructor(public websocketService: WebsocketService) {
-		console.log('fire');
-	}
+	constructor(
+		public websocketService: WebsocketService
+	) {}
 
 	bind(type: string): Observable<any> {
 		let subject = new ReplaySubject<any>();

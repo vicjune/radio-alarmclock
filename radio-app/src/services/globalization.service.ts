@@ -33,6 +33,5 @@ export class GlobalizationService {
 				}
 			}).catch(err => console.log(err));
 		});
-		console.log('globa');
 	}
 }
