@@ -74,6 +74,7 @@ export class WebsocketService {
 					}
 				};
 			} catch (e) {
+				console.error(e);
 				this.status.next(3);
 			}
 		}

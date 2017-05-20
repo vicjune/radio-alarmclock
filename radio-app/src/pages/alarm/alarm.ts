@@ -58,7 +58,7 @@ export class AlarmPage {
 			if (date) {
 				this.alarm.date = date;
 			}
-		}).catch(err => console.log(err));
+		}).catch(err => console.error(err));
 	}
 
 	toggleDay(id) {

@@ -20,18 +20,17 @@ export class GlobalizationService {
 				selector: 'time'
 			}).then(res => {
 				this.timeFormat = res.pattern;
-			}).catch(err => console.log(err));
+			}).catch(err => console.error(err));
 
 			globalization.getLocaleName().then(res => {
 				this.locale = res.value;
-			}).catch(err => console.log(err));
+			}).catch(err => console.error(err));
 
 			globalization.getFirstDayOfWeek().then(res => {
-				console.log(res);
 				for (let i = 0; i < parseInt(res.value) - 1; i++) {
 					this.weekDays.push(this.weekDays.splice(0, 1)[0]);
 				}
-			}).catch(err => console.log(err));
+			}).catch(err => console.error(err));
 		});
 	}
 }

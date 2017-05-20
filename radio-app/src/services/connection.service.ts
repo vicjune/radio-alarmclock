@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Platform } from 'ionic-angular';
+import { NativeStorage } from '@ionic-native/native-storage';
 
 import { WebsocketService } from './websocket.service';
 import { ErrorService } from './error.service';
@@ -13,20 +15,26 @@ export class ConnectionService {
 	scanRun: boolean = false;
 
 	constructor(
+		platform: Platform,
 		public websocketService: WebsocketService,
-		public errorService: ErrorService
+		public errorService: ErrorService,
+		public nativeStorage: NativeStorage
 	) {
-		// get local storage then
-		let ip = '127.0.0.1';
-		if (ip) {
-			this.connect(ip);
-			this.ipSubject.next(ip);
-		}
+		platform.ready().then(() => {
+			this.nativeStorage.getItem('ipAddress').then(data => {
+				this.connect(data.value);
+				this.ipSubject.next(data.value);
+			}).catch(err => console.error(err));
+		});
 	}
 
 	connect(ip: string): void {
-		// store in local storage
+		this.nativeStorage.setItem('ipAddress', {
+			value: ip
+		}).catch(err => console.error(err));
+
 		this.ipSubject.next(ip);
+
 		if (ip) {
 			this.websocketService.connect('ws://' + ip + ':8001/');
 		}
@@ -38,7 +46,7 @@ export class ConnectionService {
 			this.scanRunning.next(true);
 			this.websockets = [];
 			for (let i = 0; i <= 255; i++) {
-				let websocket = new WebSocket('ws://192.168.1.' + i +':8001/');
+				let websocket = new WebSocket('ws://192.168.1.' + i + ':8001/');
 				websocket.onopen = event => {
 					this.cancelScan();
 					this.connect(this.ipExtension((event.currentTarget as WebSocket).url));

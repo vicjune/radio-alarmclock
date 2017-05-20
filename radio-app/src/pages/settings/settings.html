@@ -8,6 +8,23 @@
 
 <ion-content>
 	<ion-list>
+		<ion-list-header>
+			Network
+		</ion-list-header>
+		<button ion-item (click)="scan()">
+			<span *ngIf="!(connectionService.scanRunning | async)">Automatic scan</span>
+			<span *ngIf="connectionService.scanRunning | async" color="danger">Cancel</span>
+			<ion-spinner item-right *ngIf="connectionService.scanRunning | async"></ion-spinner>
+		</button>
+		<ion-item>
+			<ion-label color="secondary" stacked>Ip address</ion-label>
+    		<ion-input placeholder="192.168.1.2" [(ngModel)]="ipAddress" (ngModelChange)="setIpAddress()" [disabled]="connectionService.scanRunning | async"></ion-input>
+		</ion-item>
+
+		<connection-status></connection-status>
+	</ion-list>
+
+	<ion-list>
 		<ion-item>
 			<ion-label color="secondary" stacked class="badgedLabel">
 				Volume increment
@@ -32,21 +49,4 @@
 	</ion-list>
 
 	<radio-selector [selectedRadioId]="defaultRadioId" (onRadioSelected)="radioSelected($event)" label="Default radio"></radio-selector>
-
-	<ion-list>
-		<ion-list-header>
-			Network
-		</ion-list-header>
-		<button ion-item (click)="scan()">
-			<span *ngIf="!(connectionService.scanRunning | async)">Automatic scan</span>
-			<span *ngIf="connectionService.scanRunning | async" color="danger">Cancel</span>
-			<ion-spinner item-right *ngIf="connectionService.scanRunning | async"></ion-spinner>
-		</button>
-		<ion-item>
-			<ion-label color="secondary" stacked>Ip address</ion-label>
-    		<ion-input placeholder="192.168.1.2" [(ngModel)]="ipAddress" (ngModelChange)="setIpAddress()" [disabled]="connectionService.scanRunning | async"></ion-input>
-		</ion-item>
-
-		<connection-status></connection-status>
-	</ion-list>
 </ion-content>
