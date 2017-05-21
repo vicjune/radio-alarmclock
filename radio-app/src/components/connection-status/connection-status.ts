@@ -7,9 +7,9 @@ import { WebsocketService } from '../../services/websocket.service';
 	templateUrl: 'connection-status.html'
 })
 export class ConnectionStatusComponent implements OnInit {
-	online: boolean = false;
+	online: boolean = true;
 	connecting: boolean = false;
-	displayed: boolean = true;
+	displayed: boolean = false;
 	timeout = null;
 
 	constructor(public websocketService: WebsocketService) {}

@@ -18,6 +18,8 @@ export class WebsocketService {
 				this.socket.next(JSON.parse(data.data));
 			}
 		});
+
+		this.status.next(3);
 	}
 
 	send(data): void {

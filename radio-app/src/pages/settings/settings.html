@@ -11,8 +11,8 @@
 		<ion-list-header>
 			Network
 		</ion-list-header>
-		<button ion-item (click)="scan()">
-			<span *ngIf="!(connectionService.scanRunning | async)">Automatic scan</span>
+		<button ion-item (click)="scan()" [disabled]="online">
+			<span *ngIf="!(connectionService.scanRunning | async)">Automatic connection</span>
 			<span *ngIf="connectionService.scanRunning | async" color="danger">Cancel</span>
 			<ion-spinner item-right *ngIf="connectionService.scanRunning | async"></ion-spinner>
 		</button>

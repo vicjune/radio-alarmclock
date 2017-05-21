@@ -45,18 +45,25 @@ export class ConnectionService {
 			this.scanRun = true;
 			this.scanRunning.next(true);
 			this.websockets = [];
-			for (let i = 0; i <= 255; i++) {
-				let websocket = new WebSocket('ws://192.168.1.' + i + ':8001/');
-				websocket.onopen = event => {
-					this.cancelScan();
-					this.connect(this.ipExtension((event.currentTarget as WebSocket).url));
-				};
-				this.websockets.push(websocket);
-			}
 			this.scanTimeout = setTimeout(() => {
 				this.cancelScan();
 				this.errorService.display('Couln\'t find any device');
 			}, 10000);
+
+			try {
+				for (let i = 0; i <= 255; i++) {
+					let websocket = new WebSocket('ws://192.168.1.' + i + ':8001/');
+					websocket.onopen = event => {
+						this.cancelScan();
+						this.connect(this.ipExtension((event.currentTarget as WebSocket).url));
+					};
+					this.websockets.push(websocket);
+				}
+			} catch (e) {
+				console.error(e);
+				this.cancelScan();
+				this.errorService.display('An error occured during network scan');
+			}
 		} else {
 			this.cancelScan();
 		}
