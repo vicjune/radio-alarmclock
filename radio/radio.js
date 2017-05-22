@@ -8,7 +8,6 @@ let WebSocket = require('ws');
 
 
 // TEMP MOCK
-let url = 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3';
 let defaultRadioId = 0;
 let radios = [
 	{
@@ -39,7 +38,7 @@ let alarms = [{
 	hour: 8,
 	minute: 30,
 	enabled: true,
-	radioId: 0
+	radioId: 1
 },
 {
 	id: 1,
@@ -51,6 +50,8 @@ let alarms = [{
 }];
 let duration = 60;
 let increment = 5;
+
+let lastRadio = getRadio(defaultRadioId);
 
 
 // TODO Database
@@ -236,17 +237,12 @@ socketServer.on('connection', socket => {
 
 		if (payload.type === 'playRadio') {
 			if (payload.data) {
-				startAlarm(false);
+				startAlarm(false, lastRadio.url);
 
-				for (radio of radios) {
-					if (radio.url === url) {
-						socketServer.broadcast({
-							type: 'radioPlaying',
-							data: radio
-						});
-						break;
-					}
-				}
+				socketServer.broadcast({
+					type: 'radioPlaying',
+					data: lastRadio
+				});
 			} else {
 				stopAlarm();
 			}
@@ -295,7 +291,7 @@ socketServer.broadcast = data => {
 
 // Stream validation
 function checkUrlValidity(url, fn) {
-	let valid = false;
+	let valid = true;
 
 	setTimeout(() => {
 		fn(valid);
@@ -437,7 +433,13 @@ function startClient(url, fn, fnError, fnEnd) {
 	});
 }
 
-
+function getRadio(id) {
+	for (radio of radios) {
+		if (radio.id === id) {
+			return radio;
+		}
+	}
+}
 
 
 
@@ -465,6 +467,7 @@ function startClock() {
 				for (let alarm of alarms) {
 					let triggerAlarm = (alarm.days.indexOf(now.getDay()) >= 0 || alarm.days.length === 0) && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
 					triggerAlarms = triggerAlarms || triggerAlarm;
+					triggeredAlarm = alarm;
 					if (triggerAlarm && alarm.days.length === 0) {
 						alarm.enabled = false;
 						socketServer.broadcast({
@@ -474,14 +477,15 @@ function startClock() {
 					}
 				}
 				if (triggerAlarms) {
-					startAlarm(true);
+					lastRadio = getRadio(triggeredAlarm.radioId);
+					startAlarm(true, lastRadio.url);
 				}
 			}, 60000);
 		}
 	}, 100);
 }
 
-function startAlarm(incremental) {
+function startAlarm(incremental, url) {
 	if (streamPlaying) {
 		if (durationTimeout) {
 			clearTimeout(durationTimeout);

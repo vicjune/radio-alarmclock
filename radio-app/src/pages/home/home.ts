@@ -18,6 +18,7 @@ export class HomePage {
 	radioPlaying: boolean = false;
 	radioLoading: boolean = true;
 	online: boolean = false;
+	toastTimeout = null;
 
 	constructor(
 		public navCtrl: NavController,
@@ -51,12 +52,18 @@ export class HomePage {
 		});
 
 		this.fireService.bind('radioPlaying').subscribe(serverRadio => {
-			this.toastCtrl.create({
-				message: serverRadio.label,
-				duration: 2000,
-				dismissOnPageChange: true,
-				cssClass: 'playingToast'
-			}).present();
+			if (!this.toastTimeout) {
+				this.toastCtrl.create({
+					message: serverRadio.label,
+					duration: 2000,
+					dismissOnPageChange: true,
+					cssClass: 'playingToast'
+				}).present();
+
+				this.toastTimeout = setTimeout(() => {
+					this.toastTimeout = null;
+				}, 2000);
+			}
 		});
 
 		this.websocketService.status.subscribe(status => {
