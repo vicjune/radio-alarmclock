@@ -196,9 +196,10 @@ export class HomePage {
 		this.navCtrl.push(SettingsPage);
 	}
 
-	play(): void {
+	play(id: number = null): void {
 		this.radioLoading = true;
 		this.radioPlaying = !this.radioPlaying;
 		this.fireService.send('playRadio', this.radioPlaying);
+		//TODO pass radio id
 	}
 }

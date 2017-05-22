@@ -37,6 +37,12 @@
 				</button>
 			</ion-item-options>
 			<ion-item-options side="right">
+				<button ion-button color="secondary" [disabled]="radioLoading || !online" (click)="play(alarm.radioId)">
+					<ion-icon *ngIf="!radioPlaying" name="play"></ion-icon>
+					<ion-icon *ngIf="radioPlaying" name="pause"></ion-icon>
+				</button>
+			</ion-item-options>
+			<ion-item-options side="right">
 				<button ion-button (click)="alarmSelected(alarm); item.close();">
 					<ion-icon name="md-create"></ion-icon>
 					Edit
