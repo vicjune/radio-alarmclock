@@ -24,7 +24,13 @@ export class ConnectionService {
 			this.nativeStorage.getItem('ipAddress').then(data => {
 				this.connect(data.value);
 				this.ipSubject.next(data.value);
-			}).catch(err => console.error(err));
+				if (!data) {
+					this.scan();
+				}
+			}).catch(err => {
+				console.error(err);
+				this.scan();
+			});
 		});
 	}
 
