@@ -74,7 +74,17 @@ export class RadiosPage {
 			});
 		}
 
-		this.radios.sort((a, b) => a.id - b.id);
+		this.radios.sort((a, b) => {
+			let labelA = a.label.toLowerCase();
+			let labelB = b.label.toLowerCase();
+			if (labelA < labelB) {
+				return -1;
+			}
+			if (labelA > labelB) {
+				return 1;
+			}
+			return 0;
+		});
 
 		if (send) {
 			this.fireService.send('radio', {
