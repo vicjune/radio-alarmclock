@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AlertController } from 'ionic-angular';
 
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
@@ -14,13 +15,15 @@ export class SettingsPage {
 	duration: number = 15;
 	ipAddress: string;
 	online: boolean = false;
+	connecting: boolean = false;
 	defaultRadioId: number = null;
 	debouncer: DebouncerService = new DebouncerService();
 
 	constructor(
 		public fireService: FireService,
 		public websocketService: WebsocketService,
-		public connectionService: ConnectionService
+		public connectionService: ConnectionService,
+		public alertCtrl: AlertController
 	) {
 		this.fireService.bind('config').subscribe(serverConfig => {
 			this.duration = serverConfig.duration;
@@ -36,6 +39,11 @@ export class SettingsPage {
 				this.online= true;
 			} else {
 				this.online = false;
+			}
+			if (status === 2) {
+				this.connecting = true;
+			} else {
+				this.connecting = false;
 			}
 		});
 
@@ -57,13 +65,39 @@ export class SettingsPage {
 		this.fireService.send('defaultRadioId', newRadioId);
 	}
 
-	setIpAddress() {
-		this.debouncer.debounce(() => {
-			this.connectionService.connect(this.ipAddress);
-		}, 1000);
+	autoConnect() {
+		this.connectionService.scan();
 	}
 
-	scan() {
-		this.connectionService.scan();
+	manualConnect() {
+		let promptOptions = {
+			title: 'Manual connection',
+			message: 'Enter your device IP address',
+			inputs: [
+				{
+					name: 'ip',
+					placeholder: '192.168.1.2',
+					value: this.ipAddress || ''
+				},
+			],
+			buttons: [
+				{
+					text: 'Cancel',
+					handler: () => {}
+				},
+				{
+					text: 'Save',
+					handler: data => {
+						this.ipAddress = data.ip;
+						this.connectionService.connect(this.ipAddress);
+					}
+				}
+			]
+		};
+
+		if (this.ipAddress) {
+			promptOptions.message = 'Enter your device IP address. Current IP address is ' + this.ipAddress;
+		}
+		this.alertCtrl.create(promptOptions).present();
 	}
 }

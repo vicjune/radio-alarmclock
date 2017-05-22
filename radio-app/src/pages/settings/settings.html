@@ -7,22 +7,7 @@
 </ion-header>
 
 <ion-content>
-	<ion-list>
-		<ion-list-header>
-			Network
-		</ion-list-header>
-		<button ion-item (click)="scan()" [disabled]="online">
-			<span *ngIf="!(connectionService.scanRunning | async)">Automatic connection</span>
-			<span *ngIf="connectionService.scanRunning | async" color="danger">Cancel</span>
-			<ion-spinner item-right *ngIf="connectionService.scanRunning | async"></ion-spinner>
-		</button>
-		<ion-item>
-			<ion-label color="secondary" stacked>Ip address</ion-label>
-    		<ion-input placeholder="192.168.1.2" [(ngModel)]="ipAddress" (ngModelChange)="setIpAddress()" [disabled]="connectionService.scanRunning | async"></ion-input>
-		</ion-item>
-
-		<connection-status></connection-status>
-	</ion-list>
+	<connection-status></connection-status>
 
 	<ion-list>
 		<ion-item>
@@ -49,4 +34,21 @@
 	</ion-list>
 
 	<radio-selector [selectedRadioId]="defaultRadioId" (onRadioSelected)="radioSelected($event)" label="Default radio"></radio-selector>
+
+	<ion-list>
+		<ion-list-header>
+			Network
+			<ion-icon name="radio-button-on" item-right color="danger" *ngIf="!connecting && !online"></ion-icon>
+			<ion-icon name="radio-button-on" item-right color="good" *ngIf="!connecting && online"></ion-icon>
+			<ion-icon name="radio-button-on" item-right color="warning" *ngIf="connecting"></ion-icon>
+		</ion-list-header>
+		<button ion-item (click)="autoConnect()" [disabled]="online">
+			<span *ngIf="!(connectionService.scanRunning | async)">Automatic connection</span>
+			<span *ngIf="connectionService.scanRunning | async" color="danger">Cancel</span>
+			<ion-spinner item-right *ngIf="connectionService.scanRunning | async"></ion-spinner>
+		</button>
+		<button ion-item (click)="manualConnect()" [disabled]="connectionService.scanRunning | async">
+			Manual connection
+		</button>
+	</ion-list>
 </ion-content>
