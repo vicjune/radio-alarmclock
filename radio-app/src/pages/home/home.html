@@ -18,7 +18,7 @@
 	<connection-status></connection-status>
 	<ion-list>
 		<ion-item-sliding *ngFor="let alarm of alarms" #item [ngClass]="{'active-slide active-options-right': item.animate}">
-			<ion-item class="slidingItem" [ngClass]="{'animate': item.animate}">
+			<ion-item class="slidingItem alarmItem" [ngClass]="{'animate': item.animate, 'selected': alarm.enabled}">
 				<ion-label (click)="itemClicked(item)">
 					<h1>{{ alarm.date | date:globalization.timeFormat }}</h1>
 					<p>
@@ -37,12 +37,12 @@
 				</button>
 			</ion-item-options>
 			<ion-item-options side="right">
-				<button ion-button color="secondary" [disabled]="radioLoading || !online" (click)="play(alarm.radioId)">
+				<button ion-button color="secondary" [disabled]="radioLoading || !online" (click)="play(alarm.radioId); item.close();">
 					<ion-icon *ngIf="!radioPlaying" name="play"></ion-icon>
 					<ion-icon *ngIf="radioPlaying" name="pause"></ion-icon>
+					<span *ngIf="!radioPlaying">Play</span>
+					<span *ngIf="radioPlaying">Pause</span>
 				</button>
-			</ion-item-options>
-			<ion-item-options side="right">
 				<button ion-button (click)="alarmSelected(alarm); item.close();">
 					<ion-icon name="md-create"></ion-icon>
 					Edit

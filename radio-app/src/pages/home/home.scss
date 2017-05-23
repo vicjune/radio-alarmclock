@@ -1,19 +1,15 @@
 page-home {
-	.slidingItem {
-		&.item-ios {
-			.toggle-checked {
-				background-color: color($colors, good);
-			}
-		}
-
+	.alarmItem {
 		h1 {
 			font-size: 50px;
 			font-weight: 200;
 			color: color($colors, lightText);
 		}
 
-		&.item-toggle-checked h1 {
-			color: color($colors, black);
+		&.selected {
+			h1 {
+				color: color($colors, black);
+			}
 		}
 	}
 }

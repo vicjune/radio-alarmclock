@@ -199,7 +199,9 @@ export class HomePage {
 	play(id: number = null): void {
 		this.radioLoading = true;
 		this.radioPlaying = !this.radioPlaying;
-		this.fireService.send('playRadio', this.radioPlaying);
-		//TODO pass radio id
+		this.fireService.send('playRadio', {
+			radioPlaying: this.radioPlaying,
+			radioId: id
+		});
 	}
 }

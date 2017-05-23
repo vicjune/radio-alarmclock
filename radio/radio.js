@@ -27,7 +27,7 @@ let radios = [
 	{
 		id: 2,
 		label: 'Skyrock',
-		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
+		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-mii.mp3',
 		validationPending: false,
 		valid: true
 	}
@@ -236,7 +236,12 @@ socketServer.on('connection', socket => {
 		}
 
 		if (payload.type === 'playRadio') {
-			if (payload.data) {
+			if (payload.data.radioPlaying) {
+
+				if (payload.data.radioId !== null) {
+					lastRadio = getRadio(payload.data.radioId);
+				}
+
 				startAlarm(false, lastRadio.url);
 
 				socketServer.broadcast({
@@ -291,11 +296,28 @@ socketServer.broadcast = data => {
 
 // Stream validation
 function checkUrlValidity(url, fn) {
-	let valid = true;
+	let done = false;
 
-	setTimeout(() => {
-		fn(valid);
-	}, 2000);
+	if (!radioLoading) {
+		radioLoading = true;
+		startClient(url, () => {
+			console.log('verif ok');
+			if (!done) {
+				fn(true);
+				done = true;
+				radioLoading = false;
+			}
+		}, (error, end) => {
+			console.log('verif ko');
+			if (!done) {
+				fn(false);
+				done = true;
+				radioLoading = false;
+			}
+		}, null, true);
+	} else {
+		fn(false);
+	}
 }
 
 
@@ -308,6 +330,8 @@ function checkUrlValidity(url, fn) {
 // Radio
 let killStream = false;
 let radioLoading = false;
+let lastUrl = null;
+let timeoutCounter = 0;
 
 function toggleStream(on, url = null) {
 	if (!radioLoading) {
@@ -320,6 +344,12 @@ function toggleStream(on, url = null) {
 		});
 		radioLoading = true;
 		if (on) {
+			if (lastUrl === url) {
+				timeoutCounter ++;
+			} else {
+				timeoutCounter = 0;
+			}
+			lastUrl = url;
 			startClient(url, () => {
 				console.log('Radio started');
 				socketServer.broadcast({
@@ -333,7 +363,7 @@ function toggleStream(on, url = null) {
 			}, (error, end) => {
 				console.log('Radio error', error);
 				radioLoading = false;
-				if (error === 'timeout' && !end) {
+				if (error === 'timeout' && !end && timeoutCounter < 1) {
 					toggleStream(true, url);
 				} else {
 					socketServer.broadcast({
@@ -366,7 +396,7 @@ function toggleStream(on, url = null) {
 	}
 }
 
-function startClient(url, fn, fnError, fnEnd) {
+function startClient(url, fn, fnError, fnEnd, test = false) {
 	let u = require('url').parse(url);
 	require('dns').resolve(u.hostname, (err, addresses) => {
 		let ip = u.hostname;
@@ -390,21 +420,31 @@ function startClient(url, fn, fnError, fnEnd) {
 				clearTimeout(clientCloseTimeout);
 			}
 			clientCloseTimeout = setTimeout(() => {
+				if (!test){
+					lameDecoder.unpipe();
+					speaker.close();
+				}
 				client.destroy();
-				lameDecoder.unpipe();
-				speaker.close();
 				fnError('timeout', killStream);
 				killStream = false;
 			}, 10000);
 
-			if (start) {
+			if (!start && !killStream) {
 				fn();
+				if (test) {
+					killStream = true;
+				}
+			}
+
+			if (start) {
 				start = false;
 			}
 
 			if (killStream) {
+				if (!test) {
+					lameDecoder.unpipe();
+				}
 				client.destroy();
-				lameDecoder.unpipe();
 				killStream = false;
 				end = true;
 			}
@@ -412,24 +452,35 @@ function startClient(url, fn, fnError, fnEnd) {
 				if (clientCloseTimeout) {
 					clearTimeout(clientCloseTimeout);
 				}
-				clientCloseTimeout = setTimeout(() => {
-					speaker.close();
-					fnEnd();
-				}, 1000);
+				if (!test) {
+					clientCloseTimeout = setTimeout(() => {
+						speaker.close();
+						fnEnd();
+					}, 1000);
+				}
 			}
 		});
 
 		client.on('error', err => {
-			client.destroy();
-			lameDecoder.unpipe();
-			killStream = false;
-			speaker.close();
-			fnError(err, true);
+			if (!test) {
+				client.destroy();
+				lameDecoder.unpipe();
+				killStream = false;
+				speaker.close();
+			}
+			if (!test || start) {
+				fnError(err, true);
+			}
 		});
 
-		let lameDecoder = new lame.Decoder();
-		let speaker = new Speaker();
-		client.pipe(lameDecoder).pipe(speaker);
+		let lameDecoder;
+		let speaker;
+
+		if (!test) {
+			lameDecoder = new lame.Decoder();
+			speaker = new Speaker();
+			client.pipe(lameDecoder).pipe(speaker);
+		}
 	});
 }
 
