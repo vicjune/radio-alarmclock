@@ -5,7 +5,7 @@ let lame = require('lame');
 let Speaker = require('speaker');
 let loudness = require('loudness');
 let WebSocket = require('ws');
-
+let RadioClient = require('./radio/client.js');
 
 // TEMP MOCK
 let defaultRadioId = 0;
@@ -350,7 +350,7 @@ function toggleStream(on, url = null) {
 				timeoutCounter = 0;
 			}
 			lastUrl = url;
-			startClient(url, () => {
+			new RadioClient(url, () => {
 				console.log('Radio started');
 				socketServer.broadcast({
 					type: 'playRadio',
@@ -396,93 +396,93 @@ function toggleStream(on, url = null) {
 	}
 }
 
-function startClient(url, fn, fnError, fnEnd, test = false) {
-	let u = require('url').parse(url);
-	require('dns').resolve(u.hostname, (err, addresses) => {
-		let ip = u.hostname;
-		if (addresses) {
-			ip = addresses[0];
-		}
-
-		let client = new require('net').Socket();
-		client.connect(u.port, ip, () => {
-			client.write('Get ' + u.path + ' HTTP/1.0\r\n');
-			client.write('User-Agent: Mozilla/5.0\r\n');
-			client.write('\r\n');
-		});
-
-		let start = true;
-		let end = false;
-		let clientCloseTimeout = null;
-
-		client.on('data', data => {
-			if (clientCloseTimeout) {
-				clearTimeout(clientCloseTimeout);
-			}
-			clientCloseTimeout = setTimeout(() => {
-				if (!test){
-					lameDecoder.unpipe();
-					speaker.close();
-				}
-				client.destroy();
-				fnError('timeout', killStream);
-				killStream = false;
-			}, 10000);
-
-			if (!start && !killStream) {
-				fn();
-				if (test) {
-					killStream = true;
-				}
-			}
-
-			if (start) {
-				start = false;
-			}
-
-			if (killStream) {
-				if (!test) {
-					lameDecoder.unpipe();
-				}
-				client.destroy();
-				killStream = false;
-				end = true;
-			}
-			if (end) {
-				if (clientCloseTimeout) {
-					clearTimeout(clientCloseTimeout);
-				}
-				if (!test) {
-					clientCloseTimeout = setTimeout(() => {
-						speaker.close();
-						fnEnd();
-					}, 1000);
-				}
-			}
-		});
-
-		client.on('error', err => {
-			if (!test) {
-				client.destroy();
-				lameDecoder.unpipe();
-				killStream = false;
-				speaker.close();
-			}
-			if (!test || start) {
-				fnError(err, true);
-			}
-		});
-
-		let lameDecoder;
-		let speaker;
-
-		if (!test) {
-			lameDecoder = new lame.Decoder();
-			speaker = new Speaker();
-			client.pipe(lameDecoder).pipe(speaker);
-		}
-	});
-}
+// function startClient(url, fn, fnError, fnEnd, test = false) {
+// 	let u = require('url').parse(url);
+// 	require('dns').resolve(u.hostname, (err, addresses) => {
+// 		let ip = u.hostname;
+// 		if (addresses) {
+// 			ip = addresses[0];
+// 		}
+//
+// 		let client = new require('net').Socket();
+// 		client.connect(u.port, ip, () => {
+// 			client.write('Get ' + u.path + ' HTTP/1.0\r\n');
+// 			client.write('User-Agent: Mozilla/5.0\r\n');
+// 			client.write('\r\n');
+// 		});
+//
+// 		let start = true;
+// 		let end = false;
+// 		let clientCloseTimeout = null;
+//
+// 		client.on('data', data => {
+// 			if (clientCloseTimeout) {
+// 				clearTimeout(clientCloseTimeout);
+// 			}
+// 			clientCloseTimeout = setTimeout(() => {
+// 				if (!test){
+// 					lameDecoder.unpipe();
+// 					speaker.close();
+// 				}
+// 				client.destroy();
+// 				fnError('timeout', killStream);
+// 				killStream = false;
+// 			}, 10000);
+//
+// 			if (!start && !killStream) {
+// 				fn();
+// 				if (test) {
+// 					killStream = true;
+// 				}
+// 			}
+//
+// 			if (start) {
+// 				start = false;
+// 			}
+//
+// 			if (killStream) {
+// 				if (!test) {
+// 					lameDecoder.unpipe();
+// 				}
+// 				client.destroy();
+// 				killStream = false;
+// 				end = true;
+// 			}
+// 			if (end) {
+// 				if (clientCloseTimeout) {
+// 					clearTimeout(clientCloseTimeout);
+// 				}
+// 				if (!test) {
+// 					clientCloseTimeout = setTimeout(() => {
+// 						speaker.close();
+// 						fnEnd();
+// 					}, 1000);
+// 				}
+// 			}
+// 		});
+//
+// 		client.on('error', err => {
+// 			if (!test) {
+// 				client.destroy();
+// 				lameDecoder.unpipe();
+// 				killStream = false;
+// 				speaker.close();
+// 			}
+// 			if (!test || start) {
+// 				fnError(err, true);
+// 			}
+// 		});
+//
+// 		let lameDecoder;
+// 		let speaker;
+//
+// 		if (!test) {
+// 			lameDecoder = new lame.Decoder();
+// 			speaker = new Speaker();
+// 			client.pipe(lameDecoder).pipe(speaker);
+// 		}
+// 	});
+// }
 
 function getRadio(id) {
 	for (radio of radios) {
