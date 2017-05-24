@@ -299,22 +299,22 @@ function checkUrlValidity(url, fn) {
 	let done = false;
 
 	if (!radioLoading) {
-		radioLoading = true;
-		startClient(url, () => {
-			console.log('verif ok');
-			if (!done) {
-				fn(true);
-				done = true;
-				radioLoading = false;
-			}
-		}, (error, end) => {
-			console.log('verif ko');
-			if (!done) {
-				fn(false);
-				done = true;
-				radioLoading = false;
-			}
-		}, null, true);
+		// radioLoading = true;
+		// startClient(url, () => {
+		// 	console.log('verif ok');
+		// 	if (!done) {
+		// 		fn(true);
+		// 		done = true;
+		// 		radioLoading = false;
+		// 	}
+		// }, (error, end) => {
+		// 	console.log('verif ko');
+		// 	if (!done) {
+		// 		fn(false);
+		// 		done = true;
+		// 		radioLoading = false;
+		// 	}
+		// }, null, true);
 	} else {
 		fn(false);
 	}
@@ -328,10 +328,10 @@ function checkUrlValidity(url, fn) {
 
 
 // Radio
-let killStream = false;
 let radioLoading = false;
 let lastUrl = null;
 let timeoutCounter = 0;
+let radioClient = null;
 
 function toggleStream(on, url = null) {
 	if (!radioLoading) {
@@ -350,7 +350,8 @@ function toggleStream(on, url = null) {
 				timeoutCounter = 0;
 			}
 			lastUrl = url;
-			new RadioClient(url, () => {
+			radioClient = new RadioClient();
+			radioClient.startStream(url, () => {
 				console.log('Radio started');
 				socketServer.broadcast({
 					type: 'playRadio',
@@ -379,110 +380,25 @@ function toggleStream(on, url = null) {
 						}
 					});
 				}
-			}, () => {
-				console.log('Radio closed');
-				socketServer.broadcast({
-					type: 'playRadio',
-					data: {
-						playing: false,
-						loading: false
-					}
-				});
-				radioLoading = false;
 			});
 		} else {
-			killStream = true;
+			loudness.setVolume(0, err => {});
+			if (radioClient !== null) {
+				radioClient.stopStream(() => {
+					console.log('Radio closed');
+					socketServer.broadcast({
+						type: 'playRadio',
+						data: {
+							playing: false,
+							loading: false
+						}
+					});
+					radioLoading = false;
+				});
+			}
 		}
 	}
 }
-
-// function startClient(url, fn, fnError, fnEnd, test = false) {
-// 	let u = require('url').parse(url);
-// 	require('dns').resolve(u.hostname, (err, addresses) => {
-// 		let ip = u.hostname;
-// 		if (addresses) {
-// 			ip = addresses[0];
-// 		}
-//
-// 		let client = new require('net').Socket();
-// 		client.connect(u.port, ip, () => {
-// 			client.write('Get ' + u.path + ' HTTP/1.0\r\n');
-// 			client.write('User-Agent: Mozilla/5.0\r\n');
-// 			client.write('\r\n');
-// 		});
-//
-// 		let start = true;
-// 		let end = false;
-// 		let clientCloseTimeout = null;
-//
-// 		client.on('data', data => {
-// 			if (clientCloseTimeout) {
-// 				clearTimeout(clientCloseTimeout);
-// 			}
-// 			clientCloseTimeout = setTimeout(() => {
-// 				if (!test){
-// 					lameDecoder.unpipe();
-// 					speaker.close();
-// 				}
-// 				client.destroy();
-// 				fnError('timeout', killStream);
-// 				killStream = false;
-// 			}, 10000);
-//
-// 			if (!start && !killStream) {
-// 				fn();
-// 				if (test) {
-// 					killStream = true;
-// 				}
-// 			}
-//
-// 			if (start) {
-// 				start = false;
-// 			}
-//
-// 			if (killStream) {
-// 				if (!test) {
-// 					lameDecoder.unpipe();
-// 				}
-// 				client.destroy();
-// 				killStream = false;
-// 				end = true;
-// 			}
-// 			if (end) {
-// 				if (clientCloseTimeout) {
-// 					clearTimeout(clientCloseTimeout);
-// 				}
-// 				if (!test) {
-// 					clientCloseTimeout = setTimeout(() => {
-// 						speaker.close();
-// 						fnEnd();
-// 					}, 1000);
-// 				}
-// 			}
-// 		});
-//
-// 		client.on('error', err => {
-// 			if (!test) {
-// 				client.destroy();
-// 				lameDecoder.unpipe();
-// 				killStream = false;
-// 				speaker.close();
-// 			}
-// 			if (!test || start) {
-// 				fnError(err, true);
-// 			}
-// 		});
-//
-// 		let lameDecoder;
-// 		let speaker;
-//
-// 		if (!test) {
-// 			lameDecoder = new lame.Decoder();
-// 			speaker = new Speaker();
-// 			client.pipe(lameDecoder).pipe(speaker);
-// 		}
-// 	});
-// }
 
 function getRadio(id) {
 	for (radio of radios) {

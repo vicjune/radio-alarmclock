@@ -4,126 +4,104 @@ let netModule = require('net');
 let lame = require('lame');
 let Speaker = require('speaker');
 
-// Private
-
-
-
-// Public
-let self;
 module.exports = RadioClient;
-function RadioClient (url, fn, fnError, fnEnd, test = false) {
+
+let self;
+function RadioClient () {
 	self = this;
-    this.parsedUrl = urlModule.parse(url);
-	this.successFb = fn;
-	this.errorFb = fnError;
-	this.completeFb = fnEnd;
-	this.testMode = test;
+	this.end = false;
+	this.clientTimeout = null;
+	this.lameDecoder = null;
+	this.speaker = null;
 
 	this.client = new netModule.Socket();
-	if (!this.testMode) {
-		this.lameDecoder = new lame.Decoder();
-		this.speaker = new Speaker();
-	}
-
-	this.connect();
 };
 
-RadioClient.prototype.connect = () => {
-	dnsModule.resolve(self.parsedUrl.hostname, (err, addresses) => {
-		if (addresses) {
-			self.ipAddress = addresses[0];
+RadioClient.prototype = {
+	connectClient: (url) => {
+		let parsedUrl = urlModule.parse(url);
+		let ipAddress;
+
+		dnsModule.resolve(parsedUrl.hostname, (err, addresses) => {
+			if (addresses) {
+				ipAddress = addresses[0];
+			}
+
+			self.client.connect(parsedUrl.port, ipAddress, () => {
+				self.client.write('Get ' + parsedUrl.path + ' HTTP/1.0\r\n');
+				self.client.write('User-Agent: Mozilla/5.0\r\n');
+				self.client.write('\r\n');
+			});
+		});
+	},
+
+	startStream: (url, fnStart, fnError) => {
+		self.connectClient(url);
+
+		self.lameDecoder = new lame.Decoder();
+		self.speaker = new Speaker();
+		self.client.pipe(self.lameDecoder).pipe(self.speaker);
+
+		let firstPayloadReceived = false;
+		let streamStarted = false;
+
+		self.client.on('data', data => {
+			if (self.clientTimeout) {
+				clearTimeout(self.clientTimeout);
+			}
+			self.clientTimeout = setTimeout(() => {
+				fnError('timeout', self.end);
+
+				self.closeStream(true);
+			}, 10000);
+
+			if (firstPayloadReceived && !self.end && !streamStarted) {
+				fnStart();
+				streamStarted = true;
+			}
+
+			if (!firstPayloadReceived) {
+				firstPayloadReceived = true;
+			}
+		});
+
+		self.client.on('error', err => {
+			self.closeStream(true);
+			fnError(err, true);
+		});
+	},
+
+	stopStream: fnEnd => {
+		self.closeStream(false);
+		let endTimeout = null
+		endTimeout = setTimeout(() => {
+			self.speaker.close();
+			fnEnd();
+		}, 1000);
+
+		self.client.on('data', () => {
+			clearTimeout(endTimeout);
+			endTimeout = setTimeout(() => {
+				self.speaker.close();
+				clearTimeout(self.clientTimeout);
+				fnEnd();
+			}, 1000);
+		});
+	},
+
+	closeStream: closeSpeaker => {
+		self.lameDecoder.unpipe();
+		self.client.destroy();
+		if (self.clientTimeout) {
+			clearTimeout(self.clientTimeout);
 		}
+		if (closeSpeaker) {
+			self.speaker.close();
+		}
+		self.end = true;
+	},
 
-		self.createClient();
-	});
+	testUrl: () => {
+
+	}
 }
-
-// RadioClient.prototype = {
-// 	connect: () => {
-// 		dnsModule.resolve(self.parsedUrl.hostname, (err, addresses) => {
-// 			if (addresses) {
-// 				self.ipAddress = addresses[0];
-// 			}
-//
-// 			self.createClient();
-// 		});
-// 	},
-//
-// 	createClient: () => {
-// 		console.log('ok');
-// 		self.client.connect(self.parsedUrl.port, self.ipAddress, () => {
-// 			self.client.write('Get ' + u.path + ' HTTP/1.0\r\n');
-// 			self.client.write('User-Agent: Mozilla/5.0\r\n');
-// 			self.client.write('\r\n');
-// 		});
-//
-// 		// let start = true;
-// 		// let end = false;
-// 		// let clientCloseTimeout = null;
-// 		//
-// 		// client.on('data', data => {
-// 		// 	if (clientCloseTimeout) {
-// 		// 		clearTimeout(clientCloseTimeout);
-// 		// 	}
-// 		// 	clientCloseTimeout = setTimeout(() => {
-// 		// 		if (!test){
-// 		// 			lameDecoder.unpipe();
-// 		// 			speaker.close();
-// 		// 		}
-// 		// 		client.destroy();
-// 		// 		fnError('timeout', killStream);
-// 		// 		killStream = false;
-// 		// 	}, 10000);
-// 		//
-// 		// 	if (!start && !killStream) {
-// 		// 		fn();
-// 		// 		if (test) {
-// 		// 			killStream = true;
-// 		// 		}
-// 		// 	}
-// 		//
-// 		// 	if (start) {
-// 		// 		start = false;
-// 		// 	}
-// 		//
-// 		// 	if (killStream) {
-// 		// 		if (!test) {
-// 		// 			lameDecoder.unpipe();
-// 		// 		}
-// 		// 		client.destroy();
-// 		// 		killStream = false;
-// 		// 		end = true;
-// 		// 	}
-// 		// 	if (end) {
-// 		// 		if (clientCloseTimeout) {
-// 		// 			clearTimeout(clientCloseTimeout);
-// 		// 		}
-// 		// 		if (!test) {
-// 		// 			clientCloseTimeout = setTimeout(() => {
-// 		// 				speaker.close();
-// 		// 				fnEnd();
-// 		// 			}, 1000);
-// 		// 		}
-// 		// 	}
-// 		// });
-// 		//
-// 		// client.on('error', err => {
-// 		// 	if (!test) {
-// 		// 		client.destroy();
-// 		// 		lameDecoder.unpipe();
-// 		// 		killStream = false;
-// 		// 		speaker.close();
-// 		// 	}
-// 		// 	if (!test || start) {
-// 		// 		fnError(err, true);
-// 		// 	}
-// 		// });
-// 		//
-// 		// let lameDecoder;
-// 		// let speaker;
-// 		//
-// 		// if (!test) {
-// 		// 	client.pipe(lameDecoder).pipe(speaker);
-// 		// }
-// 	}
-// }
