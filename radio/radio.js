@@ -6,6 +6,7 @@ let Speaker = require('speaker');
 let loudness = require('loudness');
 let WebSocket = require('ws');
 let RadioClient = require('./radio/RadioClient.js');
+let TestClient = require('./radio/TestClient.js');
 
 // TEMP MOCK
 let defaultRadioId = 0;
@@ -16,20 +17,6 @@ let radios = [
 		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
 		validationPending: false,
 		valid: true
-	},
-	{
-		id: 1,
-		label: 'France Inter',
-		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
-		validationPending: false,
-		valid: false
-	},
-	{
-		id: 2,
-		label: 'Skyrock',
-		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-mii.mp3',
-		validationPending: false,
-		valid: true
 	}
 ];
 let alarms = [{
@@ -38,7 +25,7 @@ let alarms = [{
 	hour: 8,
 	minute: 30,
 	enabled: true,
-	radioId: 1
+	radioId: 0
 },
 {
 	id: 1,
@@ -46,7 +33,7 @@ let alarms = [{
 	hour: 10,
 	minute: 30,
 	enabled: false,
-	radioId: 1
+	radioId: 0
 }];
 let duration = 60;
 let increment = 5;
@@ -173,14 +160,16 @@ socketServer.on('connection', socket => {
 						if (urlChange) {
 							radio.validationPending = true;
 
-							checkUrlValidity(radio.url, valid => {
-								radio.valid = valid;
-								radio.validationPending = false;
+							new RadioClient().testUrl(radio.url, (url, valid) => {
+								if (radio.url === url) {
+									radio.valid = valid;
+									radio.validationPending = false;
 
-								socketServer.broadcast({
-									type: 'radioList',
-									data: radios
-								});
+									socketServer.broadcast({
+										type: 'radioList',
+										data: radios
+									});
+								}
 							});
 						}
 						break;
@@ -197,15 +186,17 @@ socketServer.on('connection', socket => {
 
 					radios.push(newRadio);
 
-					checkUrlValidity(newRadio.url, valid => {
-						newRadio.valid = valid;
-						newRadio.validationPending = false;
+					new RadioClient().testUrl(newRadio.url, (url, valid) => {
+						if (newRadio.url === url) {
+							newRadio.valid = valid;
+							newRadio.validationPending = false;
 
-						socketServer.broadcast({
-							type: 'radioList',
-							data: radios
-						});
-					});
+							socketServer.broadcast({
+								type: 'radioList',
+								data: radios
+							});
+						}
+					})
 				}
 			}
 
@@ -227,10 +218,13 @@ socketServer.on('connection', socket => {
 		}
 
 		if (payload.type === 'url') {
-			checkUrlValidity(payload.data, valid => {
+			new RadioClient().testUrl(payload.data, (url, valid) => {
 				socketServer.broadcast({
 					type: 'url',
-					data: valid
+					data: {
+						url: url,
+						valid: valid
+					}
 				});
 			});
 		}
@@ -292,33 +286,6 @@ socketServer.broadcast = data => {
 
 
 
-
-
-// Stream validation
-function checkUrlValidity(url, fn) {
-	let done = false;
-
-	if (!radioLoading) {
-		// radioLoading = true;
-		// startClient(url, () => {
-		// 	console.log('verif ok');
-		// 	if (!done) {
-		// 		fn(true);
-		// 		done = true;
-		// 		radioLoading = false;
-		// 	}
-		// }, (error, end) => {
-		// 	console.log('verif ko');
-		// 	if (!done) {
-		// 		fn(false);
-		// 		done = true;
-		// 		radioLoading = false;
-		// 	}
-		// }, null, true);
-	} else {
-		fn(false);
-	}
-}
 
 
 
@@ -479,7 +446,7 @@ function startAlarm(incremental, url) {
 	}
 
 	if (!incremental || increment === 0) {
-		setVolume(100);
+		setVolume(2);
 		if (incrementalInterval) {
 			clearInterval(incrementalInterval);
 			incrementalInterval = null;

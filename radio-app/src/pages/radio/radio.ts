@@ -37,9 +37,11 @@ export class RadioPage {
 			this.newRadio = false;
 		}
 
-		this.fireService.bind('url').subscribe(valid => {
-			this.radio.validationPending = false;
-			this.radio.valid = valid;
+		this.fireService.bind('url').subscribe(data => {
+			if (data.url === this.radio.url) {
+				this.radio.validationPending = false;
+				this.radio.valid = data.valid;
+			}
 		});
 	}
 
