@@ -5,7 +5,7 @@ let lame = require('lame');
 let Speaker = require('speaker');
 let loudness = require('loudness');
 let WebSocket = require('ws');
-let RadioClient = require('./radio/client.js');
+let RadioClient = require('./radio/RadioClient.js');
 
 // TEMP MOCK
 let defaultRadioId = 0;
