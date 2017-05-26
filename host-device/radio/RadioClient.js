@@ -148,7 +148,7 @@ module.exports = class RadioClient {
 		this.testTimeout = setTimeout(() => {
 			fn(url, false);
 			this.closeTest();
-		}, 10000);
+		}, 3000);
 
 		this.client.on('data', data => {
 			if (this.testTimeout) {
@@ -157,7 +157,7 @@ module.exports = class RadioClient {
 			this.testTimeout = setTimeout(() => {
 				fn(url, false);
 				this.closeTest();
-			}, 10000);
+			}, 3000);
 
 			if (firstPayloadReceived && !this.end) {
 				fn(url, true);

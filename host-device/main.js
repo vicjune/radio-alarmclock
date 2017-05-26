@@ -6,6 +6,14 @@ let version = 2;
 let loudness = require('loudness');
 let WebSocket = require('ws');
 let RadioClient = require('./radio/RadioClient.js');
+// let WebsocketServer = require('./server/WebsocketServer.js');
+// let LocalStorage = require('./storage/LocalStorage.js');
+// let UpdateModule = require('./update/UpdateModule.js');
+
+
+// localStorage = new LocalStorage();
+// updateModule = new UpdateModule();
+// websocketServer = new WebsocketServer(localStorage, updateModule);
 
 // TEMP MOCK
 let defaultRadioId = 0;
@@ -46,9 +54,6 @@ let increment = 5;
 
 let lastRadio = getRadio(defaultRadioId);
 
-
-// TODO Database
-let databaseReady = false;
 
 
 
