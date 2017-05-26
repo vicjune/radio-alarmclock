@@ -13,7 +13,14 @@ let radios = [
 	{
 		id: 0,
 		label: 'France Info',
-		url: 'http://chai5she.cdn.dvmr.fr:80/franceinfo-midfi.mp3',
+		url: 'http://chai5she.cdn.dvmr.fr/franceinfo-midfi.mp3',
+		validationPending: false,
+		valid: true
+	},
+	{
+		id: 1,
+		label: 'Fip',
+		url: 'http://direct.fipradio.fr/live/fip-midfi.mp3',
 		validationPending: false,
 		valid: true
 	}
@@ -32,7 +39,7 @@ let alarms = [{
 	hour: 10,
 	minute: 30,
 	enabled: false,
-	radioId: 0
+	radioId: 1
 }];
 let duration = 60;
 let increment = 5;
@@ -65,7 +72,7 @@ socketServer.on('connection', socket => {
 	socket.send(JSON.stringify({
 		type: 'playRadio',
 		data: {
-			playing: streamPlaying,
+			playing: radioClient ? !radioClient.end : false,
 			loading: radioLoading
 		}
 	}));
@@ -383,7 +390,6 @@ function getRadio(id) {
 
 
 // Clock
-let streamPlaying = false;
 let durationTimeout = null;
 let incrementalInterval = null;
 
@@ -420,12 +426,12 @@ function startClock() {
 }
 
 function startAlarm(incremental, url) {
-	if (streamPlaying) {
+	console.log()
+	if (radioClient && !radioClient.end) {
 		if (durationTimeout) {
 			clearTimeout(durationTimeout);
 		}
 	} else {
-		streamPlaying = true;
 		toggleStream(true, url);
 		console.log('Alarm started');
 
@@ -435,7 +441,7 @@ function startAlarm(incremental, url) {
 			let volume = 60;
 			incrementalInterval = setInterval(() => {
 				volume = volume + (100 - 60) / (staticIncrement * 60);
-				if (volume <= 100 && streamPlaying) {
+				if (volume <= 100 && radioClient && !radioClient.end) {
 					setVolume(Math.floor(volume));
 				} else {
 					clearInterval(incrementalInterval);
@@ -461,13 +467,12 @@ function startAlarm(incremental, url) {
 }
 
 function stopAlarm() {
-	if (streamPlaying) {
+	if (radioClient && !radioClient.end) {
 		if (incrementalInterval) {
 			clearInterval(incrementalInterval);
 			incrementalInterval = null;
 		}
 		clearTimeout(durationTimeout);
-		streamPlaying = false;
 		toggleStream(false);
 		console.log('Alarm stopped');
 	}

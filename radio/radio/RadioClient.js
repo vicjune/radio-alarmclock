@@ -1,44 +1,63 @@
 "use strict";
 
-let urlModule = require('url');
 let dnsModule = require('dns');
 let netModule = require('net');
 let lame = require('lame');
 let Speaker = require('speaker');
+let request = require('request');
 
 module.exports = class RadioClient {
 	constructor() {
-		this.end = false;
+		this.end = true;
 		this.clientTimeout = null;
 		this.testTimeout = null;
 		this.lameDecoder = null;
 		this.speaker = null;
+		this.request = null;
 
 		this.client = new netModule.Socket();
 	}
 
 	connectClient(url, fnError) {
-		let parsedUrl = urlModule.parse(url);
-		let ipAddress;
+		this.end = false;
 
-		if (!parsedUrl.hostname || !parsedUrl.path) {
-			fnError();
-		} else {
-			dnsModule.resolve(parsedUrl.hostname, (err, addresses) => {
-				if (addresses) {
-					ipAddress = addresses[0];
-				}
+		try {
+			let thisRequest = request.get(url);
 
-				if (!parsedUrl.port) {
-					parsedUrl.port = 80;
-				}
-
-				this.client.connect(parsedUrl.port, ipAddress, () => {
-					this.client.write('Get ' + parsedUrl.path + ' HTTP/1.0\r\n');
-					this.client.write('User-Agent: Mozilla/5.0\r\n');
-					this.client.write('\r\n');
-				});
+			thisRequest.on('error', err => {
+				fnError();
 			});
+
+			thisRequest.on('response', response => {
+				let parsedUrl = response.request.uri;
+				let ipAddress;
+
+				if (!parsedUrl.hostname || !parsedUrl.path) {
+					fnError();
+				} else {
+					dnsModule.resolve(parsedUrl.hostname, (err, addresses) => {
+						if (err !== null) {
+							fnError();
+						} else {
+							if (addresses) {
+								ipAddress = addresses[0];
+							}
+
+							if (!parsedUrl.port) {
+								parsedUrl.port = 80;
+							}
+
+							this.client.connect(parsedUrl.port, ipAddress, () => {
+								this.client.write('Get ' + parsedUrl.path + ' HTTP/1.0\r\n');
+								this.client.write('User-Agent: Mozilla/5.0\r\n');
+								this.client.write('\r\n');
+							});
+						}
+					});
+				}
+			});
+		} catch (e) {
+			fnError();
 		}
 	}
 
