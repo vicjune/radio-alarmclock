@@ -1,12 +1,11 @@
+"use strict";
+
 let version = 2;
 
 
-let lame = require('lame');
-let Speaker = require('speaker');
 let loudness = require('loudness');
 let WebSocket = require('ws');
 let RadioClient = require('./radio/RadioClient.js');
-let TestClient = require('./radio/TestClient.js');
 
 // TEMP MOCK
 let defaultRadioId = 0;
@@ -368,7 +367,7 @@ function toggleStream(on, url = null) {
 }
 
 function getRadio(id) {
-	for (radio of radios) {
+	for (let radio of radios) {
 		if (radio.id === id) {
 			return radio;
 		}
@@ -398,6 +397,7 @@ function startClock() {
 			setInterval(() => {
 				let now = new Date();
 				let triggerAlarms = false;
+				let triggeredAlarm;
 				for (let alarm of alarms) {
 					let triggerAlarm = (alarm.days.indexOf(now.getDay()) >= 0 || alarm.days.length === 0) && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
 					triggerAlarms = triggerAlarms || triggerAlarm;
@@ -446,7 +446,7 @@ function startAlarm(incremental, url) {
 	}
 
 	if (!incremental || increment === 0) {
-		setVolume(2);
+		setVolume(100);
 		if (incrementalInterval) {
 			clearInterval(incrementalInterval);
 			incrementalInterval = null;
