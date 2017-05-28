@@ -7,13 +7,14 @@ let Speaker = require('speaker');
 let request = require('request');
 
 module.exports = class RadioClient {
-	constructor() {
+	constructor(localStorage = null) {
 		this.end = true;
 		this.clientTimeout = null;
 		this.testTimeout = null;
 		this.lameDecoder = null;
 		this.speaker = null;
 		this.request = null;
+		this.localStorage = localStorage;
 
 		this.client = new netModule.Socket();
 	}
@@ -67,6 +68,8 @@ module.exports = class RadioClient {
 			fnError(err, true);
 		});
 
+		this.localStorage.radioPlaying = true;
+
 		this.lameDecoder = new lame.Decoder();
 		this.speaker = new Speaker();
 		this.client.pipe(this.lameDecoder).pipe(this.speaker);
@@ -100,8 +103,8 @@ module.exports = class RadioClient {
 		});
 
 		this.client.on('error', err => {
-			this.closeStream(true);
 			fnError(err, true);
+			this.closeStream(true);
 		});
 	}
 
@@ -135,6 +138,7 @@ module.exports = class RadioClient {
 			this.speaker.close();
 		}
 		this.end = true;
+		this.localStorage.radioPlaying = false;
 	}
 
 	testUrl(url, fn) {

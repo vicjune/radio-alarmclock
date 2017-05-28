@@ -8,7 +8,9 @@ module.exports = class WebsocketServer {
 		this.connectionCount = 0;
 		this.localStorage = localStorage;
 		this.updateModule = updateModule;
+		this.alarmModule = null;
 		this.socketServer = new WebSocket.Server({port: 8001});
+
 
 		this.socketServer.on('connection', socket => {
 			this.handleNewConnection(socket);
@@ -21,6 +23,8 @@ module.exports = class WebsocketServer {
 				this.connectionCount--;
 			});
 		});
+
+		console.log('Server started');
 	}
 
 	handleNewConnection(socket) {
@@ -29,33 +33,33 @@ module.exports = class WebsocketServer {
 		let initWebsocket = [
 			{
 				type: 'version',
-				data: localStorage.version
+				data: this.localStorage.version
 			},
 			{
 				type: 'playRadio',
 				data: {
-					playing: localStorage.radioPlaying,
-					loading: localStorage.radioLoading
+					playing: this.localStorage.radioPlaying,
+					loading: this.localStorage.radioLoading
 				}
 			},
 			{
 				type: 'config',
 				data: {
-					duration: localStorage.duration,
-					increment: localStorage.increment
+					duration: this.localStorage.duration,
+					increment: this.localStorage.increment
 				}
 			},
 			{
 				type: 'alarmList',
-				data: localStorage.alarms
+				data: this.localStorage.alarms
 			},
 			{
 				type: 'radioList',
-				data: localStorage.radios
+				data: this.localStorage.radios
 			},
 			{
 				type: 'defaultRadioId',
-				data: localStorage.defaultRadioId
+				data: this.localStorage.defaultRadioId
 			}
 		];
 
@@ -71,15 +75,15 @@ module.exports = class WebsocketServer {
 			let clientAlarm = payload.data;
 
 			if (clientAlarm.delete) {
-				for (let i = 0; i < localStorage.alarms.length; ++i) {
-					if (localStorage.alarms[i].id === clientAlarm.id) {
-						localStorage.alarms.splice(i, 1);
+				for (let i = 0; i < this.localStorage.alarms.length; ++i) {
+					if (this.localStorage.alarms[i].id === clientAlarm.id) {
+						this.localStorage.alarms.splice(i, 1);
 						break;
 					}
 				}
 			} else {
 				let alarmExists = false;
-				for (let alarm of localStorage.alarms) {
+				for (let alarm of this.localStorage.alarms) {
 					if (alarm.id === clientAlarm.id) {
 						alarm.days = clientAlarm.days;
 						alarm.hour = clientAlarm.hour;
@@ -91,7 +95,7 @@ module.exports = class WebsocketServer {
 					}
 				}
 				if (!alarmExists) {
-					localStorage.alarms.push(clientAlarm);
+					this.localStorage.alarms.push(clientAlarm);
 				}
 			}
 
@@ -102,13 +106,13 @@ module.exports = class WebsocketServer {
 			let clientRadio = payload.data;
 
 			if (clientRadio.delete) {
-				for (let i = 0; i < localStorage.radios.length; ++i) {
-					if (localStorage.radios[i].id === clientRadio.id) {
-						let radioDeletedId = localStorage.radios[i].id;
-						localStorage.radios.splice(i, 1);
+				for (let i = 0; i < this.localStorage.radios.length; ++i) {
+					if (this.localStorage.radios[i].id === clientRadio.id) {
+						let radioDeletedId = this.localStorage.radios[i].id;
+						this.localStorage.radios.splice(i, 1);
 						for (alarm of alarms) {
 							if (alarm.radioId === radioDeletedId) {
-								alarm.radioId = localStorage.radios[0].id;
+								alarm.radioId = this.localStorage.radios[0].id;
 
 								this.send('alarm', alarm);
 							}
@@ -118,7 +122,7 @@ module.exports = class WebsocketServer {
 				}
 			} else {
 				let radioExists = false;
-				for (let radio of localStorage.radios) {
+				for (let radio of this.localStorage.radios) {
 					if (radio.id === clientRadio.id) {
 						radio.label = clientRadio.label;
 						let urlChange = radio.url !== clientRadio.url;
@@ -148,7 +152,7 @@ module.exports = class WebsocketServer {
 						validationPending: true
 					};
 
-					localStorage.radios.push(newRadio);
+					this.localStorage.radios.push(newRadio);
 
 					new RadioClient().testUrl(newRadio.url, (url, valid) => {
 						if (newRadio.url === url) {
@@ -161,15 +165,15 @@ module.exports = class WebsocketServer {
 				}
 			}
 
-			this.send('radioList', localStorage.radios);
+			this.send('radioList', this.localStorage.radios);
 		}
 
 		if (payload.type === 'defaultRadioId') {
 			if (payload.data >= 0) {
-				localStorage.defaultRadioId = payload.data;
+				this.localStorage.defaultRadioId = payload.data;
 			}
 
-			this.send('defaultRadioId', localStorage.defaultRadioId);
+			this.send('defaultRadioId', this.localStorage.defaultRadioId);
 		}
 
 		if (payload.type === 'url') {
@@ -185,29 +189,29 @@ module.exports = class WebsocketServer {
 			if (payload.data.radioPlaying) {
 
 				if (payload.data.radioId !== null) {
-					localStorage.lastRadio = getRadio(payload.data.radioId);
+					this.localStorage.lastRadio = this.localStorage.getRadio(payload.data.radioId);
 				}
 
-				startAlarm(false, localStorage.lastRadio.url);
+				this.alarmModule.startAlarm(false, this.localStorage.lastRadio.url);
 
-				this.send('radioPlaying', localStorage.lastRadio);
+				this.send('radioPlaying', this.localStorage.lastRadio);
 			} else {
-				stopAlarm();
+				this.alarmModule.stopAlarm();
 			}
 		}
 
 		if (payload.type === 'config') {
 			if (payload.data && payload.data.duration >= 0) {
-				localStorage.duration = payload.data.duration;
+				this.localStorage.duration = payload.data.duration;
 			}
 
 			if (payload.data && payload.data.increment >= 0) {
-				localStorage.increment = payload.data.increment;
+				this.localStorage.increment = payload.data.increment;
 			}
 
 			this.send('config', {
-				duration: localStorage.duration,
-				increment: localStorage.increment
+				duration: this.localStorage.duration,
+				increment: this.localStorage.increment
 			});
 		}
 	}
