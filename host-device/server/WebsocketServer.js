@@ -1,7 +1,8 @@
 "use strict";
 
-let WebSocket = require('ws');
 let RadioClient = require('../radio/RadioClient.js');
+
+let WebSocket = require('ws');
 
 module.exports = class WebsocketServer {
 	constructor(localStorage, updateModule) {
@@ -75,28 +76,9 @@ module.exports = class WebsocketServer {
 			let clientAlarm = payload.data;
 
 			if (clientAlarm.delete) {
-				for (let i = 0; i < this.localStorage.alarms.length; ++i) {
-					if (this.localStorage.alarms[i].id === clientAlarm.id) {
-						this.localStorage.alarms.splice(i, 1);
-						break;
-					}
-				}
+				this.localStorage.deleteAlarm(clientAlarm.id);
 			} else {
-				let alarmExists = false;
-				for (let alarm of this.localStorage.alarms) {
-					if (alarm.id === clientAlarm.id) {
-						alarm.days = clientAlarm.days;
-						alarm.hour = clientAlarm.hour;
-						alarm.minute = clientAlarm.minute;
-						alarm.enabled = clientAlarm.enabled;
-						alarm.radioId = clientAlarm.radioId;
-						alarmExists = true;
-						break;
-					}
-				}
-				if (!alarmExists) {
-					this.localStorage.alarms.push(clientAlarm);
-				}
+				this.localStorage.editAlarm(clientAlarm);
 			}
 
 			this.send('alarm', clientAlarm);
@@ -106,63 +88,9 @@ module.exports = class WebsocketServer {
 			let clientRadio = payload.data;
 
 			if (clientRadio.delete) {
-				for (let i = 0; i < this.localStorage.radios.length; ++i) {
-					if (this.localStorage.radios[i].id === clientRadio.id) {
-						let radioDeletedId = this.localStorage.radios[i].id;
-						this.localStorage.radios.splice(i, 1);
-						for (alarm of alarms) {
-							if (alarm.radioId === radioDeletedId) {
-								alarm.radioId = this.localStorage.radios[0].id;
-
-								this.send('alarm', alarm);
-							}
-						}
-						break;
-					}
-				}
+				this.localStorage.deleteRadio(clientRadio.id);
 			} else {
-				let radioExists = false;
-				for (let radio of this.localStorage.radios) {
-					if (radio.id === clientRadio.id) {
-						radio.label = clientRadio.label;
-						let urlChange = radio.url !== clientRadio.url;
-						radio.url = clientRadio.url;
-						radioExists = true;
-						if (urlChange) {
-							radio.validationPending = true;
-
-							new RadioClient().testUrl(radio.url, (url, valid) => {
-								if (radio.url === url) {
-									radio.valid = valid;
-									radio.validationPending = false;
-
-									this.send('radioList', radios);
-								}
-							});
-						}
-						break;
-					}
-				}
-				if (!radioExists) {
-					let newRadio = {
-						id: clientRadio.id,
-						label: clientRadio.label,
-						url: clientRadio.url,
-						valid: false,
-						validationPending: true
-					};
-
-					this.localStorage.radios.push(newRadio);
-
-					new RadioClient().testUrl(newRadio.url, (url, valid) => {
-						if (newRadio.url === url) {
-							newRadio.valid = valid;
-							newRadio.validationPending = false;
-
-							this.send('radioList', radios);
-						}
-					})
-				}
+				this.localStorage.editRadio(clientRadio);
 			}
 
 			this.send('radioList', this.localStorage.radios);

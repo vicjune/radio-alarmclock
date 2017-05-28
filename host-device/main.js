@@ -18,5 +18,6 @@ let radioModule = new RadioModule(localStorage, websocketServer);
 let alarmModule = new AlarmModule(localStorage, radioModule, websocketServer);
 
 websocketServer.alarmModule = alarmModule;
+localStorage.websocketServer = websocketServer;
 
 alarmModule.startClock();
