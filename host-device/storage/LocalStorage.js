@@ -1,6 +1,7 @@
 "use strict";
 
 let RadioClient = require('../radio/RadioClient.js');
+let Storage = require('node-storage');
 
 module.exports = class LocalStorage {
 	constructor(version) {
@@ -9,52 +10,30 @@ module.exports = class LocalStorage {
 		this.radioLoading = false;
 		this.websocketServer = null;
 
-		this.duration = null;
-		this.increment = null;
-		this.alarms = null;
-		this.radios = null;
-		this.defaultRadioId = null;
-		this.lastRadio = null;
+		this.storage = new Storage('./storage/stored.storage');
 
-
-		// TEMP
-		this.defaultRadioId = 0;
-		this.radios = [
+		this.radios = this.storage.get('radios') || [
 			{
-				id: 0,
+				id: 1,
 				label: 'France Info',
 				url: 'http://chai5she.cdn.dvmr.fr/franceinfo-midfi.mp3',
 				validationPending: false,
 				valid: true
 			},
 			{
-				id: 1,
+				id: 2,
 				label: 'Fip',
 				url: 'http://direct.fipradio.fr/live/fip-midfi.mp3',
 				validationPending: false,
 				valid: true
 			}
 		];
-		this.alarms = [{
-			id: 0,
-			days: [1, 2, 3, 4, 5],
-			hour: 8,
-			minute: 30,
-			enabled: true,
-			radioId: 0
-		},
-		{
-			id: 1,
-			days: [],
-			hour: 10,
-			minute: 30,
-			enabled: false,
-			radioId: 1
-		}];
-		this.duration = 60;
-		this.increment = 5;
+		this.alarms = this.storage.get('alarms') || [];
 
-		this.lastRadio = this.getRadio(this.defaultRadioId);
+		this._defaultRadioId = this.storage.get('defaultRadioId') || 1;
+		this._duration = this.storage.get('duration') || 60;
+		this._increment = this.storage.get('increment') || 5;
+		this._lastRadio = this.storage.get('lastRadio') || this.getRadio(this.defaultRadioId);
 	}
 
 	getRadio(id) {
@@ -87,6 +66,8 @@ module.exports = class LocalStorage {
 		if (!alarmExists) {
 			this.createAlarm(alarm);
 		}
+
+		this.storage.put('alarms', this.alarms);
 	}
 
 	deleteAlarm(id) {
@@ -96,6 +77,8 @@ module.exports = class LocalStorage {
 				break;
 			}
 		}
+
+		this.storage.put('alarms', this.alarms);
 	}
 
 	createRadio(radio) {
@@ -115,6 +98,7 @@ module.exports = class LocalStorage {
 				newRadio.validationPending = false;
 
 				this.websocketServer.send('radioList', this.radios);
+				this.storage.put('radios', this.radios);
 			}
 		})
 	}
@@ -138,6 +122,7 @@ module.exports = class LocalStorage {
 							_radio.validationPending = false;
 
 							this.websocketServer.send('radioList', this.radios);
+							this.storage.put('radios', this.radios);
 						}
 					});
 				}
@@ -147,6 +132,8 @@ module.exports = class LocalStorage {
 		if (!radioExists) {
 			this.createRadio(radio);
 		}
+
+		this.storage.put('radios', this.radios);
 	}
 
 	deleteRadio(id) {
@@ -159,10 +146,49 @@ module.exports = class LocalStorage {
 						alarm.radioId = this.radios[0].id;
 
 						this.websocketServer.send('alarm', alarm);
+						this.storage.put('alarms', this.alarms);
 					}
 				}
 				break;
 			}
 		}
+
+		this.storage.put('radios', this.radios);
+	}
+
+	set defaultRadioId(id) {
+		this._defaultRadioId = id;
+		this.storage.put('defaultRadioId', this._defaultRadioId);
+	}
+
+	get defaultRadioId() {
+		return this._defaultRadioId;
+	}
+
+	set duration(duration) {
+		this._duration = duration;
+		this.storage.put('duration', this._duration);
+	}
+
+	get duration() {
+		return this._duration;
+	}
+
+	set increment(increment) {
+		this._increment = increment;
+		this.storage.put('increment', this._increment);
+	}
+
+	get increment() {
+		return this._increment;
+	}
+
+	set lastRadio(lastRadio) {
+		this._lastRadio = lastRadio;
+		this.storage.put('lastRadio', this._lastRadio);
+	}
+
+	get lastRadio() {
+		return this._lastRadio;
 	}
 }

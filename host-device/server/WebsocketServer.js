@@ -12,7 +12,6 @@ module.exports = class WebsocketServer {
 		this.alarmModule = null;
 		this.socketServer = new WebSocket.Server({port: 8001});
 
-
 		this.socketServer.on('connection', socket => {
 			this.handleNewConnection(socket);
 
