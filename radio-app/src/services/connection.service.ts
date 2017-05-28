@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Platform } from 'ionic-angular';
-import { NativeStorage } from '@ionic-native/native-storage';
+import { Storage } from '@ionic/storage';
 
 import { WebsocketService } from './websocket.service';
 import { ErrorService } from './error.service';
@@ -18,10 +18,10 @@ export class ConnectionService {
 		platform: Platform,
 		public websocketService: WebsocketService,
 		public errorService: ErrorService,
-		public nativeStorage: NativeStorage
+		public storage: Storage
 	) {
 		platform.ready().then(() => {
-			this.nativeStorage.getItem('ipAddress').then(data => {
+			this.storage.get('ipAddress').then(data => {
 				this.connect(data.value);
 				this.ipSubject.next(data.value);
 				if (!data) {
@@ -35,7 +35,7 @@ export class ConnectionService {
 	}
 
 	connect(ip: string): void {
-		this.nativeStorage.setItem('ipAddress', {
+		this.storage.set('ipAddress', {
 			value: ip
 		}).catch(err => console.error(err));
 

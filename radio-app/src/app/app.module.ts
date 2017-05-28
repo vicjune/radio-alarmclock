@@ -5,7 +5,7 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { DatePicker } from '@ionic-native/date-picker';
 import { Globalization } from '@ionic-native/globalization';
-import { NativeStorage } from '@ionic-native/native-storage';
+import { IonicStorageModule } from '@ionic/storage';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -41,7 +41,8 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 	],
 	imports: [
 		BrowserModule,
-		IonicModule.forRoot(MyApp)
+		IonicModule.forRoot(MyApp),
+		IonicStorageModule.forRoot()
 	],
 	bootstrap: [IonicApp],
 	entryComponents: [
@@ -65,7 +66,6 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		FrontZerosPipe,
 		DatePicker,
 		Globalization,
-		NativeStorage,
 		{provide: ErrorHandler, useClass: IonicErrorHandler}
 	]
 })
