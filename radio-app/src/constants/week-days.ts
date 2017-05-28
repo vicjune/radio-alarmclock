@@ -1,5 +1,10 @@
 export const weekDays = [
 	{
+		id: 0,
+		full: 'Sunday',
+		short: 'Sun'
+	},
+	{
 		id: 1,
 		full: 'Monday',
 		short: 'Mon'
@@ -28,10 +33,5 @@ export const weekDays = [
 		id: 6,
 		full: 'Saturday',
 		short: 'Sat'
-	},
-	{
-		id: 0,
-		full: 'Sunday',
-		short: 'Sun'
 	}
 ];

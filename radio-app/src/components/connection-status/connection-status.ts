@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 
 import { WebsocketService } from '../../services/websocket.service';
-// import { errorStyle } from './error.scss';
 
 @Component({
-	selector: 'error',
-	templateUrl: 'error.html'
+	selector: 'connection-status',
+	templateUrl: 'connection-status.html'
 })
-export class ErrorComponent implements OnInit {
+export class ConnectionStatusComponent implements OnInit {
 	online: boolean = true;
+	connecting: boolean = false;
 	displayed: boolean = false;
 	timeout = null;
 
@@ -17,6 +17,7 @@ export class ErrorComponent implements OnInit {
 	ngOnInit() {
 		this.websocketService.status.subscribe(status => {
 			if (status === 1) {
+				this.connecting = false;
 				if (!this.online) {
 					this.online = true;
 					this.displayed = true;
@@ -29,6 +30,11 @@ export class ErrorComponent implements OnInit {
 					}, 2000);
 				}
 			} else {
+				if (status === 2) {
+					this.connecting = true;
+				} else {
+					this.connecting = false;
+				}
 				if (this.online) {
 					this.online = false;
 					this.displayed = true;

@@ -4,19 +4,34 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { HomePage } from '../pages/home/home';
-import { WebsocketService } from '../services/websocket.service';
+import { FireService } from '../services/fire.service';
+import { ErrorService } from '../services/error.service';
+import { ConnectionService } from '../services/connection.service';
 
 
 @Component({
 	templateUrl: 'app.html'
 })
 export class MyApp {
-	rootPage:any = HomePage;
+	rootPage: any = HomePage;
+	version: number = 2;
 
-	constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen, public websocketService: WebsocketService) {
+	constructor(
+		platform: Platform,
+		statusBar: StatusBar,
+		splashScreen: SplashScreen,
+		fireService: FireService,
+		errorService: ErrorService,
+		connectionService: ConnectionService
+	) {
 		platform.ready().then(() => {
-
-			this.websocketService.connect('ws://192.168.1.46:8001');
+			fireService.bind('version').subscribe(serverVersion => {
+				if (serverVersion < this.version) {
+					console.log('Update server');
+				} else if (serverVersion > this.version) {
+					console.log('Update app');
+				}
+			});
 
 			statusBar.styleDefault();
 			splashScreen.hide();

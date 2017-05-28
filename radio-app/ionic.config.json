@@ -1,6 +1,5 @@
 {
   "name": "radio-app",
-  "app_id": "",
-  "v2": true,
-  "typescript": true
+  "app_id": "76ad8429",
+  "type": "ionic-angular"
 }

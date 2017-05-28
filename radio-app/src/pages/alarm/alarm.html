@@ -18,11 +18,11 @@
 
 <ion-content>
 	<ion-list>
-		<button ion-item>
-			<ion-label>Alarm</ion-label>
-			<ion-datetime class="alarmHour" displayFormat="HH:mm" [(ngModel)]="hour" (ngModelChange)="setHour()"></ion-datetime>
+		<button ion-item (click)="selectHour()">
+			<ion-label class="alarmHour">{{ alarm.date | date:globalization.timeFormat }}</ion-label>
 		</button>
 	</ion-list>
+
 	<ion-list>
 		<ion-list-header>
     		Recurrence
@@ -32,6 +32,9 @@
 			<ion-radio color="secondary" value="day.id" (click)="toggleDay(day.id)" [checked]="alarm.days.indexOf(day.id) > -1"></ion-radio>
 		</ion-item>
 	</ion-list>
+
+	<radio-selector [selectedRadioId]="alarm.radioId" (onRadioSelected)="radioSelect($event)"></radio-selector>
+
 	<button ion-button full color="danger" outline *ngIf="!newAlarm" (click)="delete()">
 		Delete this alarm
 	</button>

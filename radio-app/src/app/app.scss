@@ -32,6 +32,33 @@
 	margin-bottom: 0;
 }
 
+.slidingItem {
+	&.animate {
+		animation: peek 0.5s;
+	}
+}
+
+.playingToast {
+	.toast-container,
+	.toast-wrapper {
+		display: inline-block;
+		left: auto;
+		width: auto;
+	}
+
+	.toast-message {
+		flex-basis: auto;
+		flex-grow: 0;
+		flex-shrink: 0;
+	}
+}
+
+.badgedLabel {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
 
 @keyframes peek {
     0% {

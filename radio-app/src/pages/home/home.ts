@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { NavController, ModalController } from 'ionic-angular';
+import { NavController, ModalController, ToastController } from 'ionic-angular';
 
 import { Alarm } from '../../interfaces/alarm';
 import { AlarmPage } from '../alarm/alarm';
 import { SettingsPage } from '../settings/settings';
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { GlobalizationService } from '../../services/globalization.service';
+import { RadioListService } from '../../services/radioList.service';
 
 @Component({
 	selector: 'page-home',
@@ -16,14 +18,32 @@ export class HomePage {
 	radioPlaying: boolean = false;
 	radioLoading: boolean = true;
 	online: boolean = false;
+	toastTimeout = null;
 
-	constructor(public navCtrl: NavController, public modalCtrl: ModalController, public fireService: FireService, public websocketService: WebsocketService) {
+	constructor(
+		public navCtrl: NavController,
+		public modalCtrl: ModalController,
+		public toastCtrl: ToastController,
+		public fireService: FireService,
+		public websocketService: WebsocketService,
+		public globalization: GlobalizationService,
+		public radioListService: RadioListService
+	) {
 		this.fireService.bind('alarm').subscribe(serverAlarm => {
 			if (serverAlarm.delete) {
 				this.deleteAlarm(serverAlarm.id, false);
 			} else {
+				serverAlarm.loading = false;
+				let tempDate = new Date();
+				tempDate.setHours(serverAlarm.hour);
+				tempDate.setMinutes(serverAlarm.minute);
+				serverAlarm.date = tempDate;
 				this.setAlarm(serverAlarm, false);
 			}
+		});
+
+		this.fireService.bind('alarmList').subscribe(serverAlarmList => {
+			this.updateAlarms(serverAlarmList);
 		});
 
 		this.fireService.bind('playRadio').subscribe(radioStatus => {
@@ -31,10 +51,23 @@ export class HomePage {
 			this.radioLoading = radioStatus.loading;
 		});
 
+		this.fireService.bind('radioPlaying').subscribe(serverRadio => {
+			if (!this.toastTimeout) {
+				this.toastCtrl.create({
+					message: serverRadio.label,
+					duration: 2000,
+					dismissOnPageChange: true,
+					cssClass: 'playingToast'
+				}).present();
+
+				this.toastTimeout = setTimeout(() => {
+					this.toastTimeout = null;
+				}, 2000);
+			}
+		});
+
 		this.websocketService.status.subscribe(status => {
-			console.log(status);
 			if (status === 1) {
-				this.alarms = [];
 				this.online = true;
 			} else {
 				this.online = false;
@@ -42,15 +75,39 @@ export class HomePage {
 		});
 	}
 
-	setAlarm(newAlarm, local: boolean): void {
+	updateAlarms(alarmList: any): void {
+		for (let alarm of this.alarms) {
+			let serverAlarmExists = false;
+			for (let serverAlarm of alarmList) {
+				if (alarm.id === serverAlarm.id) {
+					serverAlarmExists = true;
+					break;
+				}
+			}
+			if (!serverAlarmExists) {
+				this.deleteAlarm(alarm.id, false);
+			}
+		}
+
+		for (let serverAlarm of alarmList) {
+			serverAlarm.loading = false;
+			let tempDate = new Date();
+			tempDate.setHours(serverAlarm.hour);
+			tempDate.setMinutes(serverAlarm.minute);
+			serverAlarm.date = tempDate;
+			this.setAlarm(serverAlarm, false);
+		}
+	}
+
+	setAlarm(newAlarm: Alarm, send: boolean): void {
 		let alarmExists = false;
 		for (let alarm of this.alarms) {
 			if (alarm.id === newAlarm.id) {
 				alarm.days = newAlarm.days;
-				alarm.hour = newAlarm.hour;
-				alarm.minute = newAlarm.minute;
+				alarm.date = newAlarm.date;
 				alarm.enabled = newAlarm.enabled;
-				alarm.loading = local;
+				alarm.loading = newAlarm.loading;
+				alarm.radioId = newAlarm.radioId;
 				alarmExists = true;
 				break;
 			}
@@ -59,33 +116,34 @@ export class HomePage {
 			this.alarms.push({
 				id: newAlarm.id,
 				days: newAlarm.days,
-				hour: newAlarm.hour,
-				minute: newAlarm.minute,
+				date: newAlarm.date,
 				enabled: newAlarm.enabled,
-				loading: local
+				loading: send,
+				radioId: newAlarm.radioId
 			});
 		}
 
 		this.alarms.sort((a, b) => {
-			if (a.hour === b.hour) {
-				return a.minute - b.minute;
+			if (a.date.getHours() === b.date.getHours()) {
+				return a.date.getMinutes() - b.date.getMinutes();
 			} else {
-				return a.hour - b.hour;
+				return a.date.getHours() - b.date.getHours();
 			}
 		});
 
-		if (local) {
+		if (send) {
 			this.fireService.send('alarm', {
 				id: newAlarm.id,
 				days: newAlarm.days,
-				hour: newAlarm.hour,
-				minute: newAlarm.minute,
-				enabled: newAlarm.enabled
+				hour: newAlarm.date.getHours(),
+				minute: newAlarm.date.getMinutes(),
+				enabled: newAlarm.enabled,
+				radioId: newAlarm.radioId
 			});
 		}
 	}
 
-	deleteAlarm(alarmId: number, local: boolean): void {
+	deleteAlarm(alarmId: number, send: boolean): void {
 		for (let i = 0; i < this.alarms.length; ++i) {
 			if (this.alarms[i].id === alarmId) {
 				this.alarms.splice(i, 1);
@@ -93,7 +151,7 @@ export class HomePage {
 			}
 		}
 
-		if (local) {
+		if (send) {
 			this.fireService.send('alarm', {
 				id: alarmId,
 				delete: true
@@ -110,14 +168,19 @@ export class HomePage {
 		}
 		alarmModal.onDidDismiss(modalAlarm => {
 			if (modalAlarm) {
-				if (modalAlarm.enabled) {
-					this.setAlarm(modalAlarm, true);
-				} else {
+				if (modalAlarm.delete) {
 					this.deleteAlarm(modalAlarm.id, true);
+				} else {
+					this.setAlarm(modalAlarm, true);
 				}
 			}
 		});
 		alarmModal.present();
+	}
+
+	toggleAlarm(alarm: Alarm): void {
+		alarm.loading = true;
+		this.setAlarm(alarm, true);
 	}
 
 	itemClicked(item) {
@@ -133,9 +196,12 @@ export class HomePage {
 		this.navCtrl.push(SettingsPage);
 	}
 
-	play(): void {
+	play(id: number = null): void {
 		this.radioLoading = true;
 		this.radioPlaying = !this.radioPlaying;
-		this.fireService.send('playRadio', this.radioPlaying);
+		this.fireService.send('playRadio', {
+			radioPlaying: this.radioPlaying,
+			radioId: id
+		});
 	}
 }

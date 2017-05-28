@@ -1,15 +1,26 @@
 import { NgModule, ErrorHandler } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { DatePicker } from '@ionic-native/date-picker';
+import { Globalization } from '@ionic-native/globalization';
+import { IonicStorageModule } from '@ionic/storage';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { SettingsPage } from '../pages/settings/settings';
 import { AlarmPage } from '../pages/alarm/alarm';
-import { ErrorComponent } from '../components/error/error';
+import { RadiosPage } from '../pages/radios/radios';
+import { RadioPage } from '../pages/radio/radio';
+import { ConnectionStatusComponent } from '../components/connection-status/connection-status';
+import { RadioSelectorComponent } from '../components/radio-selector/radio-selector';
 import { WebsocketService } from '../services/websocket.service';
 import { FireService } from '../services/fire.service';
+import { GlobalizationService } from '../services/globalization.service';
+import { ErrorService } from '../services/error.service';
+import { RadioListService } from '../services/radioList.service';
+import { ConnectionService } from '../services/connection.service';
 import { FrontZerosPipe } from '../pipes/front-zeros.pipe';
 import { WeekDaysPipe } from '../pipes/week-days.pipe';
 import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
@@ -20,13 +31,18 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		HomePage,
 		SettingsPage,
 		AlarmPage,
-		ErrorComponent,
+		RadiosPage,
+		RadioPage,
+		ConnectionStatusComponent,
+		RadioSelectorComponent,
 		FrontZerosPipe,
 		WeekDaysPipe,
 		MinutesHoursPipe
 	],
 	imports: [
-		IonicModule.forRoot(MyApp)
+		BrowserModule,
+		IonicModule.forRoot(MyApp),
+		IonicStorageModule.forRoot()
 	],
 	bootstrap: [IonicApp],
 	entryComponents: [
@@ -34,14 +50,22 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		HomePage,
 		SettingsPage,
 		AlarmPage,
-		ErrorComponent
+		RadiosPage,
+		RadioPage,
+		ConnectionStatusComponent
 	],
 	providers: [
 		StatusBar,
 		SplashScreen,
 		WebsocketService,
 		FireService,
+		GlobalizationService,
+		ErrorService,
+		RadioListService,
+		ConnectionService,
 		FrontZerosPipe,
+		DatePicker,
+		Globalization,
 		{provide: ErrorHandler, useClass: IonicErrorHandler}
 	]
 })

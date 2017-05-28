@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { AlertController } from 'ionic-angular';
 
 import { FireService } from '../../services/fire.service';
 import { WebsocketService } from '../../services/websocket.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DebouncerService } from '../../services/debouncer.service';
 
 @Component({
 	selector: 'page-settings',
@@ -11,13 +13,25 @@ import { WebsocketService } from '../../services/websocket.service';
 export class SettingsPage {
 	increment: number = 0;
 	duration: number = 15;
-	debounceTimeout = null;
+	ipAddress: string;
 	online: boolean = false;
+	connecting: boolean = false;
+	defaultRadioId: number = null;
+	debouncer: DebouncerService = new DebouncerService();
 
-	constructor(public navCtrl: NavController, public fireService: FireService, public websocketService: WebsocketService) {
+	constructor(
+		public fireService: FireService,
+		public websocketService: WebsocketService,
+		public connectionService: ConnectionService,
+		public alertCtrl: AlertController
+	) {
 		this.fireService.bind('config').subscribe(serverConfig => {
 			this.duration = serverConfig.duration;
 			this.increment = serverConfig.increment;
+		});
+
+		this.fireService.bind('defaultRadioId').subscribe(serverDefaultRadioId => {
+			this.defaultRadioId = serverDefaultRadioId;
 		});
 
 		this.websocketService.status.subscribe(status => {
@@ -26,25 +40,64 @@ export class SettingsPage {
 			} else {
 				this.online = false;
 			}
+			if (status === 2) {
+				this.connecting = true;
+			} else {
+				this.connecting = false;
+			}
+		});
+
+		this.connectionService.ipSubject.subscribe(ipAddress => {
+			this.ipAddress = ipAddress;
 		});
 	}
 
 	setConfig() {
-		this.debounce(500, () => {
+		this.debouncer.debounce(() => {
 			this.fireService.send('config', {
 				duration: this.duration,
 				increment: this.increment
 			});
-		});
+		}, 500);
 	}
 
-	private debounce(timer, fn) {
-		if (this.debounceTimeout) {
-			clearTimeout(this.debounceTimeout);
+	radioSelected(newRadioId: number): void {
+		this.fireService.send('defaultRadioId', newRadioId);
+	}
+
+	autoConnect() {
+		this.connectionService.scan();
+	}
+
+	manualConnect() {
+		let promptOptions = {
+			title: 'Manual connection',
+			message: 'Enter your device IP address',
+			inputs: [
+				{
+					name: 'ip',
+					placeholder: '192.168.1.2',
+					value: this.ipAddress || ''
+				},
+			],
+			buttons: [
+				{
+					text: 'Cancel',
+					handler: () => {}
+				},
+				{
+					text: 'Save',
+					handler: data => {
+						this.ipAddress = data.ip;
+						this.connectionService.connect(this.ipAddress);
+					}
+				}
+			]
+		};
+
+		if (this.ipAddress) {
+			promptOptions.message = 'Enter your device IP address. Current IP address is ' + this.ipAddress;
 		}
-		this.debounceTimeout = setTimeout(() => {
-			fn();
-		}, timer);
+		this.alertCtrl.create(promptOptions).present();
 	}
-
 }

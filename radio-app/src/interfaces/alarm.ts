@@ -1,8 +1,8 @@
 export interface Alarm {
 	id: number;
-	hour: number;
-	minute: number;
+	date: Date;
 	days: number[];
 	enabled: boolean;
 	loading: boolean;
+	radioId: number;
 }

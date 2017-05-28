@@ -1,0 +1,44 @@
+<ion-header>
+	<ion-navbar color="primary">
+		<ion-title>
+			Radios
+		</ion-title>
+		<ion-buttons end showWhen="ios">
+			<button ion-button icon-only (click)="editRadio()">
+				<ion-icon name="add"></ion-icon>
+			</button>
+		</ion-buttons>
+	</ion-navbar>
+</ion-header>
+
+<ion-content>
+	<connection-status></connection-status>
+	<ion-list>
+		<ion-list-header>
+			Slide to edit
+		</ion-list-header>
+		<ion-item-sliding #item *ngFor="let radio of radios">
+			<ion-item item-radio>
+				<ion-icon name="alert" color="warning" item-right *ngIf="!radio.valid && !radio.loading && !radio.validationPending"></ion-icon>
+				<ion-spinner item-content item-right *ngIf="radio.loading || radio.validationPending"></ion-spinner>
+				<ion-label>{{ radio.label }}</ion-label>
+				<ion-radio color="secondary" value="radio.id" (click)="selectRadio(radio)" [checked]="radio.id === selectedRadioId"></ion-radio>
+			</ion-item>
+			<ion-item-options side="left">
+				<button ion-button color="danger" (click)="deleteRadio(radio.id, true); item.close();">
+					<ion-icon name="trash"></ion-icon>
+				</button>
+			</ion-item-options>
+			<ion-item-options side="right">
+				<button ion-button (click)="editRadio(radio); item.close();">
+					<ion-icon name="md-create"></ion-icon>
+				</button>
+			</ion-item-options>
+		</ion-item-sliding>
+		<p *ngIf="radios.length === 0" class="emptyListMessage">No radio</p>
+	</ion-list>
+
+	<ion-fab right bottom hideWhen="ios">
+		<button color="secondary" ion-fab (click)="editRadio()"><ion-icon name="add"></ion-icon></button>
+	</ion-fab>
+</ion-content>

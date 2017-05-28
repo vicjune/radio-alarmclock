@@ -1,0 +1,43 @@
+<ion-header>
+	<ion-navbar color="primary">
+		<ion-buttons start>
+			<button ion-button (click)="close()">
+				Cancel
+			</button>
+		</ion-buttons>
+		<ion-title>
+			{{ radio.label ? radio.label : 'Radio'}}
+		</ion-title>
+		<ion-buttons end>
+			<button ion-button (click)="save()" [disabled]="!radio.label || !radio.url">
+				Save
+			</button>
+		</ion-buttons>
+	</ion-navbar>
+</ion-header>
+
+<ion-content>
+	<ion-list>
+		<ion-item>
+			<ion-label color="secondary" stacked>Name</ion-label>
+			<ion-input placeholder="My radio" [(ngModel)]="radio.label"></ion-input>
+		</ion-item>
+	</ion-list>
+	<ion-list>
+		<ion-item>
+			<ion-label color="secondary" stacked>Url</ion-label>
+			<ion-input placeholder="http://example.mp3" [(ngModel)]="radio.url" (ngModelChange)="checkUrl($event)"></ion-input>
+		</ion-item>
+		<ion-item *ngIf="radio.url">
+			<ion-spinner *ngIf="radio.validationPending" item-right></ion-spinner>
+			<ion-label *ngIf="radio.validationPending" color="lightText">Validation pending</ion-label>
+			<ion-icon *ngIf="!radio.validationPending && radio.valid" color="good" item-right name="checkmark-circle"></ion-icon>
+			<ion-label *ngIf="!radio.validationPending && radio.valid" color="good">Valid url</ion-label>
+			<ion-icon *ngIf="!radio.validationPending && !radio.valid" color="warning" item-right name="alert"></ion-icon>
+			<ion-label *ngIf="!radio.validationPending && !radio.valid" color="warning">Invalid url</ion-label>
+		</ion-item>
+	</ion-list>
+	<button ion-button full color="danger" outline *ngIf="!newRadio" (click)="delete()">
+		Delete this radio
+	</button>
+</ion-content>
