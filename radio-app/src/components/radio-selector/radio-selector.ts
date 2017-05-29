@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, SimpleChange, OnChanges } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { ModalController } from 'ionic-angular';
 import { Subject } from 'rxjs/Subject';
 
 import { RadiosPage } from '../../pages/radios/radios';
@@ -18,7 +18,7 @@ export class RadioSelectorComponent implements OnChanges {
 	private subject = new Subject<number>();
 
 	constructor(
-		public navCtrl: NavController,
+		public modalCtrl: ModalController,
 		public radioListService: RadioListService
 	) {
 		this.subject.mergeMap(selectedRadioId => this.radioListService.getRadio(selectedRadioId))
@@ -34,11 +34,11 @@ export class RadioSelectorComponent implements OnChanges {
 	}
 
 	goRadios(): void {
-		this.navCtrl.push(RadiosPage, {
+		this.modalCtrl.create(RadiosPage, {
 			selectedRadioId: this.selectedRadioId,
 			radioSelectedCallback: newRadioId => {
 				this.onRadioSelected.emit(newRadioId);
 			}
-		});
+		}).present();
 	}
 }

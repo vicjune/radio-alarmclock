@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ModalController, NavParams } from 'ionic-angular';
+import { ModalController, NavParams, ViewController } from 'ionic-angular';
 
 import { Radio } from '../../interfaces/radio';
 import { RadioPage } from '../radio/radio';
@@ -19,6 +19,7 @@ export class RadiosPage {
 	constructor(
 		public navParams: NavParams,
 		public modalCtrl: ModalController,
+		public viewCtrl: ViewController,
 		public fireService: FireService,
 		public websocketService: WebsocketService,
 		public error: ErrorService
@@ -141,5 +142,9 @@ export class RadiosPage {
 			}
 		});
 		radioModal.present();
+	}
+
+	close() {
+		this.viewCtrl.dismiss();
 	}
 }
