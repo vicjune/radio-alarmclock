@@ -33,7 +33,7 @@ module.exports = class LocalStorage {
 		this._defaultRadioId = this.storage.get('defaultRadioId') || 1;
 		this._duration = this.storage.get('duration') || 60;
 		this._increment = this.storage.get('increment') || 5;
-		this._lastRadio = this.storage.get('lastRadio') || this.getRadio(this.defaultRadioId);
+		this._lastRadio = this.storage.get('lastRadio') || this.getRadio(this._defaultRadioId);
 
 		for (let radio of this.radios) {
 			if (radio.validationPending) {
