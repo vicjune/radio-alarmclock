@@ -21,7 +21,7 @@ export class RadioSelectorComponent implements OnChanges {
 		public modalCtrl: ModalController,
 		public radioListService: RadioListService
 	) {
-		this.subject.mergeMap(selectedRadioId => this.radioListService.getRadio(selectedRadioId))
+		this.subject.switchMap(selectedRadioId => this.radioListService.getRadio(selectedRadioId))
 		.subscribe(serverSelectedRadio => {
 			this.selectedRadio = serverSelectedRadio as Radio;
 		});
