@@ -5,10 +5,6 @@ let spawn = require('child_process').spawn;
 module.exports = class UpdateModule {
 	constructor() {
 		this.websocketServer = null;
-
-		setTimeout(() => {
-			this.update();
-		}, 10000);
 	}
 
 	update() {
