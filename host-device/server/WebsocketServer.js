@@ -1,7 +1,6 @@
 "use strict";
 
 let RadioClient = require('../radio/RadioClient.js');
-
 let WebSocket = require('ws');
 
 module.exports = class WebsocketServer {
@@ -140,6 +139,10 @@ module.exports = class WebsocketServer {
 				duration: this.localStorage.duration,
 				increment: this.localStorage.increment
 			});
+		}
+
+		if (payload.type === 'update') {
+			this.updateModule.update();
 		}
 	}
 
