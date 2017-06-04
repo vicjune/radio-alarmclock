@@ -11,8 +11,6 @@ module.exports = class UpdateModule {
 
 		this.checkStatus();
 
-		let test;
-
 		setInterval(() => {
 			this.checkStatus();
 		}, 86400000);
