@@ -70,6 +70,7 @@ module.exports = class UpdateModule {
 					if (!repoChanges && !packageChanges) {
 						this.updating = false;
 						this.websocketServer.send('version', this.localStorage.version);
+						this.localStorage.updateAvailable = false;
 					}
 				} else {
 					this.sendError();
