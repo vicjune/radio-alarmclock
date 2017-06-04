@@ -1,7 +1,6 @@
 "use strict";
 
 let RadioClient = require('../radio/RadioClient.js');
-
 let WebSocket = require('ws');
 
 module.exports = class WebsocketServer {
@@ -60,6 +59,10 @@ module.exports = class WebsocketServer {
 			{
 				type: 'defaultRadioId',
 				data: this.localStorage.defaultRadioId
+			},
+			{
+				type: 'updateAvailable',
+				data: this.localStorage.updateAvailable
 			}
 		];
 
@@ -140,6 +143,14 @@ module.exports = class WebsocketServer {
 				duration: this.localStorage.duration,
 				increment: this.localStorage.increment
 			});
+		}
+
+		if (payload.type === 'updateHost') {
+			this.updateModule.update();
+		}
+
+		if (payload.type === 'checkUpdate') {
+			this.updateModule.checkStatus();
 		}
 	}
 
