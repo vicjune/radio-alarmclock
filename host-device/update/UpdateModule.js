@@ -26,6 +26,8 @@ module.exports = class UpdateModule {
 			console.log('pull');
 			console.log(update);
 		});
+
+		let test;
 	}
 
 	update() {
