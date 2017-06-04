@@ -11,7 +11,7 @@ let UpdateModule = require('./update/UpdateModule.js');
 
 
 let localStorage = new LocalStorage(version);
-let updateModule = new UpdateModule();
+let updateModule = new UpdateModule(localStorage);
 let websocketServer = new WebsocketServer(localStorage, updateModule);
 let radioModule = new RadioModule(localStorage, websocketServer);
 let alarmModule = new AlarmModule(localStorage, radioModule, websocketServer);

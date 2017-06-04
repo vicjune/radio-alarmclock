@@ -59,6 +59,10 @@ module.exports = class WebsocketServer {
 			{
 				type: 'defaultRadioId',
 				data: this.localStorage.defaultRadioId
+			},
+			{
+				type: 'updateAvailable',
+				data: this.localStorage.updateAvailable
 			}
 		];
 
@@ -143,6 +147,10 @@ module.exports = class WebsocketServer {
 
 		if (payload.type === 'updateHost') {
 			this.updateModule.update();
+		}
+
+		if (payload.type === 'checkUpdate') {
+			this.updateModule.checkStatus();
 		}
 	}
 

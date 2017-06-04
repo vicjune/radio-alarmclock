@@ -8,6 +8,9 @@ module.exports = class LocalStorage {
 		this.version = version;
 		this.radioPlaying = false;
 		this.radioLoading = false;
+
+		this._updateAvailable = false;
+
 		this.websocketServer = null;
 
 		this.storage = new Storage('./storage/stored.storage');
@@ -197,5 +200,14 @@ module.exports = class LocalStorage {
 
 	get lastRadio() {
 		return this._lastRadio;
+	}
+
+	set updateAvailable(updateAvailable) {
+		this._updateAvailable = updateAvailable;
+		this.websocketServer.send('updateAvailable', this._updateAvailable);
+	}
+
+	get updateAvailable() {
+		return this._updateAvailable;
 	}
 }

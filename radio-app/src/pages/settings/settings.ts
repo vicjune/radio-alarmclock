@@ -17,7 +17,7 @@ export class SettingsPage {
 	online: boolean = false;
 	connecting: boolean = false;
 	hostUpdating: boolean = false;
-	hostUpdated: boolean = false;
+	updateAvailable: boolean = false;
 	defaultRadioId: number = null;
 	debouncer: DebouncerService = new DebouncerService();
 
@@ -54,13 +54,12 @@ export class SettingsPage {
 		});
 
 		this.fireService.bind('version').subscribe(() => {
-			if (this.hostUpdating) {
-				this.hostUpdating = false;
-				this.hostUpdated = true;
-				setTimeout(() => {
-					this.hostUpdated = false;
-				}, 5000);
-			}
+			this.hostUpdating = false;
+		});
+
+		this.fireService.bind('updateAvailable').subscribe(updateAvailable => {
+			this.updateAvailable = updateAvailable;
+			this.hostUpdating = false;
 		});
 	}
 
@@ -115,6 +114,10 @@ export class SettingsPage {
 
 	updateHost() {
 		this.hostUpdating = true;
-		this.fireService.send('updateHost', null);
+		if (this.updateAvailable) {
+			this.fireService.send('updateHost', null);
+		} else {
+			this.fireService.send('checkUpdate', null);
+		}
 	}
 }

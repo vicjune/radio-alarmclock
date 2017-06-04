@@ -1,5 +1,4 @@
 {
-    "name": "test",
   "dependencies": {
     "lame": "^1.2.4",
     "loudness": "^0.2.2",
