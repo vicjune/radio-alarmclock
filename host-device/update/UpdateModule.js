@@ -66,6 +66,10 @@ module.exports = class UpdateModule {
 							}
 						});
 					}
+
+					if (!repoChanges && !packageChanges) {
+						this.websocketServer.send('version', this.localStorage.version);
+					}
 				} else {
 					this.sendError();
 				}
@@ -86,5 +90,6 @@ module.exports = class UpdateModule {
 		console.log('Update error');
 		this.updating = false;
 		this.websocketServer.send('error', 'An error appeared while updating');
+		this.websocketServer.send('version', this.localStorage.version);
 	}
 }
