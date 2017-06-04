@@ -16,6 +16,8 @@ export class SettingsPage {
 	ipAddress: string;
 	online: boolean = false;
 	connecting: boolean = false;
+	hostUpdating: boolean = false;
+	hostUpdated: boolean = false;
 	defaultRadioId: number = null;
 	debouncer: DebouncerService = new DebouncerService();
 
@@ -49,6 +51,16 @@ export class SettingsPage {
 
 		this.connectionService.ipSubject.subscribe(ipAddress => {
 			this.ipAddress = ipAddress;
+		});
+
+		this.fireService.bind('version').subscribe(() => {
+			if (this.hostUpdating) {
+				this.hostUpdating = false;
+				this.hostUpdated = true;
+				setTimeout(() => {
+					this.hostUpdated = false;
+				}, 5000);
+			}
 		});
 	}
 
@@ -99,5 +111,10 @@ export class SettingsPage {
 			promptOptions.message = 'Enter your device IP address. Current IP address is ' + this.ipAddress;
 		}
 		this.alertCtrl.create(promptOptions).present();
+	}
+
+	updateHost() {
+		this.hostUpdating = true;
+		this.fireService.send('updateHost', null);
 	}
 }

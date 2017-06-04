@@ -36,6 +36,14 @@
 	<radio-selector [selectedRadioId]="defaultRadioId" (onRadioSelected)="radioSelected($event)" label="Default radio"></radio-selector>
 
 	<ion-list>
+		<button ion-item (click)="updateHost()" [disabled]="!online || hostUpdating || hostUpdated">
+			<span *ngIf="!hostUpdated">Update radio device</span>
+			<span *ngIf="hostUpdated" color="good">Device up to date!</span>
+			<ion-spinner item-right *ngIf="hostUpdating"></ion-spinner>
+		</button>
+	</ion-list>
+
+	<ion-list>
 		<ion-list-header>
 			Network
 			<ion-icon name="radio-button-on" item-right color="danger" *ngIf="!connecting && !online"></ion-icon>

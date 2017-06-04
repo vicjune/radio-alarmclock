@@ -141,7 +141,7 @@ module.exports = class WebsocketServer {
 			});
 		}
 
-		if (payload.type === 'update') {
+		if (payload.type === 'updateHost') {
 			this.updateModule.update();
 		}
 	}
