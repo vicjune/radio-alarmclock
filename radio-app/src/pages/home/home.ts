@@ -19,6 +19,7 @@ export class HomePage {
 	radioLoading: boolean = true;
 	online: boolean = false;
 	toastTimeout = null;
+	radioPlatyingId: number;
 
 	constructor(
 		public navCtrl: NavController,
@@ -52,6 +53,8 @@ export class HomePage {
 		});
 
 		this.fireService.bind('radioPlaying').subscribe(serverRadio => {
+			this.radioPlatyingId = serverRadio.id;
+
 			if (!this.toastTimeout) {
 				this.toastCtrl.create({
 					message: serverRadio.label,

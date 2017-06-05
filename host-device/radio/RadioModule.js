@@ -22,38 +22,13 @@ module.exports = class RadioModule {
 
 			this.localStorage.radioLoading = true;
 
-			if (this.lastUrl === url) {
-				this.timeoutCounter ++;
+			if (!this.localStorage.radioPlaying) {
+				this.startClient(url);
 			} else {
-				this.timeoutCounter = 0;
-			}
-
-			this.lastUrl = url;
-			this.radioClient = new RadioClient(this.localStorage);
-
-			this.radioClient.startStream(url, () => {
-				console.log('Radio started');
-
-				this.websocketServer.send('playRadio', {
-					playing: true,
-					loading: false
+				this.radioClient.stopStream(() => {
+					this.startClient(url);
 				});
-				this.localStorage.radioLoading = false;
-			}, (error, end) => {
-				console.log('Radio error', error);
-				this.localStorage.radioLoading = false;
-
-				if (error === 'timeout' && !end && this.timeoutCounter < 1) {
-					this.startStream(url);
-				} else {
-					this.websocketServer.send('error', 'Couldn\'t read the radio :/');
-
-					this.websocketServer.send('playRadio', {
-						playing: false,
-						loading: false
-					});
-				}
-			});
+			}
 		}
 	}
 
@@ -80,6 +55,41 @@ module.exports = class RadioModule {
 				});
 			}
 		}
+	}
+
+	startClient(url) {
+		if (this.lastUrl === url) {
+			this.timeoutCounter ++;
+		} else {
+			this.timeoutCounter = 0;
+		}
+
+		this.lastUrl = url;
+		this.radioClient = new RadioClient(this.localStorage);
+
+		this.radioClient.startStream(url, () => {
+			console.log('Radio started');
+
+			this.websocketServer.send('playRadio', {
+				playing: true,
+				loading: false
+			});
+			this.localStorage.radioLoading = false;
+		}, (error, end) => {
+			console.log('Radio error', error);
+			this.localStorage.radioLoading = false;
+
+			if (error === 'timeout' && !end && this.timeoutCounter < 1) {
+				this.startClient(url);
+			} else {
+				this.websocketServer.send('error', 'Couldn\'t read the radio :/');
+
+				this.websocketServer.send('playRadio', {
+					playing: false,
+					loading: false
+				});
+			}
+		});
 	}
 
 	setVolume(volume) {

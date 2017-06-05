@@ -31,39 +31,37 @@ module.exports = class AlarmModule {
 					}
 					if (triggerAlarms) {
 						this.localStorage.lastRadio = this.localStorage.getRadio(triggeredAlarm.radioId);
-						this.startAlarm(true, this.localStorage.lastRadio.url);
+						this.startAlarm(true, this.localStorage.lastRadio);
 					}
 				}, 60000);
 			}
 		}, 100);
 	}
 
-	startAlarm(incremental, url) {
-		if (this.localStorage.radioPlaying) {
-			if (this.durationTimeout) {
-				clearTimeout(this.durationTimeout);
-			}
-		} else {
-			this.radioModule.startStream(url);
-			console.log('Alarm started');
+	startAlarm(incremental, radio) {
+		this.websocketServer.send('radioPlaying', radio);
 
-			if (incremental && this.localStorage.increment > 0) {
-				this.radioModule.setVolume(0);
-				let staticIncrement = this.localStorage.increment;
-				let volume = 60;
-				this.incrementalInterval = setInterval(() => {
-					volume = volume + (100 - 60) / (staticIncrement * 60);
-					if (volume <= 100 && this.localStorage.radioPlaying) {
-						this.radioModule.setVolume(Math.floor(volume));
-					} else {
-						clearInterval(this.incrementalInterval);
-						this.incrementalInterval = null;
-					}
-				}, 1000);
-			}
+		if (this.durationTimeout) {
+			clearTimeout(this.durationTimeout);
 		}
 
-		if (!incremental || this.localStorage.increment === 0) {
+		this.radioModule.startStream(url);
+		console.log('Alarm started');
+
+		if (incremental && this.localStorage.increment > 0) {
+			this.radioModule.setVolume(0);
+			let staticIncrement = this.localStorage.increment;
+			let volume = 60;
+			this.incrementalInterval = setInterval(() => {
+				volume = volume + (100 - 60) / (staticIncrement * 60);
+				if (volume <= 100 && this.localStorage.radioPlaying) {
+					this.radioModule.setVolume(Math.floor(volume));
+				} else {
+					clearInterval(this.incrementalInterval);
+					this.incrementalInterval = null;
+				}
+			}, 1000);
+		} else {
 			this.radioModule.setVolume(100);
 			if (this.incrementalInterval) {
 				clearInterval(this.incrementalInterval);

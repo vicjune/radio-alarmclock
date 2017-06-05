@@ -38,10 +38,10 @@
 			</ion-item-options>
 			<ion-item-options side="right">
 				<button ion-button color="secondary" [disabled]="radioLoading || !online" (click)="play(alarm.radioId); item.close();">
-					<ion-icon *ngIf="!radioPlaying" name="play"></ion-icon>
-					<ion-icon *ngIf="radioPlaying" name="pause"></ion-icon>
-					<span *ngIf="!radioPlaying">Play</span>
-					<span *ngIf="radioPlaying">Pause</span>
+					<ion-icon *ngIf="!radioPlaying || radioPlatyingId !== alarm.radioId" name="play"></ion-icon>
+					<span *ngIf="!radioPlaying || radioPlatyingId !== alarm.radioId">Play</span>
+					<ion-icon *ngIf="radioPlaying && radioPlatyingId === alarm.radioId" name="pause"></ion-icon>
+					<span *ngIf="radioPlaying && radioPlatyingId === alarm.radioId">Pause</span>
 				</button>
 				<button ion-button (click)="alarmSelected(alarm); item.close();">
 					<ion-icon name="md-create"></ion-icon>
