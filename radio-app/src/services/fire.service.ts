@@ -5,7 +5,7 @@ import { WebsocketService } from './websocket.service';
 
 @Injectable()
 export class FireService {
-	subjects: ReplaySubject<any>[] = [];
+	private subjects: ReplaySubject<any>[] = [];
 
 	constructor(
 		public websocketService: WebsocketService
@@ -23,18 +23,6 @@ export class FireService {
 			this.createSubject(type);
 		}
 		return this.subjects[type].asObservable();
-
-
-
-
-
-		// let subject = new ReplaySubject<any>();
-		// this.websocketService.socket.subscribe(payload => {
-		// 	if (payload.type === type) {
-		// 		subject.next(payload.data);
-		// 	}
-		// });
-		// return subject.asObservable();
 	}
 
 	send(type: string, data): void {
