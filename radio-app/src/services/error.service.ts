@@ -25,6 +25,9 @@ export class ErrorService {
 				message: message,
 				duration: this.duration
 			}).present();
+			if (this.timeout) {
+				clearTimeout(this.timeout);
+			}
 			this.timeout = setTimeout(() => this.timeout = null, this.duration);
 		}
 	}

@@ -45,7 +45,7 @@ module.exports = class AlarmModule {
 			clearTimeout(this.durationTimeout);
 		}
 
-		this.radioModule.startStream(url);
+		this.radioModule.startStream(radio.url);
 		console.log('Alarm started');
 
 		if (incremental && this.localStorage.increment > 0) {

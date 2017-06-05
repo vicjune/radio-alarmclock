@@ -26,7 +26,7 @@ module.exports = class RadioClient {
 			let thisRequest = request.get(url);
 
 			thisRequest.on('error', err => {
-				fnError();
+				fnError(err);
 			});
 
 			thisRequest.on('response', response => {
@@ -34,11 +34,11 @@ module.exports = class RadioClient {
 				let ipAddress;
 
 				if (!parsedUrl.hostname || !parsedUrl.path) {
-					fnError();
+					fnError('No hostname or path in url');
 				} else {
 					dnsModule.resolve(parsedUrl.hostname, (err, addresses) => {
 						if (err !== null) {
-							fnError();
+							fnError(err);
 						} else {
 							if (addresses) {
 								ipAddress = addresses[0];
@@ -58,14 +58,20 @@ module.exports = class RadioClient {
 				}
 			});
 		} catch (e) {
-			fnError();
+			fnError(e);
 		}
 	}
 
 	startStream(url, fnStart, fnError) {
-		this.connectClient(url, () => {
+		this.clientTimeout = setTimeout(() => {
+			fnError('timeout', this.end);
+			this.closeStream(true);
+		}, 10000);
+
+		this.connectClient(url, err => {
 			this.closeStream(true);
 			fnError(err, true);
+			clearTimeout(this.clientTimeout);
 		});
 
 		this.localStorage.radioPlaying = true;
@@ -77,15 +83,8 @@ module.exports = class RadioClient {
 		let firstPayloadReceived = false;
 		let streamStarted = false;
 
-		this.clientTimeout = setTimeout(() => {
-			fnError('timeout', this.end);
-			this.closeStream(true);
-		}, 10000);
-
 		this.client.on('data', data => {
-			if (this.clientTimeout) {
-				clearTimeout(this.clientTimeout);
-			}
+			clearTimeout(this.clientTimeout);
 
 			this.clientTimeout = setTimeout(() => {
 				fnError('timeout', this.end);
