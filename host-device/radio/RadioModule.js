@@ -25,7 +25,6 @@ module.exports = class RadioModule {
 			if (!this.localStorage.radioPlaying) {
 				this.startClient(url);
 			} else {
-				loudness.setVolume(0, err => {});
 				this.radioClient.stopStream(() => {
 					this.startClient(url);
 				});

@@ -31,14 +31,16 @@ module.exports = class AlarmModule {
 					}
 					if (triggerAlarms) {
 						this.localStorage.lastRadio = this.localStorage.getRadio(triggeredAlarm.radioId);
-						this.startAlarm(true, this.localStorage.lastRadio.url);
+						this.startAlarm(true, this.localStorage.lastRadio);
 					}
 				}, 60000);
 			}
 		}, 100);
 	}
 
-	startAlarm(incremental, url) {
+	startAlarm(incremental, radio) {
+		this.websocketServer.send('radioPlaying', radio);
+
 		if (this.durationTimeout) {
 			clearTimeout(this.durationTimeout);
 		}

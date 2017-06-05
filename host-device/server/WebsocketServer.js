@@ -123,15 +123,13 @@ module.exports = class WebsocketServer {
 					this.localStorage.lastRadio = this.localStorage.getRadio(radioId);
 				}
 
-				this.alarmModule.startAlarm(false, this.localStorage.lastRadio.url);
-				this.send('radioPlaying', this.localStorage.lastRadio);
+				this.alarmModule.startAlarm(false, this.localStorage.lastRadio);
 			} else {
 				if (radioId === this.localStorage.lastRadio.id || radioId === null) {
 					this.alarmModule.stopAlarm();
 				} else {
 					this.localStorage.lastRadio = this.localStorage.getRadio(radioId);
-					this.alarmModule.startAlarm(false, this.localStorage.lastRadio.url);
-					this.send('radioPlaying', this.localStorage.lastRadio);
+					this.alarmModule.startAlarm(false, this.localStorage.lastRadio);
 				}
 			}
 		}
