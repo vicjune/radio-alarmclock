@@ -116,17 +116,23 @@ module.exports = class WebsocketServer {
 		}
 
 		if (payload.type === 'playRadio') {
-			if (payload.data.radioPlaying) {
+			let radioId = payload.data.radioId;
 
-				if (payload.data.radioId !== null) {
-					this.localStorage.lastRadio = this.localStorage.getRadio(payload.data.radioId);
+			if (!this.localStorage.radioPlaying) {
+				if (radioId !== null) {
+					this.localStorage.lastRadio = this.localStorage.getRadio(radioId);
 				}
 
 				this.alarmModule.startAlarm(false, this.localStorage.lastRadio.url);
-
 				this.send('radioPlaying', this.localStorage.lastRadio);
 			} else {
-				this.alarmModule.stopAlarm();
+				if (radioId === this.localStorage.lastRadio.id || radioId === null) {
+					this.alarmModule.stopAlarm();
+				} else {
+					this.localStorage.lastRadio = this.localStorage.getRadio(radioId);
+					this.alarmModule.startAlarm(false, this.localStorage.lastRadio.url);
+					this.send('radioPlaying', this.localStorage.lastRadio);
+				}
 			}
 		}
 
