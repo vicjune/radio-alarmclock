@@ -68,6 +68,8 @@ plugins/android.json
 plugins/ios.json
 www/
 $RECYCLE.BIN/
+resources/ios/
+resources/android/
 
 .DS_Store
 Thumbs.db
