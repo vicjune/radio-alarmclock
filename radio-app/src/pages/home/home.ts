@@ -79,16 +79,16 @@ export class HomePage {
 	}
 
 	updateAlarms(alarmList: any): void {
-		for (let alarm of this.alarms) {
+		for (let i = 0; i < this.alarms.length; ++i) {
 			let serverAlarmExists = false;
 			for (let serverAlarm of alarmList) {
-				if (alarm.id === serverAlarm.id) {
+				if (this.alarms[i].id === serverAlarm.id) {
 					serverAlarmExists = true;
-					break;
 				}
 			}
 			if (!serverAlarmExists) {
-				this.deleteAlarm(alarm.id, false);
+				this.deleteAlarm(this.alarms[i].id, false);
+				i--;
 			}
 		}
 
