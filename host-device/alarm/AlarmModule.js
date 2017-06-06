@@ -19,11 +19,13 @@ module.exports = class AlarmModule {
 				setInterval(() => {
 					let now = new Date();
 					let triggerAlarms = false;
-					let triggeredAlarm;
+					let triggeredAlarm = null;
 					for (let alarm of this.localStorage.alarms) {
 						let triggerAlarm = (alarm.days.indexOf(now.getDay()) >= 0 || alarm.days.length === 0) && now.getHours() === alarm.hour && now.getMinutes() === alarm.minute && alarm.enabled;
 						triggerAlarms = triggerAlarms || triggerAlarm;
-						triggeredAlarm = alarm;
+						if (triggerAlarms && !triggeredAlarm) {
+							triggeredAlarm = alarm;
+						}
 						if (triggerAlarm && alarm.days.length === 0) {
 							alarm.enabled = false;
 							this.websocketServer.send('alarm', alarm);
@@ -32,6 +34,7 @@ module.exports = class AlarmModule {
 					if (triggerAlarms) {
 						this.localStorage.lastRadio = this.localStorage.getRadio(triggeredAlarm.radioId);
 						this.startAlarm(true, this.localStorage.lastRadio);
+						triggeredAlarm = null;
 					}
 				}, 60000);
 			}
