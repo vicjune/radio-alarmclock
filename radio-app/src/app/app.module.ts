@@ -15,6 +15,7 @@ import { RadiosPage } from '../pages/radios/radios';
 import { RadioPage } from '../pages/radio/radio';
 import { ConnectionStatusComponent } from '../components/connection-status/connection-status';
 import { RadioSelectorComponent } from '../components/radio-selector/radio-selector';
+import { SignatureComponent } from '../components/signature/signature';
 import { WebsocketService } from '../services/websocket.service';
 import { FireService } from '../services/fire.service';
 import { GlobalizationService } from '../services/globalization.service';
@@ -35,6 +36,7 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		RadioPage,
 		ConnectionStatusComponent,
 		RadioSelectorComponent,
+		SignatureComponent,
 		FrontZerosPipe,
 		WeekDaysPipe,
 		MinutesHoursPipe
