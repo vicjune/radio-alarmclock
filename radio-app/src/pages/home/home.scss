@@ -12,4 +12,35 @@ page-home {
 			}
 		}
 	}
+
+	.mainLogo {
+		height: 100%;
+
+		> div {
+			display: flex;
+			height: 100%;
+			padding: 10px;
+			align-items: center;
+		}
+
+		img {
+			opacity: 0.8;
+		}
+
+		&.title-ios {
+			> div {
+				justify-content: center;
+			}
+
+			img {
+				height: 100%;
+			}
+		}
+
+		&:not(.title-ios) {
+			img {
+				height: 25px;
+			}
+		}
+	}
 }

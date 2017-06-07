@@ -68,9 +68,6 @@ plugins/android.json
 plugins/ios.json
 www/
 $RECYCLE.BIN/
-!resources/icon.png
-!resources/splash.png
-resources/
 
 .DS_Store
 Thumbs.db

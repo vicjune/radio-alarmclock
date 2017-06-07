@@ -22,9 +22,10 @@ export class ConnectionService {
 	) {
 		platform.ready().then(() => {
 			this.storage.get('ipAddress').then(data => {
-				this.connect(data.value);
-				this.ipSubject.next(data.value);
-				if (!data) {
+				if (data) {
+					this.connect(data.value);
+					this.ipSubject.next(data.value);
+				} else {
 					this.scan();
 				}
 			}).catch(err => {
