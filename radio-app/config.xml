@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.ionicframework.radioapp138041" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.ionicframework.radioapp138041" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Mouton</name>
     <description>Remote control for your radio alarm clock device</description>
     <author email="victor.jouin@gmail.com" href="http://linkedin.com/in/victorjouin/">Victor Jouin</author>
