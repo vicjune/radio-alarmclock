@@ -12,11 +12,8 @@ signature {
 		}
 	}
 
-	.title {
-
-	}
-
-	.name {
-
+	.name a {
+		color: color($colors, secondary);
+		text-decoration: none;
 	}
 }
