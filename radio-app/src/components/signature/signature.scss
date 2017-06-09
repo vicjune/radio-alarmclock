@@ -1,3 +1,22 @@
 signature {
+	.wrapper {
+		display: flex;
+		align-items: center;
+		flex-direction: column;
+		margin: 32px 0;
+	}
 
+	.logo {
+		img {
+			height: 30px;
+		}
+	}
+
+	.title {
+
+	}
+
+	.name {
+
+	}
 }
