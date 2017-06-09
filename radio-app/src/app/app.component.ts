@@ -33,7 +33,12 @@ export class MyApp {
 				}
 			});
 
-			statusBar.styleDefault();
+			statusBar.styleLightContent();
+
+			if (platform.is('android')) {
+				statusBar.backgroundColorByHexString('#e07d00');
+			}
+
 			splashScreen.hide();
 		});
 	}
