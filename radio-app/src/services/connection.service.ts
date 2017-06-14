@@ -8,6 +8,7 @@ import { ErrorService } from './error.service';
 
 @Injectable()
 export class ConnectionService {
+	ip: string;
 	ipSubject: ReplaySubject<string> = new ReplaySubject<string>(1);
 	scanRunning: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
 	scanTimeout;
@@ -23,7 +24,7 @@ export class ConnectionService {
 		platform.ready().then(() => {
 			this.storage.get('ipAddress').then(data => {
 				if (data) {
-					this.connect(data.value);
+					this.firstConnect(data.value);
 					this.ipSubject.next(data.value);
 				} else {
 					this.scan();
@@ -35,15 +36,19 @@ export class ConnectionService {
 		});
 	}
 
-	connect(ip: string): void {
+	firstConnect(ip: string): void {
 		this.storage.set('ipAddress', {
 			value: ip
 		}).catch(err => console.error(err));
 
 		this.ipSubject.next(ip);
+		this.ip = ip;
+		this.connect();
+	}
 
-		if (ip) {
-			this.websocketService.connect('ws://' + ip + ':8001/');
+	connect(): void {
+		if (this.ip) {
+			this.websocketService.connect('ws://' + this.ip + ':8001/');
 		}
 	}
 
@@ -62,7 +67,7 @@ export class ConnectionService {
 					let websocket = new WebSocket('ws://192.168.1.' + i + ':8001/');
 					websocket.onopen = event => {
 						this.cancelScan();
-						this.connect(this.ipExtension((event.currentTarget as WebSocket).url));
+						this.firstConnect(this.ipExtension((event.currentTarget as WebSocket).url));
 					};
 					this.websockets.push(websocket);
 				}

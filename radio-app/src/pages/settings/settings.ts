@@ -100,7 +100,7 @@ export class SettingsPage {
 					text: 'Save',
 					handler: data => {
 						this.ipAddress = data.ip;
-						this.connectionService.connect(this.ipAddress);
+						this.connectionService.firstConnect(this.ipAddress);
 					}
 				}
 			]

@@ -33,10 +33,10 @@ export class WebsocketService {
 	connect(url: string, bounceTimer: number = 3000): void {
 		if (url !== this.url) {
 			this.close();
-			this.status.next(2);
-			this.url = url;
-			this.bounceConnect(bounceTimer);
 		}
+		this.status.next(2);
+		this.url = url;
+		this.bounceConnect(bounceTimer);
 	}
 
 	close() {
@@ -48,6 +48,11 @@ export class WebsocketService {
 
 	private bounceConnect(bounceTimer) {
 		if (this.url !== null) {
+			if (this.reconnectTimeout) {
+				clearTimeout(this.reconnectTimeout);
+				this.reconnectTimeout = null;
+			}
+
 			try {
 				this.ws = new WebSocket(this.url);
 				this.subject.next(this.ws);

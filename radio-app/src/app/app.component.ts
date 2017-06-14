@@ -41,5 +41,9 @@ export class MyApp {
 
 			splashScreen.hide();
 		});
+
+		platform.resume.subscribe(() => {
+			connectionService.connect();
+		});
 	}
 }
