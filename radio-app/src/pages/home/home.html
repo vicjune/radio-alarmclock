@@ -22,7 +22,7 @@
 				<ion-label (click)="itemClicked(item)">
 					<h1>{{ alarm.date | date:globalization.timeFormat }}</h1>
 					<p>
-						<span>{{ radioListService.getRadio(alarm.radioId, 'label') | async }}</span>
+						<span>{{ (radioListService.getRadio(alarm.radioId, 'label') | async) || 'No radio' }}</span>
 						<span *ngIf="alarm.days.length > 0">, </span>
 						<span>{{ alarm.days | weekDays: false }}</span>
 					</p>
