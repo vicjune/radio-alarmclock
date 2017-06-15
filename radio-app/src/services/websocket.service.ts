@@ -33,10 +33,15 @@ export class WebsocketService {
 	connect(url: string, bounceTimer: number = 3000): void {
 		if (url !== this.url) {
 			this.close();
+			this.url = url;
+			this.status.next(2);
+			this.bounceConnect(bounceTimer);
+		} else {
+			if (this.ws.readyState === WebSocket.CLOSED) {
+				this.status.next(2);
+				this.bounceConnect(bounceTimer);
+			}
 		}
-		this.status.next(2);
-		this.url = url;
-		this.bounceConnect(bounceTimer);
 	}
 
 	close() {
