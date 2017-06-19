@@ -37,7 +37,7 @@ export class WebsocketService {
 			this.status.next(2);
 			this.bounceConnect(bounceTimer);
 		} else {
-			if (this.ws.readyState === WebSocket.CLOSED) {
+			if (this.ws.readyState !== WebSocket.OPEN) {
 				this.status.next(2);
 				this.bounceConnect(bounceTimer);
 			}
