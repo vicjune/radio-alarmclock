@@ -63,13 +63,15 @@ export class ConnectionService {
 			}, 10000);
 
 			try {
-				for (let i = 0; i <= 255; i++) {
-					let websocket = new WebSocket('ws://192.168.1.' + i + ':8001/');
-					websocket.onopen = event => {
-						this.cancelScan();
-						this.firstConnect(this.ipExtension((event.currentTarget as WebSocket).url));
-					};
-					this.websockets.push(websocket);
+				for (let i = 0; i <= 1; i++) {
+					for (let j = 0; j <= 255; j++) {
+						let websocket = new WebSocket('ws://192.168.' + i + '.' + j + ':8001/');
+						websocket.onopen = event => {
+							this.cancelScan();
+							this.firstConnect(this.ipExtension((event.currentTarget as WebSocket).url));
+						};
+						this.websockets.push(websocket);
+					}
 				}
 			} catch (e) {
 				console.error(e);
