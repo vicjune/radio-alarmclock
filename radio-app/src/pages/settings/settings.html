@@ -58,6 +58,7 @@
 		<button ion-item (click)="autoConnect()" [disabled]="online">
 			<span *ngIf="!(connectionService.scanRunning | async)">Automatic connection</span>
 			<span *ngIf="connectionService.scanRunning | async" color="danger">Cancel</span>
+			<ion-icon item-right *ngIf="!(connectionService.scanRunning | async)" name="bluetooth" color="secondary"></ion-icon>
 			<ion-spinner item-right *ngIf="connectionService.scanRunning | async"></ion-spinner>
 		</button>
 		<button ion-item (click)="manualConnect()" [disabled]="connectionService.scanRunning | async">

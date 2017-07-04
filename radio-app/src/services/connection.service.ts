@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Observable, ReplaySubject } from 'rxjs/Rx';
 import { Platform } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
+import { BLE } from '@ionic-native/ble';
 
 import { WebsocketService } from './websocket.service';
 import { ErrorService } from './error.service';
@@ -19,7 +20,8 @@ export class ConnectionService {
 		platform: Platform,
 		public websocketService: WebsocketService,
 		public errorService: ErrorService,
-		public storage: Storage
+		public storage: Storage,
+		public ble: BLE
 	) {
 		platform.ready().then(() => {
 			this.storage.get('ipAddress').then(data => {
@@ -92,7 +94,64 @@ export class ConnectionService {
 		});
 	}
 
+	scanBluetooth(): void {
+		if (!this.scanRun) {
+			this.ble.isEnabled().then(() => {
+				let timeout = setTimeout(() => {
+					this.ble.stopScan();
+					this.scanRun = false;
+					this.scanRunning.next(false);
+					this.errorService.display('Couln\'t find any device');
+				}, 10000);
+				this.scanRun = true;
+				this.scanRunning.next(true);
+				this.ble.startScan([]).switchMap(device => {
+					console.log('///////////');
+					console.log(device);
+					console.log('///////////');
+					this.ble.stopScan();
+					clearTimeout(timeout);
+					// this.scanRun = false;
+					// this.scanRunning.next(false);
+					return this.ble.connect(device.id).switchMap(status => {
+						return Observable.fromPromise(this.ble.read(device.id, 'ec00', 'ec01'));
+					});
+				}).subscribe(wifiNetworks => {
+					console.log(this.fromBytes(wifiNetworks));
+				});
+			}).catch(() => {
+				this.errorService.display('Bluetooth is disabled');
+			});
+		} else {
+			this.cancelScanBluetooth();
+		}
+	}
+
+	cancelScanBluetooth(): void {
+		this.ble.stopScan();
+		this.scanRun = false;
+		this.scanRunning.next(false);
+	}
+
 	private ipExtension(ip: string): string {
 		return ip.match(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/)[0];
+	}
+
+	private toBytes(payload: any): ArrayBuffer {
+		let jsonString = JSON.stringify(payload);
+		var array = new Uint8Array(jsonString.length);
+		for (var i = 0, l = jsonString.length; i < l; i++) {
+			array[i] = jsonString.charCodeAt(i);
+		}
+		return array.buffer;
+	}
+
+	private fromBytes(buffer: ArrayBuffer): any {
+		try {
+			return JSON.parse(String.fromCharCode.apply(null, new Uint8Array(buffer)));
+		} catch (err) {
+			console.error(err);
+			return null;
+		}
 	}
 }

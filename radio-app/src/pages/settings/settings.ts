@@ -77,7 +77,7 @@ export class SettingsPage {
 	}
 
 	autoConnect() {
-		this.connectionService.scan();
+		this.connectionService.scanBluetooth();
 	}
 
 	manualConnect() {

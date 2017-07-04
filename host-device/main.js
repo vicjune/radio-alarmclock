@@ -8,8 +8,10 @@ let WebsocketServer = require('./server/WebsocketServer.js');
 let LocalStorage = require('./storage/LocalStorage.js');
 let AlarmModule = require('./alarm/AlarmModule.js');
 let UpdateModule = require('./update/UpdateModule.js');
+let ConnectionModule = require('./connection/ConnectionModule.js');
 
 
+let connectionModule = new ConnectionModule();
 let localStorage = new LocalStorage(version);
 let updateModule = new UpdateModule(localStorage);
 let websocketServer = new WebsocketServer(localStorage, updateModule);

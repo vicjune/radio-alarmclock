@@ -5,6 +5,7 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { DatePicker } from '@ionic-native/date-picker';
 import { Globalization } from '@ionic-native/globalization';
+import { BLE } from '@ionic-native/ble';
 import { IonicStorageModule } from '@ionic/storage';
 
 import { MyApp } from './app.component';
@@ -68,6 +69,7 @@ import { MinutesHoursPipe } from '../pipes/minutes-hours.pipe';
 		FrontZerosPipe,
 		DatePicker,
 		Globalization,
+		BLE,
 		{provide: ErrorHandler, useClass: IonicErrorHandler}
 	]
 })
