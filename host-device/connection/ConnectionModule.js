@@ -39,7 +39,7 @@ module.exports = class ConnectionModule {
 	onReadWifi(offset, callback) {
 		console.log('read');
 
-		let data = new Buffer(4);
+		let data = new Buffer(0);
 		data.writeUInt32LE(3, 0);
 
 		callback(this.characteristic.RESULT_SUCCESS, data);
