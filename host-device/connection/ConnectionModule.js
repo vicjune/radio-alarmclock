@@ -42,13 +42,11 @@ module.exports = class ConnectionModule {
 
 		wifi.scan((err, networks) => {
 			if (!err) {
-				let result = this.characteristic.RESULT_SUCCESS;
 				let data = new Buffer(networks);
 			} else {
-				let result = this.characteristic.RESULT_SUCCESS;
 				let data = new Buffer('Error in wifi scan');
 			}
-			callback(result, data);
+			callback(null, data);
 		});
 	}
 }
