@@ -38,16 +38,20 @@ module.exports = class ConnectionModule {
 	}
 
 	onReadWifi(offset, callback) {
+		let scanStarted = false;
 		wifi.scan((err, networks) => {
 			let data;
 			if (!err) {
-				data = this.toBytes(networks.map(network => network.ssid).join());
-				console.log(networks.map(network => network.ssid).join());
+				data = this.toBytes(networks);
+				console.log(networks.map(network => network.ssid));
 			} else {
 				data = this.toBytes('Error in wifi scan');
 				console.log(err);
 			}
-			callback(this.characteristic.RESULT_SUCCESS, data);
+			if (!scanStarted) {
+				scanStarted = true;
+				callback(this.characteristic.RESULT_SUCCESS, data);
+			}
 		});
 	}
 
