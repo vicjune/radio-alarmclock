@@ -38,6 +38,7 @@ module.exports = class ConnectionModule {
 	}
 
 	onReadWifi(offset, callback) {
+		console.log('read');
 		let scanStarted = false;
 		wifi.scan((err, networks) => {
 			let data;
