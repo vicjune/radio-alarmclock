@@ -50,7 +50,7 @@ module.exports = class ConnectionModule {
 		// Shares memory with `arr`
 		const data = Buffer.from(arr.buffer);
 
-		callback(this.characteristic.RESULT_SUCCESS, data);
+		callback(this.characteristic.RESULT_SUCCESS, this.toBytes('coucou'));
 
 		// wifi.scan((err, networks) => {
 		// 	let result;
@@ -67,8 +67,8 @@ module.exports = class ConnectionModule {
 	}
 
 	toBytes(payload) {
-		let jsonString = JSON.stringify(payload);
-		var array = new Uint8Array(jsonString.length);
+		// let jsonString = JSON.stringify(payload);
+		var array = new Uint8Array(payload.length);
 		for (var i = 0, l = jsonString.length; i < l; i++) {
 			array[i] = jsonString.charCodeAt(i);
 		}
