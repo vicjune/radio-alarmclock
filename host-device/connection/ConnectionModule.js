@@ -60,6 +60,10 @@ module.exports = class ConnectionModule {
 			} else {
 				data = this.toBytes('Error in wifi scan');
 			}
+			data = this.toBytes({
+				coucou: 'caca',
+				papy: [3, 4]
+			});
 			callback(this.characteristic.RESULT_SUCCESS, data);
 		});
 	}
