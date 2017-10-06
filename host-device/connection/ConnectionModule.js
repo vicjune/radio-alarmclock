@@ -40,12 +40,13 @@ module.exports = class ConnectionModule {
 		console.log('read');
 
 		wifi.scan((err, networks) => {
+			let data;
 			if (!err) {
 				// let result = this.characteristic.RESULT_SUCCESS;
-				let data = new Buffer(0).toString(networks);
+				data = new Buffer(0).toString(networks);
 			} else {
 				// let result = this.characteristic.RESULT_SUCCESS;
-				let data = new Buffer(0).toString('Error in wifi scan');
+				data = new Buffer(0).toString('Error in wifi scan');
 			}
 			callback(null, data);
 		});
