@@ -60,17 +60,12 @@ module.exports = class ConnectionModule {
 			} else {
 				data = this.toBytes('Error in wifi scan');
 			}
-			data = this.toBytes({
-				coucou: 'caca',
-				papy: [3, 4]
-			});
 			callback(this.characteristic.RESULT_SUCCESS, data);
 		});
 	}
 
 	toBytes(payload) {
 		let jsonString = JSON.stringify(payload);
-		console.log(typeof jsonString);
 		var array = new Uint8Array(jsonString.length);
 		for (var i = 0, l = jsonString.length; i < l; i++) {
 			array[i] = jsonString.charCodeAt(i);
