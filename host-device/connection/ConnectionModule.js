@@ -40,7 +40,8 @@ module.exports = class ConnectionModule {
 		console.log('read');
 
 		let result = this.characteristic.RESULT_SUCCESS;
-		let data = new Buffer(0).toString('Error in wifi scan');
+		let data = new Buffer(0);
+		data.toString('Error in wifi scan');
 
 		callback(result, data);
 
