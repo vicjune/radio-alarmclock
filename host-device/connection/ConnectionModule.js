@@ -70,7 +70,7 @@ module.exports = class ConnectionModule {
 
 	toBytes(payload) {
 		let jsonString = JSON.stringify(payload);
-		console.log(jsonString);
+		console.log(typeof jsonString);
 		var array = new Uint8Array(jsonString.length);
 		for (var i = 0, l = jsonString.length; i < l; i++) {
 			array[i] = jsonString.charCodeAt(i);
