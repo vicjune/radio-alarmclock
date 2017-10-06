@@ -34,7 +34,7 @@ module.exports = class ConnectionModule {
 			}
 		});
 
-		wifi.init({ iface : null });
+		// wifi.init({ iface : null });
 	}
 
 	onReadWifi(offset, callback) {
