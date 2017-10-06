@@ -39,8 +39,16 @@ module.exports = class ConnectionModule {
 	onReadWifi(offset, callback) {
 		console.log('read');
 
-		let data = new Buffer(0);
-		data.writeUInt32LE(3, 0);
+		// let data = new Buffer(4);
+		// data.writeUInt32LE(3, 0);
+
+		const arr = new Uint16Array(2);
+
+		arr[0] = 5000;
+		arr[1] = 4000;
+
+		// Shares memory with `arr`
+		const data = Buffer.from(arr.buffer);
 
 		callback(this.characteristic.RESULT_SUCCESS, data);
 
