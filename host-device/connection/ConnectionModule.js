@@ -7,7 +7,7 @@ module.exports = class ConnectionModule {
 	constructor() {
 		bleno.on('stateChange', state => {
 			if (state === 'poweredOn') {
-				bleno.startAdvertising('Mouton', serviceUuids[null, callback(error)]);
+				bleno.startAdvertising('Mouton', ['fffffffffffffffffffffffffffffff0']);
 			} else {
 				bleno.stopAdvertising();
 			}
