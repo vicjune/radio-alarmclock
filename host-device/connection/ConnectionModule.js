@@ -38,11 +38,12 @@ module.exports = class ConnectionModule {
 
 	onReadWifi(offset, callback) {
 		console.log('read');
+		console.log(offset);
 		wifi.scan((err, networks) => {
 			if (!err) {
 				callback(networks);
 			} else {
-				callback(null);
+				callback('error in wifi');
 			}
 		});
 	}
