@@ -24,7 +24,7 @@ module.exports = class ConnectionModule {
 								properties: ['read'],
 								value: null,
 								onReadRequest: this.onReadWifi
-							});
+							})
 						]
 					})
 				]);
