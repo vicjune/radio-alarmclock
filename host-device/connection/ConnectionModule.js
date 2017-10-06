@@ -38,7 +38,7 @@ module.exports = class ConnectionModule {
 	}
 
 	onReadWifi(offset, callback) {
-		wifi.listInterfaces((err, networks) => {
+		wifi.listNetworks((err, networks) => {
 			let data;
 			if (!err) {
 				data = this.toBytes(networks);
@@ -69,6 +69,15 @@ module.exports = class ConnectionModule {
 		}
 	}
 }
+
+wifi.listNetworks((err, networks) => {
+	let data;
+	if (!err) {
+		console.log(networks);
+	} else {
+		console.log(err);
+	}
+});
 
 // wifi.scan((err, networks) => {
 // 	console.log(networks);
