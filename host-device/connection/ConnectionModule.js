@@ -9,10 +9,7 @@ module.exports = class ConnectionModule {
 			uuid: 'B2FEBA5A-CADB-493C-AD72-34170D046C3B',
 			properties: ['read'],
 			value: null,
-			onReadRequest: (offset, callback) => {
-				console.log('hello');
-				callback(this.characteristic.RESULT_SUCCESS, this.toBytes('coucou blue'));
-			}
+			onReadRequest: (offset, callback) => {this.onReadWifi(offset, callback)}
 		});
 
 		bleno.on('stateChange', state => {
@@ -42,10 +39,10 @@ module.exports = class ConnectionModule {
 	onReadWifi(offset, callback) {
 		console.log('read');
 
-		let result = this.characteristic.RESULT_SUCCESS;
-		// let data = Buffer.from('hello world', 'ascii');
+		let data = new Buffer(4);
+		data.writeUInt32LE(3, 0);
 
-		callback(this.characteristic.RESULT_SUCCESS, this.toBytes('coucou blue'));
+		callback(this.characteristic.RESULT_SUCCESS, data);
 
 		// wifi.scan((err, networks) => {
 		// 	let result;
