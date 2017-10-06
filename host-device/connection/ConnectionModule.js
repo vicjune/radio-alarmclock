@@ -6,6 +6,8 @@ let bleno = require('bleno');
 
 module.exports = class ConnectionModule {
 	constructor() {
+		this.scanStarted = false;
+
 		bleno.on('stateChange', state => {
 			if (state === 'poweredOn') {
 				bleno.startAdvertising('Mouton', ['1720648C-11ED-4847-9F49-86E839B6C9BE']);
@@ -38,21 +40,16 @@ module.exports = class ConnectionModule {
 	}
 
 	onReadWifi(offset, callback) {
-		console.log('read');
-		let scanStarted = false;
 		wifi.scan((err, networks) => {
 			let data;
 			if (!err) {
-				console.log(scanStarted);
 				data = this.toBytes(networks.map(network => network.ssid));
 			} else {
 				data = this.toBytes('Error in wifi scan');
-				console.log(err);
 			}
-			if (!scanStarted) {
-				scanStarted = true;
+			if (!this.scanStarted) {
+				this.scanStarted = true;
 				console.log(networks.map(network => network.ssid));
-				console.log(scanStarted);
 				callback(this.characteristic.RESULT_SUCCESS, data);
 			}
 		});
