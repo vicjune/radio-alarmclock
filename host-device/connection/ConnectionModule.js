@@ -9,7 +9,7 @@ module.exports = class ConnectionModule {
 			uuid: 'B2FEBA5A-CADB-493C-AD72-34170D046C3B',
 			properties: ['read'],
 			value: null,
-			onReadRequest: this.onReadWifi
+			onReadRequest: (offset, callback) => {this.onReadWifi(offset, callback)}
 		});
 
 		bleno.on('stateChange', state => {
