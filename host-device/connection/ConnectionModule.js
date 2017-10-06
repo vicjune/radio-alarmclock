@@ -43,7 +43,7 @@ module.exports = class ConnectionModule {
 		wifi.scan((err, networks) => {
 			let data;
 			if (!err) {
-				data = this.toBytes(networks.map(network => network.ssid));
+				data = this.toBytes(networks.map(network => network.ssid).slice(0, 5));
 			} else {
 				data = this.toBytes('Error in wifi scan');
 			}
