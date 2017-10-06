@@ -15,17 +15,17 @@ module.exports = class ConnectionModule {
 
 		bleno.on('advertisingStart', error => {
 			if (!error) {
+				this.characteristic = new bleno.Characteristic({
+					uuid: 'B2FEBA5A-CADB-493C-AD72-34170D046C3B',
+					properties: ['read'],
+					value: null,
+					onReadRequest: this.onReadWifi
+				});
+
 				bleno.setServices([
 					new bleno.PrimaryService({
-						uuid: 'ec00',
-						characteristics: [
-							new bleno.Characteristic({
-								uuid: 'ec01',
-								properties: ['read'],
-								value: null,
-								onReadRequest: this.onReadWifi
-							})
-						]
+						uuid: '4F5E0138-2439-4A16-8311-D4F1C500613B',
+						characteristics: [this.characteristic]
 					})
 				]);
 			} else {
@@ -39,12 +39,16 @@ module.exports = class ConnectionModule {
 	onReadWifi(offset, callback) {
 		console.log('read');
 		console.log(offset);
+
 		wifi.scan((err, networks) => {
 			if (!err) {
-				callback(networks);
+				let result = this.characteristic.RESULT_SUCCESS;
+				let data = new Buffer(networks);
 			} else {
-				callback('error in wifi');
+				let result = this.characteristic.RESULT_SUCCESS;
+				let data = new Buffer('Error in wifi scan');
 			}
+			callback(result, data);
 		});
 	}
 }
