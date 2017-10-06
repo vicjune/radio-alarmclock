@@ -42,6 +42,7 @@ module.exports = class ConnectionModule {
 		wifi.scan((err, networks) => {
 			let data;
 			if (!err) {
+				console.log(scanStarted);
 				data = this.toBytes(networks.map(network => network.ssid));
 			} else {
 				data = this.toBytes('Error in wifi scan');
@@ -49,7 +50,8 @@ module.exports = class ConnectionModule {
 			}
 			if (!scanStarted) {
 				scanStarted = true;
-				console.log(data);
+				console.log(networks.map(network => network.ssid));
+				console.log(scanStarted);
 				callback(this.characteristic.RESULT_SUCCESS, data);
 			}
 		});
