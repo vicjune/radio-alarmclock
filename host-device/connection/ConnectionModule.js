@@ -40,9 +40,9 @@ module.exports = class ConnectionModule {
 		console.log('read');
 
 		let result = this.characteristic.RESULT_SUCCESS;
-		let data = Buffer.from('hello world', 'ascii');
+		// let data = Buffer.from('hello world', 'ascii');
 
-		callback(result, data);
+		callback(result, this.toBytes('hello world'));
 
 		// wifi.scan((err, networks) => {
 		// 	let result;
@@ -56,6 +56,24 @@ module.exports = class ConnectionModule {
 		// 	}
 		// 	callback(null, data);
 		// });
+	}
+
+	private toBytes(payload) {
+		let jsonString = JSON.stringify(payload);
+		var array = new Uint8Array(jsonString.length);
+		for (var i = 0, l = jsonString.length; i < l; i++) {
+			array[i] = jsonString.charCodeAt(i);
+		}
+		return array.buffer;
+	}
+
+	private fromBytes(buffer) {
+		try {
+			return JSON.parse(String.fromCharCode.apply(null, new Uint8Array(buffer)));
+		} catch (err) {
+			console.error(err);
+			return null;
+		}
 	}
 }
 
