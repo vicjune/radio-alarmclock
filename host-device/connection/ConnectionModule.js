@@ -22,6 +22,8 @@ module.exports = class ConnectionModule {
 					onReadRequest: this.onReadWifi
 				});
 
+				console.log(this.characteristic);
+
 				bleno.setServices([
 					new bleno.PrimaryService({
 						uuid: '4F5E0138-2439-4A16-8311-D4F1C500613B',
