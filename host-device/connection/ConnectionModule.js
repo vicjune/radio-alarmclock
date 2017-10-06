@@ -50,8 +50,8 @@ module.exports = class ConnectionModule {
 		// Shares memory with `arr`
 		const data = Buffer.from(arr.buffer);
 
-		// callback(this.characteristic.RESULT_SUCCESS, 'coucou');
-		callback(this.characteristic.RESULT_SUCCESS, this.toBytes('coucou'));
+		callback(this.characteristic.RESULT_SUCCESS, data);
+		// callback(this.characteristic.RESULT_SUCCESS, this.toBytes('coucou'));
 
 		// wifi.scan((err, networks) => {
 		// 	let result;
