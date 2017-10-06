@@ -43,13 +43,13 @@ module.exports = class ConnectionModule {
 			let data;
 			if (!err) {
 				data = this.toBytes(networks.map(network => network.ssid));
-				console.log(networks.map(network => network.ssid));
 			} else {
 				data = this.toBytes('Error in wifi scan');
 				console.log(err);
 			}
 			if (!scanStarted) {
 				scanStarted = true;
+				console.log(data);
 				callback(this.characteristic.RESULT_SUCCESS, data);
 			}
 		});
