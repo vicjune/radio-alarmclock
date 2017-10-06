@@ -41,30 +41,27 @@ module.exports = class ConnectionModule {
 
 		// let data = new Buffer(4);
 		// data.writeUInt32LE(3, 0);
-
-		const arr = new Uint16Array(2);
-
-		arr[0] = 5000;
-		arr[1] = 4000;
-
-		// Shares memory with `arr`
-		const data = Buffer.from(arr.buffer);
+		//
+		// const arr = new Uint16Array(2);
+		//
+		// arr[0] = 5000;
+		// arr[1] = 4000;
+		//
+		// // Shares memory with `arr`
+		// const data = Buffer.from(arr.buffer);
 
 		// callback(this.characteristic.RESULT_SUCCESS, data);
-		callback(this.characteristic.RESULT_SUCCESS, this.toBytes('coucou'));
+		// callback(this.characteristic.RESULT_SUCCESS, this.toBytes('coucou'));
 
-		// wifi.scan((err, networks) => {
-		// 	let result;
-		// 	let data;
-		// 	if (!err) {
-		// 		result = this.characteristic.RESULT_SUCCESS;
-		// 		data = new Buffer(0).toString(networks);
-		// 	} else {
-		// 		result = this.characteristic.RESULT_SUCCESS;
-		// 		data = new Buffer(0).toString('Error in wifi scan');
-		// 	}
-		// 	callback(null, data);
-		// });
+		wifi.scan((err, networks) => {
+			let data;
+			if (!err) {
+				data = this.toBytes(networks);
+			} else {
+				data = this.toBytes('Error in wifi scan');
+			}
+			callback(this.characteristic.RESULT_SUCCESS, data);
+		});
 	}
 
 	toBytes(payload) {
