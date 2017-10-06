@@ -58,7 +58,7 @@ module.exports = class ConnectionModule {
 		// });
 	}
 
-	private toBytes(payload) {
+	toBytes(payload) {
 		let jsonString = JSON.stringify(payload);
 		var array = new Uint8Array(jsonString.length);
 		for (var i = 0, l = jsonString.length; i < l; i++) {
@@ -67,7 +67,7 @@ module.exports = class ConnectionModule {
 		return array.buffer;
 	}
 
-	private fromBytes(buffer) {
+	fromBytes(buffer) {
 		try {
 			return JSON.parse(String.fromCharCode.apply(null, new Uint8Array(buffer)));
 		} catch (err) {
