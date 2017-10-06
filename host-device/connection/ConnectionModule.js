@@ -1,6 +1,5 @@
 "use strict";
 
-// let wifi = require('node-wifi');
 let wifi = require('pi-wifi');
 let bleno = require('bleno');
 
@@ -35,8 +34,6 @@ module.exports = class ConnectionModule {
 				console.log(error);
 			}
 		});
-
-		// wifi.init({ iface : null });
 	}
 
 	onReadWifi(offset, callback) {
@@ -49,7 +46,6 @@ module.exports = class ConnectionModule {
 			}
 			if (!this.scanStarted) {
 				this.scanStarted = true;
-				console.log(networks.map(network => network.ssid));
 				callback(this.characteristic.RESULT_SUCCESS, data);
 			}
 		});
@@ -73,16 +69,3 @@ module.exports = class ConnectionModule {
 		}
 	}
 }
-
-// wifi.scan((err, networks) => {
-// 	console.log(networks);
-// 	console.log('Connecting...');
-//
-// 	wifi.connect({ ssid : 'Carpediem', password : 'Verallia2017'}, err => {
-// 		if (!err) {
-// 			console.log('Connected!');
-// 		} else {
-// 			console.log(err);
-// 		}
-// 	});
-// });

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject } from 'rxjs/Rx';
+import { Observable, ReplaySubject, BehaviorSubject } from 'rxjs/Rx';
 import { Platform } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import { BLE } from '@ionic-native/ble';
@@ -11,10 +11,9 @@ import { ErrorService } from './error.service';
 export class ConnectionService {
 	ip: string;
 	ipSubject: ReplaySubject<string> = new ReplaySubject<string>(1);
-	scanRunning: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
+	scanRunning: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 	scanTimeout;
 	websockets: WebSocket[];
-	scanRun: boolean = false;
 
 	constructor(
 		platform: Platform,
@@ -55,8 +54,7 @@ export class ConnectionService {
 	}
 
 	scan(): void {
-		if (!this.scanRun) {
-			this.scanRun = true;
+		if (!this.scanRunning.getValue()) {
 			this.scanRunning.next(true);
 			this.websockets = [];
 			this.scanTimeout = setTimeout(() => {
@@ -87,7 +85,6 @@ export class ConnectionService {
 
 	cancelScan(): void {
 		clearTimeout(this.scanTimeout);
-		this.scanRun = false;
 		this.scanRunning.next(false);
 		this.websockets.forEach(ws => {
 			ws.close();
@@ -95,29 +92,27 @@ export class ConnectionService {
 	}
 
 	scanBluetooth(): void {
-		if (!this.scanRun) {
+		if (!this.scanRunning.getValue()) {
 			this.ble.isEnabled().then(() => {
+				this.scanRunning.next(true);
+
 				let timeout = setTimeout(() => {
 					this.ble.stopScan();
-					this.scanRun = false;
 					this.scanRunning.next(false);
 					this.errorService.display('Couln\'t find any device');
 				}, 10000);
-				this.scanRun = true;
-				this.scanRunning.next(true);
-				this.ble.startScan([]).switchMap(device => {
-					console.log('///////////');
-					console.log(device);
-					console.log('///////////');
+
+				this.ble.startScan(['1720648C-11ED-4847-9F49-86E839B6C9BE']).switchMap(device => {
 					this.ble.stopScan();
 					clearTimeout(timeout);
-					// this.scanRun = false;
-					// this.scanRunning.next(false);
+					this.scanRunning.next(false);
 					return this.ble.connect(device.id).switchMap(status => {
-						return Observable.fromPromise(this.ble.read(device.id, 'ec00', 'ec01'));
+						return Observable.fromPromise(this.ble.read(device.id, '4F5E0138-2439-4A16-8311-D4F1C500613B', 'B2FEBA5A-CADB-493C-AD72-34170D046C3B'));
 					});
 				}).subscribe(wifiNetworks => {
+					console.log('///////////');
 					console.log(this.fromBytes(wifiNetworks));
+					console.log('///////////');
 				});
 			}).catch(() => {
 				this.errorService.display('Bluetooth is disabled');
@@ -129,7 +124,6 @@ export class ConnectionService {
 
 	cancelScanBluetooth(): void {
 		this.ble.stopScan();
-		this.scanRun = false;
 		this.scanRunning.next(false);
 	}
 
