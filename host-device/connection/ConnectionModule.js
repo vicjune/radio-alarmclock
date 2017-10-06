@@ -5,13 +5,6 @@ let bleno = require('bleno');
 
 module.exports = class ConnectionModule {
 	constructor() {
-		this.characteristic = new bleno.Characteristic({
-			uuid: 'B2FEBA5A-CADB-493C-AD72-34170D046C3B',
-			properties: ['read'],
-			value: null,
-			onReadRequest: (offset, callback) => {this.onReadWifi(offset, callback)}
-		});
-
 		bleno.on('stateChange', state => {
 			if (state === 'poweredOn') {
 				bleno.startAdvertising('Mouton', ['1720648C-11ED-4847-9F49-86E839B6C9BE']);
@@ -22,6 +15,13 @@ module.exports = class ConnectionModule {
 
 		bleno.on('advertisingStart', error => {
 			if (!error) {
+				this.characteristic = new bleno.Characteristic({
+					uuid: 'B2FEBA5A-CADB-493C-AD72-34170D046C3B',
+					properties: ['read'],
+					value: null,
+					onReadRequest: (offset, callback) => {this.onReadWifi(offset, callback)}
+				});
+
 				bleno.setServices([
 					new bleno.PrimaryService({
 						uuid: '4F5E0138-2439-4A16-8311-D4F1C500613B',
@@ -37,28 +37,13 @@ module.exports = class ConnectionModule {
 	}
 
 	onReadWifi(offset, callback) {
-		console.log('read');
-
-		// let data = new Buffer(4);
-		// data.writeUInt32LE(3, 0);
-		//
-		// const arr = new Uint16Array(2);
-		//
-		// arr[0] = 5000;
-		// arr[1] = 4000;
-		//
-		// // Shares memory with `arr`
-		// const data = Buffer.from(arr.buffer);
-
-		// callback(this.characteristic.RESULT_SUCCESS, data);
-		// callback(this.characteristic.RESULT_SUCCESS, this.toBytes('coucou'));
-
 		wifi.scan((err, networks) => {
 			let data;
 			if (!err) {
 				data = this.toBytes(networks);
 			} else {
 				data = this.toBytes('Error in wifi scan');
+				console.log(err);
 			}
 			callback(this.characteristic.RESULT_SUCCESS, data);
 		});
