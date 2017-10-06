@@ -39,12 +39,10 @@ module.exports = class ConnectionModule {
 	onReadWifi(offset, callback) {
 		console.log('read');
 
-		console.log(this.characteristic);
+		let result = this.characteristic.RESULT_SUCCESS;
+		let data = new Buffer(0).toString('Error in wifi scan');
 
-		result = this.characteristic.RESULT_SUCCESS;
-		data = new Buffer(0).toString('Error in wifi scan');
-
-		callback(null, data);
+		callback(result, data);
 
 		// wifi.scan((err, networks) => {
 		// 	let result;
