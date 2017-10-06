@@ -1,6 +1,7 @@
 "use strict";
 
-let wifi = require('node-wifi');
+// let wifi = require('node-wifi');
+let wifi = require('pi-wifi');
 let bleno = require('bleno');
 
 module.exports = class ConnectionModule {
@@ -37,10 +38,11 @@ module.exports = class ConnectionModule {
 	}
 
 	onReadWifi(offset, callback) {
-		wifi.scan((err, networks) => {
+		wifi.listInterfaces((err, networks) => {
 			let data;
 			if (!err) {
 				data = this.toBytes(networks);
+				console.log(networks);
 			} else {
 				data = this.toBytes('Error in wifi scan');
 				console.log(err);
