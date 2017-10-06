@@ -22,8 +22,6 @@ module.exports = class ConnectionModule {
 					onReadRequest: this.onReadWifi
 				});
 
-				console.log(this.characteristic);
-
 				bleno.setServices([
 					new bleno.PrimaryService({
 						uuid: '4F5E0138-2439-4A16-8311-D4F1C500613B',
@@ -40,17 +38,16 @@ module.exports = class ConnectionModule {
 
 	onReadWifi(offset, callback) {
 		console.log('read');
-		console.log(this.characteristic);
 
 		wifi.scan((err, networks) => {
 			if (!err) {
 				// let result = this.characteristic.RESULT_SUCCESS;
-				let data = new Buffer(networks);
+				let data = new Buffer(0).toString(networks);
 			} else {
 				// let result = this.characteristic.RESULT_SUCCESS;
-				let data = new Buffer('Error in wifi scan');
+				let data = new Buffer(0).toString('Error in wifi scan');
 			}
-			callback(result, data);
+			callback(null, data);
 		});
 	}
 }
