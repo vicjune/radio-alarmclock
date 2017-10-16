@@ -58,10 +58,11 @@ module.exports = class ConnectionModule {
 		let response = this.fromBytes(data);
 		console.log(response);
 
+		console.log(this.characteristic);
+
 		if (response) {
 			setTimeout(() => {
-				callback(this.characteristic.RESULT_UNLIKELY_ERROR);
-				// callback(this.characteristic.RESULT_SUCCESS);
+				callback(this.characteristic.RESULT_SUCCESS);
 			}, 2000);
 		} else {
 			callback(this.characteristic.RESULT_UNLIKELY_ERROR);
