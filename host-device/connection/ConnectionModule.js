@@ -19,8 +19,9 @@ module.exports = class ConnectionModule {
 			if (!error) {
 				this.characteristic = new bleno.Characteristic({
 					uuid: 'B2FEBA5A-CADB-493C-AD72-34170D046C3B',
-					properties: ['write'],
+					properties: ['read', 'write'],
 					value: null,
+					onReadRequest: (offset, callback) => {this.onReadWifi(callback)},
 					onWriteRequest: (data, offset, withoutResponse, callback) => {this.onWriteWifi(data, callback)}
 				});
 
@@ -36,23 +37,23 @@ module.exports = class ConnectionModule {
 		});
 	}
 
-	// onReadWifi(callback) {
-	// 	wifi.scan((err, networks) => {
-	// 		let status;
-	// 		let data;
-	// 		if (!err) {
-	// 			status = this.characteristic.RESULT_SUCCESS;
-	// 			data = this.toBytes(networks.map(network => network.ssid).slice(0, 5));
-	// 		} else {
-	// 			status = this.characteristic.RESULT_UNLIKELY_ERROR;
-	// 			data = this.toBytes('Error in wifi scan');
-	// 		}
-	// 		if (!this.scanStarted) {
-	// 			this.scanStarted = true;
-	// 			callback(status, data);
-	// 		}
-	// 	});
-	// }
+	onReadWifi(callback) {
+		wifi.scan((err, networks) => {
+			let status;
+			let data;
+			if (!err) {
+				status = this.characteristic.RESULT_SUCCESS;
+				data = this.toBytes(networks.map(network => network.ssid).slice(0, 5));
+			} else {
+				status = this.characteristic.RESULT_UNLIKELY_ERROR;
+				data = this.toBytes('Error in wifi scan');
+			}
+			if (!this.scanStarted) {
+				this.scanStarted = true;
+				callback(status, data);
+			}
+		});
+	}
 
 	onWriteWifi(data, callback) {
 		let response = this.fromBytes(data);
@@ -61,9 +62,11 @@ module.exports = class ConnectionModule {
 		if (response) {
 			setTimeout(() => {
 				let status = this.characteristic.RESULT_SUCCESS;
-				let result = this.toBytes(14);
+				let result = this.toBytes({
+					result: 'coucou'
+				});
 
-				callback(status, 14);
+				callback(status, result);
 			}, 2000);
 		} else {
 			callback(this.characteristic.RESULT_UNLIKELY_ERROR, {error: 'Json parse error'});
