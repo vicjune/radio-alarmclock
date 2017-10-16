@@ -19,9 +19,8 @@ module.exports = class ConnectionModule {
 			if (!error) {
 				this.characteristic = new bleno.Characteristic({
 					uuid: 'B2FEBA5A-CADB-493C-AD72-34170D046C3B',
-					properties: ['read'],
+					properties: ['write'],
 					value: null,
-					onReadRequest: (offset, callback) => {this.onReadWifi(callback)},
 					onWriteRequest: (data, offset, withoutResponse, callback) => {this.onWriteWifi(data, callback)}
 				});
 
