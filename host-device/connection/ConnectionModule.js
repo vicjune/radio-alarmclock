@@ -56,11 +56,13 @@ module.exports = class ConnectionModule {
 
 	onWriteWifi(data, callback) {
 		let response = this.fromBytes(data);
+		console.log(response);
 
 		if (response) {
 			setTimeout(() => {
 				let status = this.characteristic.RESULT_SUCCESS;
-				let result = this.toBytes({result: 'coucou'});
+				let result = this.toBytes(14);
+
 				callback(status, result);
 			}, 2000);
 		} else {
