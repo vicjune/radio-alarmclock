@@ -59,7 +59,7 @@ module.exports = class ConnectionModule {
 
 		setTimeout(() => {
 			let status = this.characteristic.RESULT_SUCCESS;
-			let data = this.toBytes('coucou!');
+			let data = this.toBytes({result: 'coucou'});
 			callback(status, data);
 		}, 2000);
 	}
