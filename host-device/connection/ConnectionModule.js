@@ -6,7 +6,7 @@ let bleno = require('bleno');
 module.exports = class ConnectionModule {
 	constructor() {
 		this.scanStarted = false;
-		onReadWifiCallback: Function;
+		this.onReadWifiCallback = () => {};
 
 		bleno.on('stateChange', state => {
 			if (state === 'poweredOn') {
