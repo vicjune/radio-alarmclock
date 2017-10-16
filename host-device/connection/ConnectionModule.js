@@ -55,13 +55,17 @@ module.exports = class ConnectionModule {
 	// }
 
 	onWriteWifi(data, callback) {
-		console.log(this.fromBytes(data));
+		let response = this.fromBytes(data);
 
-		setTimeout(() => {
-			let status = this.characteristic.RESULT_SUCCESS;
-			let data = this.toBytes({result: 'coucou'});
-			callback(status, data);
-		}, 2000);
+		if (response) {
+			setTimeout(() => {
+				let status = this.characteristic.RESULT_SUCCESS;
+				let result = this.toBytes({result: 'coucou'});
+				callback(status, result);
+			}, 2000);
+		} else {
+			callback(this.characteristic.RESULT_UNLIKELY_ERROR, {error: 'Json parse error'});
+		}
 	}
 
 	toBytes(payload) {
