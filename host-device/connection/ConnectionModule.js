@@ -23,6 +23,7 @@ module.exports = class ConnectionModule {
 					properties: ['read', 'write'],
 					value: null,
 					onReadRequest: (offset, callback) => {
+						console.log('read');
 						this.onReadWifiCallback = callback;
 					},
 					onWriteRequest: (data, offset, withoutResponse, callback) => {this.onWriteWifi(data, callback)}
