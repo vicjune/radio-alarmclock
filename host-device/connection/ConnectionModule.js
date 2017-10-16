@@ -58,8 +58,8 @@ module.exports = class ConnectionModule {
 		console.log(this.fromBytes(data));
 
 		setTimeout(() => {
-			status = this.characteristic.RESULT_SUCCESS;
-			data = this.toBytes('coucou!');
+			let status = this.characteristic.RESULT_SUCCESS;
+			let data = this.toBytes('coucou!');
 			callback(status, data);
 		}, 2000);
 	}
