@@ -36,27 +36,32 @@ module.exports = class ConnectionModule {
 		});
 	}
 
-	onReadWifi(callback) {
-		wifi.scan((err, networks) => {
-			let status;
-			let data;
-			if (!err) {
-				status = this.characteristic.RESULT_SUCCESS;
-				data = this.toBytes(networks.map(network => network.ssid).slice(0, 5));
-			} else {
-				status = this.characteristic.RESULT_UNLIKELY_ERROR;
-				data = this.toBytes('Error in wifi scan');
-			}
-			if (!this.scanStarted) {
-				this.scanStarted = true;
-				callback(status, data);
-			}
-		});
-	}
+	// onReadWifi(callback) {
+	// 	wifi.scan((err, networks) => {
+	// 		let status;
+	// 		let data;
+	// 		if (!err) {
+	// 			status = this.characteristic.RESULT_SUCCESS;
+	// 			data = this.toBytes(networks.map(network => network.ssid).slice(0, 5));
+	// 		} else {
+	// 			status = this.characteristic.RESULT_UNLIKELY_ERROR;
+	// 			data = this.toBytes('Error in wifi scan');
+	// 		}
+	// 		if (!this.scanStarted) {
+	// 			this.scanStarted = true;
+	// 			callback(status, data);
+	// 		}
+	// 	});
+	// }
 
 	onWriteWifi(data, callback) {
-		console.log(data);
 		console.log(this.fromBytes(data));
+
+		setTimeout(() => {
+			status = this.characteristic.RESULT_SUCCESS;
+			data = this.toBytes('coucou!');
+			callback(status, data);
+		}, 2000);
 	}
 
 	toBytes(payload) {
