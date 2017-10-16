@@ -63,7 +63,7 @@ module.exports = class ConnectionModule {
 				let status = this.characteristic.RESULT_SUCCESS;
 				let result = this.toBytes(14);
 
-				callback(status, result);
+				callback(status, 14);
 			}, 2000);
 		} else {
 			callback(this.characteristic.RESULT_UNLIKELY_ERROR, {error: 'Json parse error'});
