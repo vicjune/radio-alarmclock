@@ -6,6 +6,7 @@ let bleno = require('bleno');
 module.exports = class ConnectionModule {
 	constructor() {
 		this.scanStarted = false;
+		onReadWifiCallback: Function;
 
 		bleno.on('stateChange', state => {
 			if (state === 'poweredOn') {
@@ -19,8 +20,11 @@ module.exports = class ConnectionModule {
 			if (!error) {
 				this.characteristic = new bleno.Characteristic({
 					uuid: 'B2FEBA5A-CADB-493C-AD72-34170D046C3B',
-					properties: ['write'],
+					properties: ['read', 'write'],
 					value: null,
+					onReadRequest: (offset, callback) => {
+						this.onReadWifiCallback = callback;
+					},
 					onWriteRequest: (data, offset, withoutResponse, callback) => {this.onWriteWifi(data, callback)}
 				});
 
@@ -58,11 +62,11 @@ module.exports = class ConnectionModule {
 		let response = this.fromBytes(data);
 		console.log(response);
 
-		console.log(this.characteristic);
-
 		if (response) {
 			setTimeout(() => {
-				callback(this.characteristic.RESULT_SUCCESS);
+				let successStatus = this.characteristic.RESULT_SUCCESS;
+				this.onReadWifiCallback(successStatus, 'coucou');
+				callback(successStatus);
 			}, 2000);
 		} else {
 			callback(this.characteristic.RESULT_UNLIKELY_ERROR);
