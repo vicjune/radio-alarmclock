@@ -44,10 +44,11 @@ module.exports = class ConnectionModule {
 		wifi.status('wlan0', (err, status) => {
 			if (!err) {
 				let result;
-				this.updateWifiCallback(this.characteristic.RESULT_SUCCESS, this.toBytes({
-					ssid: status.ssid || null,
-					ip: status.ip || null
-				}));
+				// this.updateWifiCallback(this.characteristic.RESULT_SUCCESS, this.toBytes({
+				// 	ssid: status.ssid || null,
+				// 	ip: status.ip || null
+				// }));
+				this.updateWifiCallback(this.characteristic.RESULT_SUCCESS, this.toBytes('coucou'));
 			} else {
 				this.updateWifiCallback(this.characteristic.RESULT_UNLIKELY_ERROR);
 				console.log(err);
