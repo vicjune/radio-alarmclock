@@ -148,6 +148,7 @@ module.exports = class ConnectionModule {
 							ip: status.ip
 						}));
 					}
+					clearTimeout(this.checkIpAddressTimeoutEnd);
 				} else {
 					this.checkConnectionStatus(networkInfos, callback);
 				}
