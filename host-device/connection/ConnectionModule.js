@@ -105,6 +105,7 @@ module.exports = class ConnectionModule {
 	}
 
 	toBytes(payload) {
+		console.log('toBytes');
 		let jsonString = JSON.stringify(payload);
 		var array = new Uint8Array(jsonString.length);
 		for (var i = 0, l = jsonString.length; i < l; i++) {
