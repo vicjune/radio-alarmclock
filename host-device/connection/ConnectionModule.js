@@ -44,7 +44,7 @@ module.exports = class ConnectionModule {
 		wifi.status('wlan0', (err, status) => {
 			if (!err) {
 				let result;
-				this.updateWifiCallback(this.characteristic.RESULT_SUCCESS, this.toBytes({
+				callback(this.characteristic.RESULT_SUCCESS, this.toBytes({
 					ssid: status.ssid || null,
 					ip: status.ip || null
 				}));
@@ -105,17 +105,12 @@ module.exports = class ConnectionModule {
 	}
 
 	toBytes(payload) {
-		console.log('toBytes');
 		let jsonString = JSON.stringify(payload);
 		var array = new Uint8Array(jsonString.length);
 		for (var i = 0, l = jsonString.length; i < l; i++) {
 			array[i] = jsonString.charCodeAt(i);
 		}
-		console.log('buffer');
-		let buffer = Buffer.from(array.buffer);
-		console.log('endBuffer');
-		console.log(buffer);
-		return buffer;
+		return Buffer.from(array.buffer);
 	}
 
 	fromBytes(buffer) {
