@@ -48,6 +48,9 @@ module.exports = class ConnectionModule {
 					ssid: status.ssid || null,
 					ip: status.ip || null
 				}));
+				this.updateWifiCallback(this.toBytes({
+					error: 'Mouton error: Couldn\'t get wifi status'
+				}));
 			} else {
 				this.updateWifiCallback(this.toBytes({
 					error: 'Mouton error: Couldn\'t get wifi status'
@@ -77,7 +80,7 @@ module.exports = class ConnectionModule {
 										if (!err && status.connected) {
 											callback(successStatus);
 											if (this.updateWifiCallback) {
-												this.updateWifiCallback(successStatus, this.toBytes({
+												this.updateWifiCallback(this.toBytes({
 													ssid: response.ssid,
 													ip: status.ip
 												}));
@@ -85,24 +88,32 @@ module.exports = class ConnectionModule {
 										} else {
 											console.log('Not connected to wifi');
 											console.log(err);
-											callback(this.characteristic.RESULT_UNLIKELY_ERROR);
+											this.updateWifiCallback(this.toBytes({
+												error: 'Mouton error: Error in connection secondary check'
+											}));
 										}
 
 									});
 								}, 2000);
 							} else {
 								console.log(err);
-								callback(this.characteristic.RESULT_UNLIKELY_ERROR);
+								this.updateWifiCallback(this.toBytes({
+									error: 'Mouton error: Couldn\'t connect to wifi'
+								}));
 							}
 						});
 					}
 				} else {
 					console.log(err);
-					callback(this.characteristic.RESULT_UNLIKELY_ERROR);
+					this.updateWifiCallback(this.toBytes({
+						error: 'Mouton error: Couldn\'t check device wifi'
+					}));
 				}
 			});
 		} else {
-			callback(this.characteristic.RESULT_UNLIKELY_ERROR);
+			this.updateWifiCallback(this.toBytes({
+				error: 'Mouton error: Couldn\'t read SSID from your phone'
+			}));
 		}
 	}
 
