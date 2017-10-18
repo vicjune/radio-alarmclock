@@ -6,7 +6,7 @@ let bleno = require('bleno');
 module.exports = class ConnectionModule {
 	constructor() {
 		this.scanStarted = false;
-		this.onReadWifiCallback = () => {};
+		this.updateWifiCallback = null;
 
 		bleno.on('stateChange', state => {
 			if (state === 'poweredOn') {
@@ -20,12 +20,9 @@ module.exports = class ConnectionModule {
 			if (!error) {
 				this.characteristic = new bleno.Characteristic({
 					uuid: 'B2FEBA5A-CADB-493C-AD72-34170D046C3B',
-					properties: ['read', 'write'],
+					properties: ['write', 'notify'],
 					value: null,
-					onReadRequest: (offset, callback) => {
-						console.log('read');
-						this.onReadWifiCallback = callback;
-					},
+					onSubscribe: (maxValueSize, updateValueCallback) => {this.onSubscribeWifi(updateValueCallback)},
 					onWriteRequest: (data, offset, withoutResponse, callback) => {this.onWriteWifi(data, callback)}
 				});
 
@@ -41,34 +38,67 @@ module.exports = class ConnectionModule {
 		});
 	}
 
-	// onReadWifi(callback) {
-	// 	wifi.scan((err, networks) => {
-	// 		let status;
-	// 		let data;
-	// 		if (!err) {
-	// 			status = this.characteristic.RESULT_SUCCESS;
-	// 			data = this.toBytes(networks.map(network => network.ssid).slice(0, 5));
-	// 		} else {
-	// 			status = this.characteristic.RESULT_UNLIKELY_ERROR;
-	// 			data = this.toBytes('Error in wifi scan');
-	// 		}
-	// 		if (!this.scanStarted) {
-	// 			this.scanStarted = true;
-	// 			callback(status, data);
-	// 		}
-	// 	});
-	// }
+	onSubscribeWifi(callback) {
+		this.updateWifiCallback = callback;
+
+		wifi.status('wlan0', (err, status) => {
+			if (!err) {
+				let result;
+				this.updateWifiCallback(this.characteristic.RESULT_SUCCESS, this.toBytes({
+					ssid: status.ssid || null,
+					ip: status.ip || null
+				}));
+			} else {
+				this.updateWifiCallback(this.characteristic.RESULT_UNLIKELY_ERROR);
+				console.log(err);
+			}
+		});
+	}
 
 	onWriteWifi(data, callback) {
 		let response = this.fromBytes(data);
-		console.log(response);
 
 		if (response) {
-			setTimeout(() => {
-				let successStatus = this.characteristic.RESULT_SUCCESS;
-				this.onReadWifiCallback(successStatus, 'coucou');
-				callback(successStatus);
-			}, 2000);
+			wifi.check(response.ssid, (err, result) => {
+				if (!err) {
+
+					let successStatus = this.characteristic.RESULT_SUCCESS;
+
+					if (result.connected) {
+						callback(successStatus);
+					} else {
+						wifi.connectTo(response, err => {
+							if (!err) {
+								setTimeout(() => {
+									wifi.check(response.ssid, (err, status) => {
+
+										if (!err && status.connected) {
+											callback(successStatus);
+											if (this.updateWifiCallback) {
+												this.updateWifiCallback(successStatus, this.toBytes({
+													ssid: response.ssid,
+													ip: status.ip
+												}));
+											}
+										} else {
+											console.log('Not connected to wifi');
+											console.log(err);
+											callback(this.characteristic.RESULT_UNLIKELY_ERROR);
+										}
+
+									});
+								}, 2000);
+							} else {
+								console.log(err);
+								callback(this.characteristic.RESULT_UNLIKELY_ERROR);
+							}
+						});
+					}
+				} else {
+					console.log(err);
+					callback(this.characteristic.RESULT_UNLIKELY_ERROR);
+				}
+			});
 		} else {
 			callback(this.characteristic.RESULT_UNLIKELY_ERROR);
 		}

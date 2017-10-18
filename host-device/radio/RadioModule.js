@@ -13,7 +13,7 @@ module.exports = class RadioModule {
 		this.websocketServer = websocketServer;
 	}
 
-	startStream(url) {
+	startStream(fromAlarm, url) {
 		if (!this.localStorage.radioLoading) {
 			this.websocketServer.send('playRadio', {
 				playing: true,
@@ -23,10 +23,10 @@ module.exports = class RadioModule {
 			this.localStorage.radioLoading = true;
 
 			if (!this.localStorage.radioPlaying) {
-				this.startClient(url);
+				this.startClient(fromAlarm, url);
 			} else {
 				this.radioClient.stopStream(() => {
-					this.startClient(url);
+					this.startClient(fromAlarm, url);
 				});
 			}
 		}
@@ -57,7 +57,7 @@ module.exports = class RadioModule {
 		}
 	}
 
-	startClient(url) {
+	startClient(fromAlarm, url) {
 		if (this.lastUrl === url) {
 			this.timeoutCounter ++;
 		} else {
@@ -80,9 +80,13 @@ module.exports = class RadioModule {
 			this.localStorage.radioLoading = false;
 
 			if (error === 'timeout' && !end && this.timeoutCounter < 1) {
-				this.startClient(url);
+				this.startClient(fromAlarm, url);
 			} else {
 				this.websocketServer.send('error', 'Couldn\'t read the radio :/');
+
+				if (fromAlarm) {
+					// play local song
+				}
 
 				this.websocketServer.send('playRadio', {
 					playing: false,
