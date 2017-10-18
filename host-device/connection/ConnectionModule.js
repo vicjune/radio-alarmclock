@@ -5,6 +5,48 @@ let bleno = require('bleno');
 
 module.exports = class ConnectionModule {
 	constructor() {
+
+
+		setTimeout(() => {
+			let networkInfos = {
+				ssid: 'LA LOUTRERIE',
+				username: '',
+				password: 'internet!merci'
+			};
+
+			wifi.connectTo(networkInfos, err => {
+				if (!err) {
+					setTimeout(() => {
+						wifi.check(response.ssid, (err, status) => {
+
+							if (!err && status.connected) {
+								console.log('success');
+							} else {
+								console.log('error2');
+								console.log(err);
+							}
+
+						});
+					}, 2000);
+				} else {
+					console.log('error1');
+					console.log(err);
+				}
+			});
+		}, 2000);
+
+
+
+
+
+
+
+
+
+
+
+
+
 		this.scanStarted = false;
 		this.updateWifiCallback = null;
 
@@ -49,6 +91,7 @@ module.exports = class ConnectionModule {
 					ip: status.ip || null
 				}));
 				console.log(status.ssid);
+				console.log(status.ip);
 			} else {
 				this.updateWifiCallback(this.toBytes({
 					error: 'Mouton error: Couldn\'t get wifi status'
@@ -74,7 +117,7 @@ module.exports = class ConnectionModule {
 							ssid: response.ssid,
 							username: response.username || '',
 							password: response.password || ''
-						}
+						};
 
 						wifi.connectTo(networkInfos, err => {
 							if (!err) {
