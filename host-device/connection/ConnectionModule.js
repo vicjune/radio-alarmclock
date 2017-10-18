@@ -5,59 +5,6 @@ let bleno = require('bleno');
 
 module.exports = class ConnectionModule {
 	constructor() {
-
-
-		// setTimeout(() => {
-		// 	let networkInfos = {
-		// 		ssid: 'LA LOUTRERIE',
-		// 		username: '',
-		// 		password: 'internet!merci'
-		// 	};
-		//
-		// 	wifi.check(networkInfos.ssid, (err, status) => {
-		//
-		// 		if (!err) {
-		// 			wifi.connectTo(networkInfos, err => {
-		// 				if (!err) {
-		// 					console.log('connected...');
-		//
-		// 					setTimeout(() => {
-		// 						wifi.check(networkInfos.ssid, (err, status) => {
-		// 							console.log(status);
-		// 							if (!err && status.connected) {
-		// 								console.log('success');
-		// 							} else {
-		// 								console.log('error2');
-		// 								console.log(err);
-		// 							}
-		//
-		// 						});
-		// 					}, 1000);
-		// 				} else {
-		// 					console.log('error1');
-		// 					console.log(err);
-		// 				}
-		// 			});
-		// 		} else {
-		// 			console.log('error3');
-		// 			console.log(err);
-		// 		}
-		//
-		// 	});
-		// }, 2000);
-
-
-
-
-
-
-
-
-
-
-
-
-
 		this.scanStarted = false;
 		this.updateWifiCallback = null;
 		this.checkIpAddressTimeout = null;
@@ -142,6 +89,7 @@ module.exports = class ConnectionModule {
 									clearTimeout(this.checkIpAddressTimeoutEnd);
 									this.checkIpAddressTimeoutEnd = null;
 								}
+
 								this.checkConnectionStatus(networkInfos, (err, status) => {
 									if (!err) {
 										callback(successStatus);
@@ -158,27 +106,7 @@ module.exports = class ConnectionModule {
 										}));
 									}
 								});
-								// setTimeout(() => {
-								// 	wifi.check(networkInfos.ssid, (err, status) => {
-								//
-								// 		if (!err) {
-								//
-								// 			callback(successStatus);
-								// 			if (this.updateWifiCallback) {
-								// 				this.updateWifiCallback(this.toBytes({
-								// 					ssid: networkInfos.ssid,
-								// 					ip: status.ip
-								// 				}));
-								// 			}
-								// 		} else {
-								// 			console.log(err);
-								// 			this.updateWifiCallback(this.toBytes({
-								// 				error: 'Mouton error: Error in connection secondary check'
-								// 			}));
-								// 		}
-								//
-								// 	});
-								// }, 2000);
+
 							} else {
 								console.log(err);
 								this.updateWifiCallback(this.toBytes({
@@ -212,20 +140,16 @@ module.exports = class ConnectionModule {
 		this.checkIpAddressTimeout = setTimeout(() => {
 			wifi.check(networkInfos.ssid, (err, status) => {
 
-				if (!status.connected) {
-					if (!err) {
-						callback(null, status);
-						if (this.updateWifiCallback) {
-							this.updateWifiCallback(this.toBytes({
-								ssid: networkInfos.ssid,
-								ip: status.ip
-							}));
-						}
-					} else {
-						this.checkConnectionStatus(networkInfos, callback);
+				if (status.ip && status.connected) {
+					callback(null, status);
+					if (this.updateWifiCallback) {
+						this.updateWifiCallback(this.toBytes({
+							ssid: networkInfos.ssid,
+							ip: status.ip
+						}));
 					}
 				} else {
-					callback('Mouton error: Error in connection secondary check');
+					this.checkConnectionStatus(networkInfos, callback);
 				}
 
 			});
