@@ -48,9 +48,6 @@ module.exports = class ConnectionModule {
 					ssid: status.ssid || null,
 					ip: status.ip || null
 				}));
-				this.updateWifiCallback(this.toBytes({
-					error: 'Mouton error: Couldn\'t get wifi status'
-				}));
 			} else {
 				this.updateWifiCallback(this.toBytes({
 					error: 'Mouton error: Couldn\'t get wifi status'
@@ -63,7 +60,7 @@ module.exports = class ConnectionModule {
 	onWriteWifi(data, callback) {
 		let response = this.fromBytes(data);
 
-		if (response) {
+		if (response && response.ssid) {
 			wifi.check(response.ssid, (err, result) => {
 				if (!err) {
 
@@ -72,7 +69,13 @@ module.exports = class ConnectionModule {
 					if (result.connected) {
 						callback(successStatus);
 					} else {
-						wifi.connectTo(response, err => {
+						let networkInfos = {
+							ssid: response.ssid,
+							username: response.username || null,
+							password: response.password || null
+						}
+
+						wifi.connectTo(networkInfos, err => {
 							if (!err) {
 								setTimeout(() => {
 									wifi.check(response.ssid, (err, status) => {
