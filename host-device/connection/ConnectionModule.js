@@ -17,7 +17,7 @@ module.exports = class ConnectionModule {
 			wifi.connectTo(networkInfos, err => {
 				if (!err) {
 					setTimeout(() => {
-						wifi.check(response.ssid, (err, status) => {
+						wifi.check(networkInfos.ssid, (err, status) => {
 
 							if (!err && status.connected) {
 								console.log('success');
