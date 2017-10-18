@@ -14,26 +14,35 @@ module.exports = class ConnectionModule {
 				password: 'internet!merci'
 			};
 
-			wifi.connectTo(networkInfos, err => {
+			wifi.check(networkInfos.ssid, (err, status) => {
+
 				if (!err) {
-					console.log('connected...');
+					wifi.connectTo(networkInfos, err => {
+						if (!err) {
+							console.log('connected...');
 
-					setTimeout(() => {
-						wifi.check(networkInfos.ssid, (err, status) => {
+							setTimeout(() => {
+								wifi.check(networkInfos.ssid, (err, status) => {
 
-							if (!err && status.connected) {
-								console.log('success');
-							} else {
-								console.log('error2');
-								console.log(err);
-							}
+									if (!err && status.connected) {
+										console.log('success');
+									} else {
+										console.log('error2');
+										console.log(err);
+									}
 
-						});
-					}, 2000);
+								});
+							}, 2000);
+						} else {
+							console.log('error1');
+							console.log(err);
+						}
+					});
 				} else {
-					console.log('error1');
+					console.log('error3');
 					console.log(err);
 				}
+
 			});
 		}, 2000);
 
@@ -114,6 +123,12 @@ module.exports = class ConnectionModule {
 
 					if (result.connected) {
 						callback(successStatus);
+						if (this.updateWifiCallback) {
+							this.updateWifiCallback(this.toBytes({
+								ssid: response.ssid,
+								ip: result.ip
+							}));
+						}
 					} else {
 						let networkInfos = {
 							ssid: response.ssid,
