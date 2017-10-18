@@ -48,6 +48,7 @@ module.exports = class ConnectionModule {
 					ssid: status.ssid || null,
 					ip: status.ip || null
 				}));
+				console.log(status.ssid);
 			} else {
 				this.updateWifiCallback(this.toBytes({
 					error: 'Mouton error: Couldn\'t get wifi status'
@@ -71,8 +72,8 @@ module.exports = class ConnectionModule {
 					} else {
 						let networkInfos = {
 							ssid: response.ssid,
-							username: response.username || null,
-							password: response.password || null
+							username: response.username || '',
+							password: response.password || ''
 						}
 
 						wifi.connectTo(networkInfos, err => {
