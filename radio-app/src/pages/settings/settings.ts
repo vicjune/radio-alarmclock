@@ -77,7 +77,46 @@ export class SettingsPage {
 	}
 
 	autoConnect() {
-		this.connectionService.scanBluetooth();
+		if (this.connectionService.scanRunning.getValue()) {
+			this.connectionService.disconnectBluetooth();
+		} else {
+			this.connectionService.scanBluetooth().then(response => {
+				if (response.needInfos) {
+					let promptOptions = {
+						title: 'Automatic connection',
+						message: 'Complete informations for the wifi: ' + response.ssid,
+						inputs: [
+							{
+								name: 'password',
+								placeholder: 'Password',
+								value: ''
+							},
+							{
+								name: 'username',
+								placeholder: 'Username (optional)',
+								value: ''
+							}
+						],
+						buttons: [
+							{
+								text: 'Cancel',
+								handler: () => {
+									this.connectionService.disconnectBluetooth();
+								}
+							},
+							{
+								text: 'OK',
+								handler: data => {
+									this.connectionService.connectHostDeviceToWifi(response.ssid, data);
+								}
+							}
+						]
+					};
+
+					this.alertCtrl.create(promptOptions).present();
+				}
+			});
+		}
 	}
 
 	manualConnect() {

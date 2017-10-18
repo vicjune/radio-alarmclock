@@ -34,10 +34,8 @@ export class MyApp {
 			});
 
 			statusBar.styleLightContent();
-
-			if (platform.is('android')) {
-				statusBar.backgroundColorByHexString('#e07d00');
-			}
+			statusBar.overlaysWebView(false);
+			statusBar.backgroundColorByHexString('#e07d00');
 
 			splashScreen.hide();
 		});
