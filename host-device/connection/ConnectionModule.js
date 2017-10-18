@@ -7,44 +7,44 @@ module.exports = class ConnectionModule {
 	constructor() {
 
 
-		setTimeout(() => {
-			let networkInfos = {
-				ssid: 'LA LOUTRERIE',
-				username: '',
-				password: 'internet!merci'
-			};
-
-			wifi.check(networkInfos.ssid, (err, status) => {
-
-				if (!err) {
-					wifi.connectTo(networkInfos, err => {
-						if (!err) {
-							console.log('connected...');
-
-							setTimeout(() => {
-								wifi.check(networkInfos.ssid, (err, status) => {
-									console.log(status);
-									if (!err && status.connected) {
-										console.log('success');
-									} else {
-										console.log('error2');
-										console.log(err);
-									}
-
-								});
-							}, 2000);
-						} else {
-							console.log('error1');
-							console.log(err);
-						}
-					});
-				} else {
-					console.log('error3');
-					console.log(err);
-				}
-
-			});
-		}, 2000);
+		// setTimeout(() => {
+		// 	let networkInfos = {
+		// 		ssid: 'LA LOUTRERIE',
+		// 		username: '',
+		// 		password: 'internet!merci'
+		// 	};
+		//
+		// 	wifi.check(networkInfos.ssid, (err, status) => {
+		//
+		// 		if (!err) {
+		// 			wifi.connectTo(networkInfos, err => {
+		// 				if (!err) {
+		// 					console.log('connected...');
+		//
+		// 					setTimeout(() => {
+		// 						wifi.check(networkInfos.ssid, (err, status) => {
+		// 							console.log(status);
+		// 							if (!err && status.connected) {
+		// 								console.log('success');
+		// 							} else {
+		// 								console.log('error2');
+		// 								console.log(err);
+		// 							}
+		//
+		// 						});
+		// 					}, 1000);
+		// 				} else {
+		// 					console.log('error1');
+		// 					console.log(err);
+		// 				}
+		// 			});
+		// 		} else {
+		// 			console.log('error3');
+		// 			console.log(err);
+		// 		}
+		//
+		// 	});
+		// }, 2000);
 
 
 
@@ -60,6 +60,7 @@ module.exports = class ConnectionModule {
 
 		this.scanStarted = false;
 		this.updateWifiCallback = null;
+		this.checkIpAddressTimeout = null;
 
 		bleno.on('stateChange', state => {
 			if (state === 'poweredOn') {
@@ -138,27 +139,50 @@ module.exports = class ConnectionModule {
 
 						wifi.connectTo(networkInfos, err => {
 							if (!err) {
-								setTimeout(() => {
-									wifi.check(response.ssid, (err, status) => {
-
-										if (!err && status.connected) {
-											callback(successStatus);
-											if (this.updateWifiCallback) {
-												this.updateWifiCallback(this.toBytes({
-													ssid: response.ssid,
-													ip: status.ip
-												}));
-											}
-										} else {
-											console.log('Not connected to wifi');
-											console.log(err);
+								if (this.checkIpAddressTimeout) {
+									clearTimeout(this.checkIpAddressTimeout);
+								}
+								if (this.checkIpAddressTimeoutEnd) {
+									clearTimeout(this.checkIpAddressTimeoutEnd);
+									this.checkIpAddressTimeoutEnd = null;
+								}
+								this.checkConnectionStatus(networkInfos, (err, status) => {
+									if (!err) {
+										callback(successStatus);
+										if (this.updateWifiCallback) {
 											this.updateWifiCallback(this.toBytes({
-												error: 'Mouton error: Error in connection secondary check'
+												ssid: networkInfos.ssid,
+												ip: status.ip
 											}));
 										}
-
-									});
-								}, 2000);
+									} else {
+										console.log(err);
+										this.updateWifiCallback(this.toBytes({
+											error: err
+										}));
+									}
+								});
+								// setTimeout(() => {
+								// 	wifi.check(networkInfos.ssid, (err, status) => {
+								//
+								// 		if (!err) {
+								//
+								// 			callback(successStatus);
+								// 			if (this.updateWifiCallback) {
+								// 				this.updateWifiCallback(this.toBytes({
+								// 					ssid: networkInfos.ssid,
+								// 					ip: status.ip
+								// 				}));
+								// 			}
+								// 		} else {
+								// 			console.log(err);
+								// 			this.updateWifiCallback(this.toBytes({
+								// 				error: 'Mouton error: Error in connection secondary check'
+								// 			}));
+								// 		}
+								//
+								// 	});
+								// }, 2000);
 							} else {
 								console.log(err);
 								this.updateWifiCallback(this.toBytes({
@@ -179,6 +203,37 @@ module.exports = class ConnectionModule {
 				error: 'Mouton error: Couldn\'t read SSID from your phone'
 			}));
 		}
+	}
+
+	checkConnectionStatus (networkInfos, callback) {
+		if (!this.checkIpAddressTimeoutEnd) {
+			this.checkIpAddressTimeoutEnd = setTimeout(() => {
+				this.checkIpAddressTimeoutEnd = null;
+				clearTimeout(this.checkIpAddressTimeout);
+				callback('Mouton error: Wifi connection timeout');
+			}, 20000);
+		}
+		this.checkIpAddressTimeout = setTimeout(() => {
+			wifi.check(networkInfos.ssid, (err, status) => {
+
+				if (!status.connected) {
+					if (!err) {
+						callback(null, status);
+						if (this.updateWifiCallback) {
+							this.updateWifiCallback(this.toBytes({
+								ssid: networkInfos.ssid,
+								ip: status.ip
+							}));
+						}
+					} else {
+						this.checkConnectionStatus(networkInfos, callback);
+					}
+				} else {
+					callback('Mouton error: Error in connection secondary check');
+				}
+
+			});
+		}, 2000);
 	}
 
 	toBytes(payload) {
