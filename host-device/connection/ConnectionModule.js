@@ -111,6 +111,7 @@ module.exports = class ConnectionModule {
 		for (var i = 0, l = jsonString.length; i < l; i++) {
 			array[i] = jsonString.charCodeAt(i);
 		}
+		console.log('buffer');
 		return Buffer.from(array.buffer);
 	}
 
