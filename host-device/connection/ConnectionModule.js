@@ -131,11 +131,7 @@ module.exports = class ConnectionModule {
 							}));
 						}
 					} else {
-						let networkInfos = {
-							ssid: response.ssid,
-							username: response.username || '',
-							password: response.password || ''
-						};
+						let networkInfos = response;
 
 						wifi.connectTo(networkInfos, err => {
 							if (!err) {
