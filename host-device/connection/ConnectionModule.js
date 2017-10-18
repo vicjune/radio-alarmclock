@@ -44,12 +44,14 @@ module.exports = class ConnectionModule {
 		wifi.status('wlan0', (err, status) => {
 			if (!err) {
 				let result;
-				callback(this.characteristic.RESULT_SUCCESS, this.toBytes({
+				this.updateWifiCallback(this.toBytes({
 					ssid: status.ssid || null,
 					ip: status.ip || null
 				}));
 			} else {
-				this.updateWifiCallback(this.characteristic.RESULT_UNLIKELY_ERROR);
+				this.updateWifiCallback(this.toBytes({
+					error: 'Mouton error: Couldn\'t get wifi status'
+				}));
 				console.log(err);
 			}
 		});
