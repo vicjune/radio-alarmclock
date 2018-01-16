@@ -88,22 +88,24 @@ export class ConnectionModule {
                   this.checkIpAddressTimeoutEnd = null;
                 }
 
-                this.checkConnectionStatus(networkInfos, (error, status) => {
-                  if (!error) {
-                    callback(successStatus);
-                    if (this.updateWifiCallback) {
+                setTimeout(() => {
+                  this.checkConnectionStatus(networkInfos, (error, status) => {
+                    if (!error) {
+                      callback(successStatus);
+                      if (this.updateWifiCallback) {
+                        this.updateWifiCallback(this.toBytes({
+                          ssid: networkInfos.ssid,
+                          ip: status.ip
+                        }));
+                      }
+                    } else {
+                      console.log(error);
                       this.updateWifiCallback(this.toBytes({
-                        ssid: networkInfos.ssid,
-                        ip: status.ip
+                        error
                       }));
                     }
-                  } else {
-                    console.log(error);
-                    this.updateWifiCallback(this.toBytes({
-                      error
-                    }));
-                  }
-                });
+                  });
+                }, 1000);
 
               } else {
                 console.log(erro);

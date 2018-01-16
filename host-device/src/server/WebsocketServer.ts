@@ -9,7 +9,7 @@ export class WebsocketServer {
   localStorage: LocalStorage;
   updateModule: UpdateModule;
   alarmModule = null;
-  socketServer = new WebSocket.Server({port: 8006});
+  socketServer;
 
   constructor(localStorage: LocalStorage, updateModule: UpdateModule) {
     this.connectionCount = 0;
