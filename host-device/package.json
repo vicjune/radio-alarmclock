@@ -5,8 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tslint -c tslint.json 'src/**/*.ts' && ts-node src",
+    "test": "tslint -c tslint.json 'src/**/*.ts'",
+    "start": "ts-node src",
     "dev": "nodemon"
   },
   "license": "ISC",
