@@ -132,7 +132,7 @@ export class WebsocketServer {
 
         this.alarmModule.startAlarm(false, this.localStorage.lastRadio);
       } else {
-        if (radioId === this.localStorage.lastRadio.id || radioId === null) {
+        if (radioId === this.localStorage.lastRadio || radioId === null) {
           this.alarmModule.stopAlarm();
         } else {
           this.localStorage.lastRadio = this.localStorage.getRadio(radioId);
